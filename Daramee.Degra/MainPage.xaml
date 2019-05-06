@@ -38,7 +38,8 @@
 
 					<StackPanel Margin="50,0,0,16">
 						<TextBlock Text="Maximum Image Height" FontSize="12" Margin="0,0,0,4" />
-						<TextBox x:Name="TextBoxMaximumHeight" HorizontalAlignment="Stretch" Text="4096" InputScope="Number" />
+						<TextBox x:Name="TextBoxMaximumHeight" HorizontalAlignment="Stretch" Text="4096" InputScope="Number"
+								 BeforeTextChanging="TextBoxNumbersOnly_BeforeTextChanging" TextChanging="TextBoxNumbersOnly_TextChanging" />
 					</StackPanel>
 
 					<StackPanel Margin="50,0,0,16">
@@ -53,7 +54,8 @@
 
 					<StackPanel Margin="50,0,0,16">
 						<TextBlock Text="Image Quality(WebP, JPEG)" FontSize="12" Margin="0,0,0,4" />
-						<TextBox x:Name="TextBoxQuality" HorizontalAlignment="Stretch" Text="90" InputScope="Number" />
+						<TextBox x:Name="TextBoxQuality" HorizontalAlignment="Stretch" Text="90" InputScope="Number"
+								 BeforeTextChanging="TextBoxNumbersOnly_BeforeTextChanging" TextChanging="TextBoxNumbersOnly_TextChanging" />
 					</StackPanel>
 
 					<StackPanel Margin="50,0,0,16">

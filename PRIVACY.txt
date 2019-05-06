@@ -1,0 +1,5 @@
+This application can access to Desktop file system for Image conversion or compression.
+
+And also can access to Picture Library and Removal Storage Devices for same reason.
+
+But No access without User interaction.

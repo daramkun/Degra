@@ -8,15 +8,15 @@
   IgnorableNamespaces="uap mp rescap">
 
 	<Identity
-	  Name="2f305bdd-fcbf-4473-b08d-06c39f20dda5"
-	  Publisher="CN=daram"
-	  Version="1.0.0.0" />
+	  Name="17270Daramkun.Degra"
+	  Publisher="CN=DF3D7011-1E8D-4278-81C3-565FF92A9A0B"
+	  Version="1.0.5.0" />
 
-	<mp:PhoneIdentity PhoneProductId="2f305bdd-fcbf-4473-b08d-06c39f20dda5" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+	<mp:PhoneIdentity PhoneProductId="cce68fe3-83d4-4ce5-85a7-dbc08490db02" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
 	<Properties>
 		<DisplayName>Degra</DisplayName>
-		<PublisherDisplayName>Daramee</PublisherDisplayName>
+		<PublisherDisplayName>Daramkun</PublisherDisplayName>
 		<Logo>Assets\StoreLogo.png</Logo>
 	</Properties>
 
@@ -46,7 +46,6 @@
 
 	<Capabilities>
 		<rescap:Capability Name="broadFileSystemAccess" />
-		<Capability Name="internetClient" />
 		<uap:Capability Name="removableStorage"/>
 		<uap:Capability Name="picturesLibrary"/>
 	</Capabilities>

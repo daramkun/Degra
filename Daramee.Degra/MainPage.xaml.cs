@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
@@ -49,6 +48,16 @@ namespace Daramee.Degra
 		private void HamburgerButton_Click ( object sender, RoutedEventArgs e )
 		{
 			splitView.IsPaneOpen = !splitView.IsPaneOpen;
+		}
+
+		private void TextBoxNumbersOnly_BeforeTextChanging ( TextBox sender, TextBoxBeforeTextChangingEventArgs args )
+		{
+			args.Cancel = args.NewText.Any ( c => !char.IsDigit ( c ) );
+		}
+
+		private void TextBoxNumbersOnly_TextChanging ( TextBox sender, TextBoxTextChangingEventArgs args )
+		{
+			sender.Text = new string ( sender.Text.Where ( char.IsDigit ).ToArray () );
 		}
 
 		private async void SelectFiles_Click ( object sender, RoutedEventArgs e )
@@ -132,7 +141,7 @@ namespace Daramee.Degra
 					string tempPath = Path.Combine ( Path.GetDirectoryName ( path ), Guid.NewGuid ().ToString () );
 					try
 					{
-						await ThreadPool.RunAsync ( async ( IAsyncAction operation ) =>
+						await Windows.System.Threading.ThreadPool.RunAsync ( async ( IAsyncAction operation ) =>
 						{
 							var format = await ImageCompressor.DoCompression ( tempPath, path, args, state );
 							string formatExtension = format switch
@@ -183,7 +192,7 @@ namespace Daramee.Degra
 						Progress.Value = ( ( proceedCount + 1 ) / ( double ) pathes.Count );
 					}
 
-					Interlocked.Increment ( ref proceedCount );
+					System.Threading.Interlocked.Increment ( ref proceedCount );
 				}
 			}
 

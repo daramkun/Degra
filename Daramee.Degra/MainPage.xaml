@@ -1,0 +1,91 @@
+﻿<Page
+    x:Class="Daramee.Degra.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Daramee.Degra"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+	<SplitView x:Name="splitView" DisplayMode="CompactOverlay"
+			   Background="{ThemeResource SystemControlAccentDark2AcrylicWindowAccentDark2MediumHighBrush}"
+			   AllowDrop="True" DragOver="SplitView_DragOver" DragEnter="SplitView_DragEnter" Drop="SplitView_Drop">
+		<SplitView.Pane>
+			<Grid Background="{ThemeResource SystemControlAccentDark2AcrylicElementAccentDark2MediumHighBrush}">
+				<StackPanel Margin="0,0,8,0">
+					<Rectangle Height="32" />
+
+					<StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+						<Button x:Name="HamburgerButton" FontFamily="Segoe MDL2 Assets" Content="&#xE700;"
+								Width="48" Height="48" Background="Transparent" Click="HamburgerButton_Click" />
+						<TextBlock Text="Settings" FontSize="22" VerticalAlignment="Center" Margin="8,0,0,0" />
+					</StackPanel>
+
+					<StackPanel Margin="50,0,0,16">
+						<TextBlock Text="File Overwrite" FontSize="12" Margin="0,0,0,4" />
+						<ToggleSwitch x:Name="ToggleFileOverwrite" IsOn="True" />
+					</StackPanel>
+
+					<StackPanel Margin="50,0,0,16">
+						<TextBlock Text="Image Format" FontSize="12" Margin="0,0,0,4" />
+						<ComboBox x:Name="ComboBoxImageFormat" HorizontalAlignment="Stretch" SelectedIndex="0">
+							<ComboBoxItem Content="WebP" />
+							<ComboBoxItem Content="JPEG" />
+							<ComboBoxItem Content="PNG" />
+						</ComboBox>
+					</StackPanel>
+
+					<StackPanel Margin="50,0,0,16">
+						<TextBlock Text="Maximum Image Height" FontSize="12" Margin="0,0,0,4" />
+						<TextBox x:Name="TextBoxMaximumHeight" HorizontalAlignment="Stretch" Text="4096" InputScope="Number" />
+					</StackPanel>
+
+					<StackPanel Margin="50,0,0,16">
+						<TextBlock Text="Dithering" FontSize="12" Margin="0,0,0,4" />
+						<ToggleSwitch x:Name="ToggleDither" IsOn="False" />
+					</StackPanel>
+
+					<StackPanel Margin="50,0,0,16">
+						<TextBlock Text="Resize with Bicubic Filtering" FontSize="12" Margin="0,0,0,4" />
+						<ToggleSwitch x:Name="ToggleResizeBicubic" IsOn="False" />
+					</StackPanel>
+
+					<StackPanel Margin="50,0,0,16">
+						<TextBlock Text="Image Quality(WebP, JPEG)" FontSize="12" Margin="0,0,0,4" />
+						<TextBox x:Name="TextBoxQuality" HorizontalAlignment="Stretch" Text="90" InputScope="Number" />
+					</StackPanel>
+
+					<StackPanel Margin="50,0,0,16">
+						<TextBlock Text="Indexed Pixel Format(PNG)" FontSize="12" Margin="0,0,0,4" />
+						<ToggleSwitch x:Name="ToggleIndexedPixelFormat" IsOn="False" />
+					</StackPanel>
+				</StackPanel>
+			</Grid>
+		</SplitView.Pane>
+
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition />
+				<RowDefinition Height="32" />
+			</Grid.RowDefinitions>
+			
+			<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+				<StackPanel Orientation="Vertical" Margin="0,0,0,24">
+					<TextBlock Text="Degra" FontSize="48" HorizontalAlignment="Center" />
+					<TextBlock Text="The Image Compressor" HorizontalAlignment="Center" />
+				</StackPanel>
+
+				<StackPanel>
+					<Button x:Name="ButtonSelectFiles" Content="Select file(s)" HorizontalAlignment="Center" Width="164" Click="SelectFiles_Click" />
+					<TextBlock Text="or Drag&amp;Drop to this app area." FontSize="8" HorizontalAlignment="Center" />
+				</StackPanel>
+			</StackPanel>
+
+			<StackPanel Grid.Row="1">
+				<TextBlock x:Name="TextBlockProceedLog" Text="Waiting..." Margin="8,0,8,4" />
+				<ProgressBar x:Name="Progress" IsIndeterminate="True" />
+			</StackPanel>
+		</Grid>
+	</SplitView>
+</Page>

@@ -5,9 +5,23 @@
     xmlns:local="using:Daramee.Degra"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    mc:Ignorable="d" Background="Transparent">
 
+	<Page.Resources>
+		<Flyout x:Key="FlyoutDone" LightDismissOverlayMode="On">
+			<StackPanel>
+				<TextBlock x:Uid="TextBlockFlyoutDone" Text="Compression is done." FontSize="24" HorizontalAlignment="Center" Margin="0,0,0,8" />
+				<TextBlock x:Uid="TextBlockFlyoutDoneDesc" Text="Failed those files to compression." FontSize="10" Margin="0,0,0,4" HorizontalAlignment="Stretch" TextAlignment="Left" />
+				<ListBox x:Name="ListBoxFlyoutDoneFailed" Width="420" Height="180" FontSize="10" Margin="0,0,0,8"
+						 ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Visible" />
+				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+					<Button x:Uid="ButtonOK" Content="OK" Margin="0,0,8,0" Click="ButtonDoneOK_Click" />
+					<!--<Button Content="Help" Click="ButtonDoneHelp_Click" />-->
+				</StackPanel>
+			</StackPanel>
+		</Flyout>
+	</Page.Resources>
+	
 	<SplitView x:Name="splitView" DisplayMode="CompactOverlay"
 			   Background="{ThemeResource SystemControlAccentDark2AcrylicWindowAccentDark2MediumHighBrush}"
 			   AllowDrop="True" DragOver="SplitView_DragOver" DragEnter="SplitView_DragEnter" Drop="SplitView_Drop">
@@ -19,16 +33,21 @@
 					<StackPanel Orientation="Horizontal" Margin="0,0,0,16">
 						<Button x:Name="HamburgerButton" FontFamily="Segoe MDL2 Assets" Content="&#xE700;"
 								Width="48" Height="48" Background="Transparent" Click="HamburgerButton_Click" />
-						<TextBlock Text="Settings" FontSize="22" VerticalAlignment="Center" Margin="8,0,0,0" />
+						<TextBlock x:Uid="TextBlockSettings" Text="Settings" FontSize="22" VerticalAlignment="Center" Margin="8,0,0,0" />
 					</StackPanel>
 
 					<StackPanel Margin="50,0,0,16">
-						<TextBlock Text="File Overwrite" FontSize="12" Margin="0,0,0,4" />
+						<TextBlock x:Uid="TextBlockFileOverwrite" Text="File Overwrite" FontSize="12" Margin="0,0,0,4" />
 						<ToggleSwitch x:Name="ToggleFileOverwrite" IsOn="True" />
 					</StackPanel>
 
 					<StackPanel Margin="50,0,0,16">
-						<TextBlock Text="Image Format" FontSize="12" Margin="0,0,0,4" />
+						<TextBlock x:Uid="TextBlockDeleteSourcewhenDone" Text="Delete Source file when Done" FontSize="12" Margin="0,0,0,4" />
+						<ToggleSwitch x:Name="ToggleDeleteSourceFile" IsOn="True" />
+					</StackPanel>
+
+					<StackPanel Margin="50,0,0,16">
+						<TextBlock x:Uid="TextBlockImageFormat" Text="Image Format" FontSize="12" Margin="0,0,0,4" />
 						<ComboBox x:Name="ComboBoxImageFormat" HorizontalAlignment="Stretch" SelectedIndex="0">
 							<ComboBoxItem Content="WebP" />
 							<ComboBoxItem Content="JPEG" />
@@ -37,29 +56,29 @@
 					</StackPanel>
 
 					<StackPanel Margin="50,0,0,16">
-						<TextBlock Text="Maximum Image Height" FontSize="12" Margin="0,0,0,4" />
+						<TextBlock x:Uid="TextBlockMaximumHeight" Text="Maximum Image Height" FontSize="12" Margin="0,0,0,4" />
 						<TextBox x:Name="TextBoxMaximumHeight" HorizontalAlignment="Stretch" Text="4096" InputScope="Number"
 								 BeforeTextChanging="TextBoxNumbersOnly_BeforeTextChanging" TextChanging="TextBoxNumbersOnly_TextChanging" />
 					</StackPanel>
 
 					<StackPanel Margin="50,0,0,16">
-						<TextBlock Text="Dithering" FontSize="12" Margin="0,0,0,4" />
+						<TextBlock x:Uid="TextBlockDithering" Text="Dithering" FontSize="12" Margin="0,0,0,4" />
 						<ToggleSwitch x:Name="ToggleDither" IsOn="False" />
 					</StackPanel>
 
 					<StackPanel Margin="50,0,0,16">
-						<TextBlock Text="Resize with Bicubic Filtering" FontSize="12" Margin="0,0,0,4" />
+						<TextBlock x:Uid="TextBlockResizeBicubic" Text="Resize with Bicubic Filtering" FontSize="12" Margin="0,0,0,4" />
 						<ToggleSwitch x:Name="ToggleResizeBicubic" IsOn="False" />
 					</StackPanel>
 
 					<StackPanel Margin="50,0,0,16">
-						<TextBlock Text="Image Quality(WebP, JPEG)" FontSize="12" Margin="0,0,0,4" />
+						<TextBlock x:Uid="TextBlockQuality" Text="Image Quality(WebP, JPEG)" FontSize="12" Margin="0,0,0,4" />
 						<TextBox x:Name="TextBoxQuality" HorizontalAlignment="Stretch" Text="90" InputScope="Number"
 								 BeforeTextChanging="TextBoxNumbersOnly_BeforeTextChanging" TextChanging="TextBoxNumbersOnly_TextChanging" />
 					</StackPanel>
 
 					<StackPanel Margin="50,0,0,16">
-						<TextBlock Text="Indexed Pixel Format(PNG)" FontSize="12" Margin="0,0,0,4" />
+						<TextBlock x:Uid="TextBlockIndexedPixelFormat" Text="8-bit Indexed Pixel Format(PNG)" FontSize="12" Margin="0,0,0,4" />
 						<ToggleSwitch x:Name="ToggleIndexedPixelFormat" IsOn="False" />
 					</StackPanel>
 				</StackPanel>
@@ -74,18 +93,18 @@
 			
 			<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
 				<StackPanel Orientation="Vertical" Margin="0,0,0,24">
-					<TextBlock Text="Degra" FontSize="48" HorizontalAlignment="Center" />
-					<TextBlock Text="The Image Compressor" HorizontalAlignment="Center" />
+					<TextBlock x:Uid="TextBlockAppTitle" Text="Degra" FontSize="48" HorizontalAlignment="Center" />
+					<TextBlock x:Uid="TextBlockAppSubTitle" Text="The Image Compressor" HorizontalAlignment="Center" />
 				</StackPanel>
 
 				<StackPanel>
-					<Button x:Name="ButtonSelectFiles" Content="Select file(s)" HorizontalAlignment="Center" Width="164" Click="SelectFiles_Click" />
-					<TextBlock Text="or Drag&amp;Drop to this app area." FontSize="8" HorizontalAlignment="Center" />
+					<Button x:Name="ButtonSelectFiles" x:Uid="ButtonSelectFiles" Content="Select file(s)" HorizontalAlignment="Center" Width="164" Click="SelectFiles_Click" />
+					<TextBlock x:Uid="TextBlockSelectFilesAdditive" Text="or Drag&amp;Drop to this app." FontSize="8" HorizontalAlignment="Center" />
 				</StackPanel>
 			</StackPanel>
 
 			<StackPanel Grid.Row="1">
-				<TextBlock x:Name="TextBlockProceedLog" Text="Waiting..." Margin="8,0,8,4" />
+				<TextBlock x:Name="TextBlockProceedLog" x:Uid="TextBlockProceedLog" Text="Waiting..." Margin="8,0,8,4" />
 				<ProgressBar x:Name="Progress" IsIndeterminate="True" />
 			</StackPanel>
 		</Grid>

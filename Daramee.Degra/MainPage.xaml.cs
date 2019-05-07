@@ -1,5 +1,6 @@
 ﻿using Daramee_Degra;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -10,6 +11,7 @@ using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Services.Store;
 using Windows.Storage.Pickers;
 using Windows.System.Threading;
 using Windows.UI;
@@ -28,14 +30,14 @@ using Windows.UI.Xaml.Navigation;
 
 namespace Daramee.Degra
 {
-    /// <summary>
-    /// 자체적으로 사용하거나 프레임 내에서 탐색할 수 있는 빈 페이지입니다.
-    /// </summary>
-    public sealed partial class MainPage : Page
-    {
-        public MainPage()
-        {
-            this.InitializeComponent();
+	/// <summary>
+	/// 자체적으로 사용하거나 프레임 내에서 탐색할 수 있는 빈 페이지입니다.
+	/// </summary>
+	public sealed partial class MainPage : Page
+	{
+		public MainPage ()
+		{
+			this.InitializeComponent ();
 
 			var coreTitleBar = CoreApplication.GetCurrentView ().TitleBar;
 			coreTitleBar.ExtendViewIntoTitleBar = true;
@@ -113,15 +115,18 @@ namespace Daramee.Degra
 
 		private async Task DoCompression ( IReadOnlyList<string> pathes )
 		{
-			ButtonSelectFiles.IsEnabled = ToggleFileOverwrite.IsEnabled = ComboBoxImageFormat.IsEnabled
-				= TextBoxMaximumHeight.IsEnabled = ToggleDither.IsEnabled = ToggleResizeBicubic.IsEnabled
-				= TextBoxQuality.IsEnabled = ToggleIndexedPixelFormat.IsEnabled = false;
-			Progress.IsIndeterminate = false;
-			Progress.Value = 0;
-			Progress.Maximum = 1;
-
 			if ( pathes.Count > 0 )
 			{
+				var resourceLoader = Windows.ApplicationModel.Resources.ResourceLoader.GetForCurrentView ();
+
+				ButtonSelectFiles.IsEnabled = ToggleFileOverwrite.IsEnabled = ToggleDeleteSourceFile.IsEnabled
+					= ComboBoxImageFormat.IsEnabled = TextBoxMaximumHeight.IsEnabled = ToggleDither.IsEnabled
+					= ToggleResizeBicubic.IsEnabled = TextBoxQuality.IsEnabled = ToggleIndexedPixelFormat.IsEnabled
+					= false;
+				Progress.IsIndeterminate = false;
+				Progress.Value = 0;
+				Progress.Maximum = 1;
+
 				IEncodingSettings settings;
 				switch ( ComboBoxImageFormat.SelectedIndex )
 				{
@@ -132,8 +137,10 @@ namespace Daramee.Degra
 				}
 
 				Argument args = new Argument ( settings, ToggleDither.IsOn, ToggleResizeBicubic.IsOn, uint.Parse ( TextBoxMaximumHeight.Text ) );
-				bool fileOverwrite = ToggleFileOverwrite.IsOn;
+				bool fileOverwrite = ToggleFileOverwrite.IsOn,
+					deleteSource = ToggleDeleteSourceFile.IsOn;
 
+				ConcurrentQueue<string> failed = new ConcurrentQueue<string> ();
 				int proceedCount = 0;
 				foreach ( var path in pathes )
 				{
@@ -141,69 +148,99 @@ namespace Daramee.Degra
 					string tempPath = Path.Combine ( Path.GetDirectoryName ( path ), Guid.NewGuid ().ToString () );
 					try
 					{
-						await Windows.System.Threading.ThreadPool.RunAsync ( async ( IAsyncAction operation ) =>
-						{
-							var format = await ImageCompressor.DoCompression ( tempPath, path, args, state );
-							string formatExtension = format switch
-							{
-								ProceedFormat.Zip => ".zip",
-								ProceedFormat.WebP => ".webp",
-								ProceedFormat.Jpeg => ".jpg",
-								ProceedFormat.Png => ".png",
-								_ => throw new Exception (),
-							};
-							string newPath = Path.Combine ( Path.GetDirectoryName ( path ), Path.GetFileNameWithoutExtension ( path ) );
-							if ( path == newPath + formatExtension && !fileOverwrite )
-								newPath += " - New";
-							newPath += formatExtension;
-
-							var destStorageFolder = await Windows.Storage.StorageFolder.GetFolderFromPathAsync ( Path.GetDirectoryName ( tempPath ) );
-							var destStorageFile = await destStorageFolder.GetFileAsync ( Path.GetFileName ( tempPath ) );
-
-							await destStorageFile.MoveAsync ( destStorageFolder, Path.GetFileName ( newPath ),
-								fileOverwrite ? Windows.Storage.NameCollisionOption.ReplaceExisting : Windows.Storage.NameCollisionOption.GenerateUniqueName );
-						}, WorkItemPriority.Normal, WorkItemOptions.TimeSliced );
+						var compressionTask = ImageCompressor.DoCompression ( tempPath, path, args, state );
 
 						string lastFilename = null;
-						while ( state.Progress < 1 )
+						while ( !( compressionTask.Status == TaskStatus.RanToCompletion || compressionTask.Status == TaskStatus.Faulted || compressionTask.Status == TaskStatus.Canceled ) )
 						{
 							if ( state.ProceedFile != lastFilename )
 							{
 								await Dispatcher.RunIdleAsync ( ( IdleDispatchedHandlerArgs e ) =>
 								{
-									TextBlockProceedLog.Text = $"Proceed: {state.ProceedFile}";
+									TextBlockProceedLog.Text = $"{resourceLoader.GetString ( "Proceed" )}: {state.ProceedFile}";
 									Progress.Value = ( proceedCount / ( double ) pathes.Count ) + ( ( 1 / ( double ) pathes.Count ) * state.Progress );
 								} );
 								lastFilename = state.ProceedFile;
 							}
 							await Task.Delay ( 1 );
 						}
+						var format = compressionTask.Result;
+
+						string formatExtension = format switch
+						{
+							ProceedFormat.WebP => ".webp",
+							ProceedFormat.Jpeg => ".jpg",
+							ProceedFormat.Png => ".png",
+
+							ProceedFormat.Zip => ".zip",
+
+							_ => throw new Exception (),
+						};
+						string newPath = Path.Combine ( Path.GetDirectoryName ( path ), Path.GetFileNameWithoutExtension ( path ) );
+						if ( path == newPath + formatExtension && !fileOverwrite )
+							newPath += " - New";
+						newPath += formatExtension;
+
+						var destStorageFolder = await Windows.Storage.StorageFolder.GetFolderFromPathAsync ( Path.GetDirectoryName ( tempPath ) );
+						var destStorageFile = await destStorageFolder.GetFileAsync ( Path.GetFileName ( tempPath ) );
+
+						await destStorageFile.MoveAsync ( destStorageFolder, Path.GetFileName ( newPath ),
+							fileOverwrite ? Windows.Storage.NameCollisionOption.ReplaceExisting : Windows.Storage.NameCollisionOption.GenerateUniqueName );
+
+						if ( path != newPath && deleteSource )
+						{
+							var srcStorageFolder = await Windows.Storage.StorageFolder.GetFolderFromPathAsync ( Path.GetDirectoryName ( path ) );
+							var srcStorageFile = await destStorageFolder.GetFileAsync ( Path.GetFileName ( path ) );
+							await srcStorageFile.DeleteAsync ();
+						}
 					}
 					catch ( Exception ex )
 					{
 						Debug.WriteLine ( ex );
-						File.Delete ( tempPath );
 
-						var destStorageFolder = await Windows.Storage.StorageFolder.GetFolderFromPathAsync ( Path.GetDirectoryName ( tempPath ) );
-						var destStorageFile = await destStorageFolder.GetFileAsync ( Path.GetFileName ( tempPath ) );
-						await destStorageFile.DeleteAsync ();
+						failed.Enqueue ( path );
 
-						TextBlockProceedLog.Text = $"Error: {state.ProceedFile}";
-						Progress.Value = ( ( proceedCount + 1 ) / ( double ) pathes.Count );
+						if ( !( ex is UnauthorizedAccessException ) && !( ex.InnerException is UnauthorizedAccessException ) )
+						{
+							var destStorageFolder = await Windows.Storage.StorageFolder.GetFolderFromPathAsync ( Path.GetDirectoryName ( tempPath ) );
+							var destStorageFile = await destStorageFolder.GetFileAsync ( Path.GetFileName ( tempPath ) );
+							await destStorageFile.DeleteAsync ();
+						}
+
+						await Dispatcher.RunIdleAsync ( ( IdleDispatchedHandlerArgs e ) =>
+						{
+							TextBlockProceedLog.Text = $"{resourceLoader.GetString ( "Error" )}: {path}";
+							Progress.Value = ( ( proceedCount + 1 ) / ( double ) pathes.Count );
+						} );
 					}
 
 					System.Threading.Interlocked.Increment ( ref proceedCount );
 				}
+
+				var flyoutDone = Resources [ "FlyoutDone" ] as Flyout;
+				ListBoxFlyoutDoneFailed.Items.Clear ();
+				foreach ( var path in failed )
+					ListBoxFlyoutDoneFailed.Items.Add ( path );
+				flyoutDone.ShowAt ( ButtonSelectFiles );
+
+				TextBlockProceedLog.Text = resourceLoader.GetString ( "Done" );
+				Progress.IsIndeterminate = true;
+				ButtonSelectFiles.IsEnabled = ToggleFileOverwrite.IsEnabled = ToggleDeleteSourceFile.IsEnabled
+					= ComboBoxImageFormat.IsEnabled = TextBoxMaximumHeight.IsEnabled = ToggleDither.IsEnabled
+					= ToggleResizeBicubic.IsEnabled = TextBoxQuality.IsEnabled = ToggleIndexedPixelFormat.IsEnabled
+					= true;
 			}
+		}
 
-			TextBlockProceedLog.Text = "Done.";
-			Progress.IsIndeterminate = true;
-			ButtonSelectFiles.IsEnabled = ToggleFileOverwrite.IsEnabled = ComboBoxImageFormat.IsEnabled
-				= TextBoxMaximumHeight.IsEnabled = ToggleDither.IsEnabled = ToggleResizeBicubic.IsEnabled
-				= TextBoxQuality.IsEnabled = ToggleIndexedPixelFormat.IsEnabled = true;
+		private void ButtonDoneOK_Click ( object sender, RoutedEventArgs e )
+		{
+			var flyoutDone = Resources [ "FlyoutDone" ] as Flyout;
+			flyoutDone.Hide ();
+		}
 
-			MessageDialog messageDialog = new MessageDialog ( "Compression is done.", "Degra" );
-			await messageDialog.ShowAsync ();
+		private void ButtonDoneHelp_Click ( object sender, RoutedEventArgs e )
+		{
+
 		}
 	}
 }

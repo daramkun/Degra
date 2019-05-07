@@ -1,5 +1,7 @@
 ﻿using Daramee.FileTypeDetector;
 using Daramee_Degra;
+using SharpCompress.Archives.Rar;
+using SharpCompress.Archives.SevenZip;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -37,13 +39,12 @@ namespace Daramee.Degra
 		public static async Task<ProceedFormat> DoCompression ( string dest, string src, Argument args, ProgressState state = null )
 		{
 			var srcStorageFile = await Windows.Storage.StorageFile.GetFileFromPathAsync ( src );
-			var srcStorageFileStream = await srcStorageFile.OpenAsync ( Windows.Storage.FileAccessMode.Read, Windows.Storage.StorageOpenOptions.AllowOnlyReaders );
+			using var srcStorageFileStream = await srcStorageFile.OpenAsync ( Windows.Storage.FileAccessMode.Read, Windows.Storage.StorageOpenOptions.AllowOnlyReaders );
 			using var sourceStream = srcStorageFileStream.AsStream ();
 
 			var destStorageFolder = await Windows.Storage.StorageFolder.GetFolderFromPathAsync ( Path.GetDirectoryName ( dest ) );
 			var destStorageFile = await destStorageFolder.CreateFileAsync ( Path.GetFileName ( dest ) );
-			//var destStorageFile = await Windows.Storage.StorageFile.GetFileFromPathAsync ( dest );
-			var destStorageFileStream = await destStorageFile.OpenAsync ( Windows.Storage.FileAccessMode.ReadWrite, Windows.Storage.StorageOpenOptions.AllowOnlyReaders );
+			using var destStorageFileStream = await destStorageFile.OpenAsync ( Windows.Storage.FileAccessMode.ReadWrite, Windows.Storage.StorageOpenOptions.AllowOnlyReaders );
 			using var destinationStream = destStorageFileStream.AsStream ();
 			
 			var detector = DetectorService.DetectDetector ( sourceStream );
@@ -94,6 +95,108 @@ namespace Daramee.Degra
 					{
 						state.Progress = Interlocked.Increment ( ref proceedCount ) / ( double ) entryCount;
 						state.ProceedFile = $"{src} - {sourceEntry.FullName}";
+					}
+				}
+
+				return ProceedFormat.Zip;
+			}
+			else if ( detector.Extension == "rar" )
+			{
+				using RarArchive sourceArchive = RarArchive.Open ( sourceStream );
+				using ZipArchive destinationArchive = new ZipArchive ( destinationStream, ZipArchiveMode.Create );
+
+				string extension;
+				if ( args.Settings is WebPSettings ) extension = ".webp";
+				else if ( args.Settings is JpegSettings ) extension = ".jpg";
+				else if ( args.Settings is PngSettings ) extension = ".png";
+				else throw new ArgumentException ();
+
+				int entryCount = sourceArchive.Entries.Count, proceedCount = 0;
+				using Stream memoryStream = new MemoryStream ();
+				foreach ( var sourceEntry in sourceArchive.Entries )
+				{
+					memoryStream.SetLength ( 0 );
+					memoryStream.Position = 0;
+
+					using Stream sourceEntryStream = sourceEntry.OpenEntryStream ();
+					sourceEntryStream.CopyTo ( memoryStream );
+
+					memoryStream.Position = 0;
+					var imgDetect = DetectorService.DetectDetector ( memoryStream );
+					memoryStream.Position = 0;
+					if ( imgDetect != null && ( imgDetect.Extension == "jpg" || imgDetect.Extension == "bmp"
+						|| imgDetect.Extension == "png" || imgDetect.Extension == "gif" || imgDetect.Extension == "tif"
+						|| imgDetect.Extension == "hdp" ) )
+					{
+						var destinationEntry = destinationArchive.CreateEntry (
+							Path.Combine ( Path.GetDirectoryName ( sourceEntry.Key ), Path.GetFileNameWithoutExtension ( sourceEntry.Key ) + extension )
+						);
+						using Stream destinationEntryStream = destinationEntry.Open ();
+
+						Compress ( destinationEntryStream, memoryStream, args );
+					}
+					else
+					{
+						var destinationEntry = destinationArchive.CreateEntry ( sourceEntry.Key );
+						using Stream destinationEntryStream = destinationEntry.Open ();
+						memoryStream.CopyTo ( destinationEntryStream );
+					}
+
+					if ( state != null )
+					{
+						state.Progress = Interlocked.Increment ( ref proceedCount ) / ( double ) entryCount;
+						state.ProceedFile = $"{src} - {sourceEntry.Key}";
+					}
+				}
+
+				return ProceedFormat.Zip;
+			}
+			else if ( detector.Extension == "7z" )
+			{
+				using SevenZipArchive sourceArchive = SevenZipArchive.Open ( sourceStream );
+				using ZipArchive destinationArchive = new ZipArchive ( destinationStream, ZipArchiveMode.Create );
+
+				string extension;
+				if ( args.Settings is WebPSettings ) extension = ".webp";
+				else if ( args.Settings is JpegSettings ) extension = ".jpg";
+				else if ( args.Settings is PngSettings ) extension = ".png";
+				else throw new ArgumentException ();
+
+				int entryCount = sourceArchive.Entries.Count, proceedCount = 0;
+				using Stream memoryStream = new MemoryStream ();
+				foreach ( var sourceEntry in sourceArchive.Entries )
+				{
+					memoryStream.SetLength ( 0 );
+					memoryStream.Position = 0;
+
+					using Stream sourceEntryStream = sourceEntry.OpenEntryStream ();
+					sourceEntryStream.CopyTo ( memoryStream );
+
+					memoryStream.Position = 0;
+					var imgDetect = DetectorService.DetectDetector ( memoryStream );
+					memoryStream.Position = 0;
+					if ( imgDetect != null && ( imgDetect.Extension == "jpg" || imgDetect.Extension == "bmp"
+						|| imgDetect.Extension == "png" || imgDetect.Extension == "gif" || imgDetect.Extension == "tif"
+						|| imgDetect.Extension == "hdp" ) )
+					{
+						var destinationEntry = destinationArchive.CreateEntry (
+							Path.Combine ( Path.GetDirectoryName ( sourceEntry.Key ), Path.GetFileNameWithoutExtension ( sourceEntry.Key ) + extension )
+						);
+						using Stream destinationEntryStream = destinationEntry.Open ();
+
+						Compress ( destinationEntryStream, memoryStream, args );
+					}
+					else
+					{
+						var destinationEntry = destinationArchive.CreateEntry ( sourceEntry.Key );
+						using Stream destinationEntryStream = destinationEntry.Open ();
+						memoryStream.CopyTo ( destinationEntryStream );
+					}
+
+					if ( state != null )
+					{
+						state.Progress = Interlocked.Increment ( ref proceedCount ) / ( double ) entryCount;
+						state.ProceedFile = $"{src} - {sourceEntry.Key}";
 					}
 				}
 

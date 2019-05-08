@@ -135,6 +135,18 @@
   <data name="Error" xml:space="preserve">
     <value>Error</value>
   </data>
+  <data name="Error_IO" xml:space="preserve">
+    <value>I/O Error</value>
+  </data>
+  <data name="Error_IsNotImage" xml:space="preserve">
+    <value>Not Image</value>
+  </data>
+  <data name="Error_Unauthorized" xml:space="preserve">
+    <value>Unauthorized</value>
+  </data>
+  <data name="Error_Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
   <data name="Proceed" xml:space="preserve">
     <value>Proceed</value>
   </data>

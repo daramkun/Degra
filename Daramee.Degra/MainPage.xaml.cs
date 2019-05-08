@@ -140,7 +140,7 @@ namespace Daramee.Degra
 				bool fileOverwrite = ToggleFileOverwrite.IsOn,
 					deleteSource = ToggleDeleteSourceFile.IsOn;
 
-				ConcurrentQueue<string> failed = new ConcurrentQueue<string> ();
+				var failed = new ConcurrentQueue<string> ();
 				int proceedCount = 0;
 				foreach ( var path in pathes )
 				{
@@ -198,9 +198,23 @@ namespace Daramee.Degra
 					{
 						Debug.WriteLine ( ex );
 
-						failed.Enqueue ( path );
+						var failedMessage = path;
+						if ( ex is Exception && ex.InnerException != null )
+							ex = ex.InnerException;
 
-						if ( !( ex is UnauthorizedAccessException ) && !( ex.InnerException is UnauthorizedAccessException ) )
+						if ( ex is UnauthorizedAccessException )
+							failedMessage = $"{resourceLoader.GetString ( "Error_Unauthorized" )} - {failedMessage}";
+						else if ( ex is System.IO.IOException )
+							failedMessage = $"{resourceLoader.GetString ( "Error_IO" )} - {failedMessage}";
+						else if ( ex.Message == "Decoder from Stream is failed."
+							|| ex.Message == "Getting Image Frame is failed." )
+							failedMessage = $"{resourceLoader.GetString ( "Error_IsNotImage" )} - {failedMessage}";
+						else
+							failedMessage = $"{resourceLoader.GetString ( "Error_Unknown" )} - {failedMessage}";
+
+						failed.Enqueue ( failedMessage );
+
+						if ( !( ex is UnauthorizedAccessException ) )
 						{
 							var destStorageFolder = await Windows.Storage.StorageFolder.GetFolderFromPathAsync ( Path.GetDirectoryName ( tempPath ) );
 							var destStorageFile = await destStorageFolder.GetFileAsync ( Path.GetFileName ( tempPath ) );
@@ -218,9 +232,15 @@ namespace Daramee.Degra
 				}
 
 				var flyoutDone = Resources [ "FlyoutDone" ] as Flyout;
-				ListBoxFlyoutDoneFailed.Items.Clear ();
-				foreach ( var path in failed )
-					ListBoxFlyoutDoneFailed.Items.Add ( path );
+				if ( failed.Count > 0 )
+				{
+					ListBoxFlyoutDoneFailed.Items.Clear ();
+					foreach ( var path in failed )
+						ListBoxFlyoutDoneFailed.Items.Add ( path );
+					StackPanelErroredList.Visibility = Visibility.Visible;
+				}
+				else
+					StackPanelErroredList.Visibility = Visibility.Collapsed;
 				flyoutDone.ShowAt ( ButtonSelectFiles );
 
 				TextBlockProceedLog.Text = resourceLoader.GetString ( "Done" );

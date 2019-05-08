@@ -11,9 +11,11 @@
 		<Flyout x:Key="FlyoutDone" LightDismissOverlayMode="On">
 			<StackPanel>
 				<TextBlock x:Uid="TextBlockFlyoutDone" Text="Compression is done." FontSize="24" HorizontalAlignment="Center" Margin="0,0,0,8" />
-				<TextBlock x:Uid="TextBlockFlyoutDoneDesc" Text="Failed those files to compression." FontSize="10" Margin="0,0,0,4" HorizontalAlignment="Stretch" TextAlignment="Left" />
-				<ListBox x:Name="ListBoxFlyoutDoneFailed" Width="420" Height="180" FontSize="10" Margin="0,0,0,8"
+				<StackPanel x:Name="StackPanelErroredList">
+					<TextBlock x:Uid="TextBlockFlyoutDoneDesc" Text="Failed those files to compression." FontSize="10" Margin="0,0,0,4" HorizontalAlignment="Stretch" TextAlignment="Left" />
+					<ListBox x:Name="ListBoxFlyoutDoneFailed" Width="420" Height="180" FontSize="10" Margin="0,0,0,8"
 						 ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Visible" />
+				</StackPanel>
 				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
 					<Button x:Uid="ButtonOK" Content="OK" Margin="0,0,8,0" Click="ButtonDoneOK_Click" />
 					<!--<Button Content="Help" Click="ButtonDoneHelp_Click" />-->

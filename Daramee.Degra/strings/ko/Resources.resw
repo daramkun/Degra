@@ -135,6 +135,18 @@
   <data name="Error" xml:space="preserve">
     <value>오류</value>
   </data>
+  <data name="Error_IO" xml:space="preserve">
+    <value>입출력 오류</value>
+  </data>
+  <data name="Error_IsNotImage" xml:space="preserve">
+    <value>이미지 아님</value>
+  </data>
+  <data name="Error_Unauthorized" xml:space="preserve">
+    <value>권한 없음</value>
+  </data>
+  <data name="Error_Unknown" xml:space="preserve">
+    <value>알려지지 않은 오류</value>
+  </data>
   <data name="Proceed" xml:space="preserve">
     <value>처리됨</value>
   </data>

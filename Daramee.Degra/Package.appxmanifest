@@ -46,6 +46,7 @@
 
 	<Capabilities>
 		<rescap:Capability Name="broadFileSystemAccess" />
+		<rescap:Capability Name="confirmAppClose"/>
 		<uap:Capability Name="removableStorage"/>
 		<uap:Capability Name="picturesLibrary"/>
 	</Capabilities>

@@ -12,6 +12,7 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Services.Store;
+using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.System.Threading;
 using Windows.UI;
@@ -45,6 +46,64 @@ namespace Daramee.Degra
 			var titleBar = ApplicationView.GetForCurrentView ().TitleBar;
 			titleBar.ButtonBackgroundColor = Colors.Transparent;
 			titleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
+			LoadSettings ();
+			Windows.UI.Core.Preview.SystemNavigationManagerPreview.GetForCurrentView ().CloseRequested += MainPage_CloseRequested;
+		}
+
+		private async void MainPage_CloseRequested ( object sender, Windows.UI.Core.Preview.SystemNavigationCloseRequestedPreviewEventArgs e )
+		{
+			if ( !ButtonSelectFiles.IsEnabled )
+			{
+				var resourceLoader = Windows.ApplicationModel.Resources.ResourceLoader.GetForCurrentView ();
+
+				ContentDialog ask = new ContentDialog ();
+				ask.Title = resourceLoader.GetString ( "AskClosingTitle" );
+				ask.Content = resourceLoader.GetString ( "AskClosingContent" );
+				ask.CloseButtonText = resourceLoader.GetString ( "ButtonYes" );
+				ask.PrimaryButtonText = resourceLoader.GetString ( "ButtonNo" );
+
+				var msgRet = await ask.ShowAsync ();
+				if ( msgRet == ContentDialogResult.Primary )
+					e.Handled = true;
+			}
+
+			SaveSettings ();
+		}
+
+		private void LoadSettings ()
+		{
+			try
+			{
+				var settings = ApplicationData.Current.LocalSettings;
+				var container = settings.CreateContainer ( "Degra_Settings", ApplicationDataCreateDisposition.Existing );
+				if ( container == null ) return;
+
+				ToggleFileOverwrite.IsOn = ( bool ) container.Values [ "FileOverwrite" ];
+				ToggleDeleteSourceFile.IsOn = ( bool ) container.Values [ "DeleteSourceFile" ];
+				ComboBoxImageFormat.SelectedIndex = ( int ) container.Values [ "ImageFormat" ];
+				TextBoxMaximumHeight.Text = ( ( int ) container.Values [ "MaximumHeight" ] ).ToString ();
+				ToggleDither.IsOn = ( bool ) container.Values [ "Dither" ];
+				ToggleResizeBicubic.IsOn = ( bool ) container.Values [ "ResizeBicubic" ];
+				TextBoxQuality.Text = ( ( int ) container.Values [ "Quality" ] ).ToString ();
+				ToggleIndexedPixelFormat.IsOn = ( bool ) container.Values [ "IndexedPixelFormat" ];
+			}
+			catch { }
+		}
+
+		private void SaveSettings ()
+		{
+			var settings = ApplicationData.Current.LocalSettings;
+			var container = settings.CreateContainer ( "Degra_Settings", ApplicationDataCreateDisposition.Always );
+
+			container.Values [ "FileOverwrite" ] = ToggleFileOverwrite.IsOn;
+			container.Values [ "DeleteSourceFile" ] = ToggleDeleteSourceFile.IsOn;
+			container.Values [ "ImageFormat" ] = ComboBoxImageFormat.SelectedIndex;
+			container.Values [ "MaximumHeight" ] = int.Parse ( TextBoxMaximumHeight.Text );
+			container.Values [ "Dither" ] = ToggleDither.IsOn;
+			container.Values [ "ResizeBicubic" ] = ToggleResizeBicubic.IsOn;
+			container.Values [ "Quality" ] = int.Parse ( TextBoxQuality.Text );
+			container.Values [ "IndexedPixelFormat" ] = ToggleIndexedPixelFormat.IsOn;
 		}
 
 		private void HamburgerButton_Click ( object sender, RoutedEventArgs e )

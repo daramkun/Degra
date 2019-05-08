@@ -123,11 +123,26 @@
   <data name="AppTitle" xml:space="preserve">
     <value>Degra</value>
   </data>
+  <data name="AskClosingContent" xml:space="preserve">
+    <value>If you close right now, Your works lost.</value>
+  </data>
+  <data name="AskClosingTitle" xml:space="preserve">
+    <value>Are you sure to close app?</value>
+  </data>
+  <data name="ButtonCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="ButtonNo" xml:space="preserve">
+    <value>No</value>
+  </data>
   <data name="ButtonOK.Content" xml:space="preserve">
     <value>OK</value>
   </data>
   <data name="ButtonSelectFiles.Content" xml:space="preserve">
     <value>Select file(s)</value>
+  </data>
+  <data name="ButtonYes" xml:space="preserve">
+    <value>Yes</value>
   </data>
   <data name="Done" xml:space="preserve">
     <value>Done.</value>

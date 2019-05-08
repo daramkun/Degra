@@ -29,61 +29,67 @@
 			   AllowDrop="True" DragOver="SplitView_DragOver" DragEnter="SplitView_DragEnter" Drop="SplitView_Drop">
 		<SplitView.Pane>
 			<Grid Background="{ThemeResource SystemControlAccentDark2AcrylicElementAccentDark2MediumHighBrush}">
-				<StackPanel Margin="0,0,8,0">
-					<Rectangle Height="32" />
-
-					<StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-						<Button x:Name="HamburgerButton" FontFamily="Segoe MDL2 Assets" Content="&#xE700;"
+				<Grid.RowDefinitions>
+					<RowDefinition Height="32" />
+					<RowDefinition Height="48" />
+					<RowDefinition />
+				</Grid.RowDefinitions>
+				
+				<StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
+					<Button x:Name="HamburgerButton" FontFamily="Segoe MDL2 Assets" Content="&#xE700;"
 								Width="48" Height="48" Background="Transparent" Click="HamburgerButton_Click" />
-						<TextBlock x:Uid="TextBlockSettings" Text="Settings" FontSize="22" VerticalAlignment="Center" Margin="8,0,0,0" />
-					</StackPanel>
-
-					<StackPanel Margin="50,0,0,16">
-						<TextBlock x:Uid="TextBlockFileOverwrite" Text="File Overwrite" FontSize="12" Margin="0,0,0,4" />
-						<ToggleSwitch x:Name="ToggleFileOverwrite" IsOn="True" />
-					</StackPanel>
-
-					<StackPanel Margin="50,0,0,16">
-						<TextBlock x:Uid="TextBlockDeleteSourcewhenDone" Text="Delete Source file when Done" FontSize="12" Margin="0,0,0,4" />
-						<ToggleSwitch x:Name="ToggleDeleteSourceFile" IsOn="True" />
-					</StackPanel>
-
-					<StackPanel Margin="50,0,0,16">
-						<TextBlock x:Uid="TextBlockImageFormat" Text="Image Format" FontSize="12" Margin="0,0,0,4" />
-						<ComboBox x:Name="ComboBoxImageFormat" HorizontalAlignment="Stretch" SelectedIndex="0">
-							<ComboBoxItem Content="WebP" />
-							<ComboBoxItem Content="JPEG" />
-							<ComboBoxItem Content="PNG" />
-						</ComboBox>
-					</StackPanel>
-
-					<StackPanel Margin="50,0,0,16">
-						<TextBlock x:Uid="TextBlockMaximumHeight" Text="Maximum Image Height" FontSize="12" Margin="0,0,0,4" />
-						<TextBox x:Name="TextBoxMaximumHeight" HorizontalAlignment="Stretch" Text="4096" InputScope="Number"
-								 BeforeTextChanging="TextBoxNumbersOnly_BeforeTextChanging" TextChanging="TextBoxNumbersOnly_TextChanging" />
-					</StackPanel>
-
-					<StackPanel Margin="50,0,0,16">
-						<TextBlock x:Uid="TextBlockDithering" Text="Dithering" FontSize="12" Margin="0,0,0,4" />
-						<ToggleSwitch x:Name="ToggleDither" IsOn="False" />
-					</StackPanel>
-
-					<StackPanel Margin="50,0,0,16">
-						<TextBlock x:Uid="TextBlockResizeBicubic" Text="Resize with Bicubic Filtering" FontSize="12" Margin="0,0,0,4" />
-						<ToggleSwitch x:Name="ToggleResizeBicubic" IsOn="False" />
-					</StackPanel>
-
-					<StackPanel Margin="50,0,0,16">
-						<TextBlock x:Uid="TextBlockQuality" Text="Image Quality(WebP, JPEG)" FontSize="12" Margin="0,0,0,4" />
-						<TextBox x:Name="TextBoxQuality" HorizontalAlignment="Stretch" Text="90" InputScope="Number"
-								 BeforeTextChanging="TextBoxNumbersOnly_BeforeTextChanging" TextChanging="TextBoxNumbersOnly_TextChanging" />
-					</StackPanel>
-
-					<StackPanel Margin="50,0,0,16">
-						<TextBlock x:Uid="TextBlockIndexedPixelFormat" Text="8-bit Indexed Pixel Format(PNG)" FontSize="12" Margin="0,0,0,4" />
-						<ToggleSwitch x:Name="ToggleIndexedPixelFormat" IsOn="False" />
-					</StackPanel>
+					<TextBlock x:Uid="TextBlockSettings" Text="Settings" FontSize="22" VerticalAlignment="Center" Margin="8,0,0,0" />
 				</StackPanel>
+
+				<ScrollViewer Grid.Row="2" VerticalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto">
+					<StackPanel Margin="0,0,8,0">
+						<StackPanel Margin="50,0,0,16">
+							<TextBlock x:Uid="TextBlockFileOverwrite" Text="File Overwrite" FontSize="12" Margin="0,0,0,4" />
+							<ToggleSwitch x:Name="ToggleFileOverwrite" IsOn="True" />
+						</StackPanel>
+
+						<StackPanel Margin="50,0,0,16">
+							<TextBlock x:Uid="TextBlockDeleteSourcewhenDone" Text="Delete Source file when Done" FontSize="12" Margin="0,0,0,4" />
+							<ToggleSwitch x:Name="ToggleDeleteSourceFile" IsOn="True" />
+						</StackPanel>
+
+						<StackPanel Margin="50,0,0,16">
+							<TextBlock x:Uid="TextBlockImageFormat" Text="Image Format" FontSize="12" Margin="0,0,0,4" />
+							<ComboBox x:Name="ComboBoxImageFormat" HorizontalAlignment="Stretch" SelectedIndex="0">
+								<ComboBoxItem Content="WebP" />
+								<ComboBoxItem Content="JPEG" />
+								<ComboBoxItem Content="PNG" />
+							</ComboBox>
+						</StackPanel>
+
+						<StackPanel Margin="50,0,0,16">
+							<TextBlock x:Uid="TextBlockMaximumHeight" Text="Maximum Image Height" FontSize="12" Margin="0,0,0,4" />
+							<TextBox x:Name="TextBoxMaximumHeight" HorizontalAlignment="Stretch" Text="4096" InputScope="Number"
+								 BeforeTextChanging="TextBoxNumbersOnly_BeforeTextChanging" TextChanging="TextBoxNumbersOnly_TextChanging" />
+						</StackPanel>
+
+						<StackPanel Margin="50,0,0,16">
+							<TextBlock x:Uid="TextBlockDithering" Text="Dithering" FontSize="12" Margin="0,0,0,4" />
+							<ToggleSwitch x:Name="ToggleDither" IsOn="False" />
+						</StackPanel>
+
+						<StackPanel Margin="50,0,0,16">
+							<TextBlock x:Uid="TextBlockResizeBicubic" Text="Resize with Bicubic Filtering" FontSize="12" Margin="0,0,0,4" />
+							<ToggleSwitch x:Name="ToggleResizeBicubic" IsOn="False" />
+						</StackPanel>
+
+						<StackPanel Margin="50,0,0,16">
+							<TextBlock x:Uid="TextBlockQuality" Text="Image Quality(WebP, JPEG)" FontSize="12" Margin="0,0,0,4" />
+							<TextBox x:Name="TextBoxQuality" HorizontalAlignment="Stretch" Text="90" InputScope="Number"
+								 BeforeTextChanging="TextBoxNumbersOnly_BeforeTextChanging" TextChanging="TextBoxNumbersOnly_TextChanging" />
+						</StackPanel>
+
+						<StackPanel Margin="50,0,0,16">
+							<TextBlock x:Uid="TextBlockIndexedPixelFormat" Text="8-bit Indexed Pixel Format(PNG)" FontSize="12" Margin="0,0,0,4" />
+							<ToggleSwitch x:Name="ToggleIndexedPixelFormat" IsOn="False" />
+						</StackPanel>
+					</StackPanel>
+				</ScrollViewer>
 			</Grid>
 		</SplitView.Pane>
 

@@ -39,15 +39,8 @@ Daramee_Degra::Argument::Argument ( IEncodingSettings^ settings, bool dither, bo
 class ImplementedIStream : public IStream
 {
 public:
-	ImplementedIStream ( Daramee_Degra::IDegraStream^ stream )
-		: refCount ( 1 ), stream ( stream )
-	{
-
-	}
-	~ImplementedIStream ()
-	{
-		stream = nullptr;
-	}
+	ImplementedIStream ( Daramee_Degra::IDegraStream^ stream ) : refCount ( 1 ), stream ( stream ) { }
+	~ImplementedIStream () { stream = nullptr; }
 
 public:
 	virtual HRESULT __stdcall QueryInterface ( REFIID riid, void** ppvObject ) override
@@ -61,19 +54,8 @@ public:
 		}
 		return E_NOINTERFACE;
 	}
-
-	virtual ULONG __stdcall AddRef ( void ) override
-	{
-		return InterlockedIncrement ( &refCount );
-	}
-
-	virtual ULONG __stdcall Release ( void ) override
-	{
-		auto ret = InterlockedDecrement ( &refCount );
-		if ( ret == 0 )
-			delete this;
-		return ret;
-	}
+	virtual ULONG __stdcall AddRef ( void ) override { return InterlockedIncrement ( &refCount ); }
+	virtual ULONG __stdcall Release ( void ) override { auto ret = InterlockedDecrement ( &refCount ); if ( ret == 0 ) delete this; return ret; }
 
 public:
 	virtual HRESULT __stdcall Read ( void* pv, ULONG cb, ULONG* pcbRead ) override
@@ -85,7 +67,6 @@ public:
 			* pcbRead = read;
 		return S_OK;
 	}
-
 	virtual HRESULT __stdcall Write ( const void* pv, ULONG cb, ULONG* pcbWritten ) override
 	{
 		auto arr = ref new Platform::Array<byte> ( ( byte* ) pv, cb );
@@ -94,44 +75,12 @@ public:
 			* pcbWritten = written;
 		return S_OK;
 	}
-
 	virtual HRESULT __stdcall Seek ( LARGE_INTEGER dlibMove, DWORD dwOrigin, ULARGE_INTEGER* plibNewPosition ) override
 	{
 		int pos = stream->Seek ( ( Daramee_Degra::SeekOrigin ) dwOrigin, ( int ) dlibMove.QuadPart );
 		if ( plibNewPosition )
 			plibNewPosition->QuadPart = ( ULONGLONG ) pos;
 		return S_OK;
-	}
-
-	virtual HRESULT __stdcall SetSize ( ULARGE_INTEGER libNewSize ) override
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT __stdcall CopyTo ( IStream* pstm, ULARGE_INTEGER cb, ULARGE_INTEGER* pcbRead, ULARGE_INTEGER* pcbWritten ) override
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT __stdcall Commit ( DWORD grfCommitFlags ) override
-	{
-		stream->Flush ();
-		return S_OK;
-	}
-
-	virtual HRESULT __stdcall Revert ( void ) override
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT __stdcall LockRegion ( ULARGE_INTEGER libOffset, ULARGE_INTEGER cb, DWORD dwLockType ) override
-	{
-		return E_NOTIMPL;
-	}
-
-	virtual HRESULT __stdcall UnlockRegion ( ULARGE_INTEGER libOffset, ULARGE_INTEGER cb, DWORD dwLockType ) override
-	{
-		return E_NOTIMPL;
 	}
 
 	virtual HRESULT __stdcall Stat ( STATSTG* pstatstg, DWORD grfStatFlag ) override
@@ -143,10 +92,13 @@ public:
 		return S_OK;
 	}
 
-	virtual HRESULT __stdcall Clone ( IStream** ppstm ) override
-	{
-		return E_NOTIMPL;
-	}
+	virtual HRESULT __stdcall SetSize ( ULARGE_INTEGER libNewSize ) override { return E_NOTIMPL; }
+	virtual HRESULT __stdcall CopyTo ( IStream* pstm, ULARGE_INTEGER cb, ULARGE_INTEGER* pcbRead, ULARGE_INTEGER* pcbWritten ) override { return E_NOTIMPL; }
+	virtual HRESULT __stdcall Commit ( DWORD grfCommitFlags ) override { stream->Flush (); return S_OK; }
+	virtual HRESULT __stdcall Revert ( void ) override { return E_NOTIMPL; }
+	virtual HRESULT __stdcall LockRegion ( ULARGE_INTEGER libOffset, ULARGE_INTEGER cb, DWORD dwLockType ) override { return E_NOTIMPL; }
+	virtual HRESULT __stdcall UnlockRegion ( ULARGE_INTEGER libOffset, ULARGE_INTEGER cb, DWORD dwLockType ) override { return E_NOTIMPL; }
+	virtual HRESULT __stdcall Clone ( IStream** ppstm ) override { return E_NOTIMPL; }
 
 private:
 	ULONG refCount;
@@ -438,5 +390,6 @@ void Daramee_Degra::DegraCore::ConvertImage ( IDegraStream^ destStream, IDegraSt
 	CComPtr<IWICBitmapSource> arranged;
 	Degra_Inner_ArrangeImage ( wicFactory, sourceBitmap, argument, &arranged );
 
+	destStreamNative->Seek ( { 0 }, STREAM_SEEK_SET, nullptr );
 	Degra_Inner_SaveTo ( wicFactory, arranged, destStreamNative, argument );
 }

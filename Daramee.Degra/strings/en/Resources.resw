@@ -175,10 +175,13 @@
     <value>Delete Source file when Done</value>
   </data>
   <data name="TextBlockDithering.Text" xml:space="preserve">
-    <value>Dithering</value>
+    <value>Resize with Dithering</value>
   </data>
   <data name="TextBlockFileOverwrite.Text" xml:space="preserve">
     <value>File Overwrite</value>
+  </data>
+  <data name="TextBlockFileOverwriteDetail.Text" xml:space="preserve">
+    <value>This option is enforced if File System permission is off.</value>
   </data>
   <data name="TextBlockFlyoutDone.Text" xml:space="preserve">
     <value>Compression is done</value>

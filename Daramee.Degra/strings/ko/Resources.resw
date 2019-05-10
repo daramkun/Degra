@@ -175,10 +175,13 @@
     <value>완료 후 원본 파일 삭제</value>
   </data>
   <data name="TextBlockDithering.Text" xml:space="preserve">
-    <value>디더링</value>
+    <value>디더링하여 크기 변환</value>
   </data>
   <data name="TextBlockFileOverwrite.Text" xml:space="preserve">
     <value>파일 덮어쓰기</value>
+  </data>
+  <data name="TextBlockFileOverwriteDetail.Text" xml:space="preserve">
+    <value>이 설정은 파일 시스템 권한이 꺼져 있을 경우 강제로 활성화됩니다.</value>
   </data>
   <data name="TextBlockFlyoutDone.Text" xml:space="preserve">
     <value>압축 완료</value>

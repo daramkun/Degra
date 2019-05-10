@@ -13,6 +13,7 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Services.Store;
 using Windows.Storage;
+using Windows.Storage.AccessCache;
 using Windows.Storage.Pickers;
 using Windows.System.Threading;
 using Windows.UI;
@@ -80,7 +81,7 @@ namespace Daramee.Degra
 				if ( container == null ) return;
 
 				ToggleFileOverwrite.IsOn = ( bool ) container.Values [ "FileOverwrite" ];
-				ToggleDeleteSourceFile.IsOn = ( bool ) container.Values [ "DeleteSourceFile" ];
+				//ToggleDeleteSourceFile.IsOn = ( bool ) container.Values [ "DeleteSourceFile" ];
 				ComboBoxImageFormat.SelectedIndex = ( int ) container.Values [ "ImageFormat" ];
 				TextBoxMaximumHeight.Text = ( ( int ) container.Values [ "MaximumHeight" ] ).ToString ();
 				ToggleDither.IsOn = ( bool ) container.Values [ "Dither" ];
@@ -97,7 +98,7 @@ namespace Daramee.Degra
 			var container = settings.CreateContainer ( "Degra_Settings", ApplicationDataCreateDisposition.Always );
 
 			container.Values [ "FileOverwrite" ] = ToggleFileOverwrite.IsOn;
-			container.Values [ "DeleteSourceFile" ] = ToggleDeleteSourceFile.IsOn;
+			//container.Values [ "DeleteSourceFile" ] = ToggleDeleteSourceFile.IsOn;
 			container.Values [ "ImageFormat" ] = ComboBoxImageFormat.SelectedIndex;
 			container.Values [ "MaximumHeight" ] = int.Parse ( TextBoxMaximumHeight.Text );
 			container.Values [ "Dither" ] = ToggleDither.IsOn;
@@ -128,7 +129,11 @@ namespace Daramee.Degra
 				ViewMode = PickerViewMode.Thumbnail,
 				SuggestedStartLocation = PickerLocationId.PicturesLibrary
 			};
+
 			picker.FileTypeFilter.Add ( ".zip" );
+			picker.FileTypeFilter.Add ( ".rar" );
+			picker.FileTypeFilter.Add ( ".7z" );
+
 			picker.FileTypeFilter.Add ( ".bmp" );
 			picker.FileTypeFilter.Add ( ".jpg" );
 			picker.FileTypeFilter.Add ( ".jpeg" );
@@ -141,9 +146,14 @@ namespace Daramee.Degra
 			var pathes = new List<string> ();
 			var files = await picker.PickMultipleFilesAsync ();
 			foreach ( var storageFile in files )
+			{
+				StorageApplicationPermissions.FutureAccessList.Add ( storageFile );
 				pathes.Add ( storageFile.Path );
+			}
 
-			await DoCompression ( pathes );
+			await DoCompression ( files );
+
+			StorageApplicationPermissions.FutureAccessList.Clear ();
 		}
 
 		private void SplitView_DragOver ( object sender, DragEventArgs e )
@@ -164,21 +174,26 @@ namespace Daramee.Degra
 			var items = await e.DataView.GetStorageItemsAsync ();
 
 			List<string> pathes = new List<string> ();
-			foreach ( var path in items )
+			foreach ( var storageFile in items )
 			{
-				pathes.Add ( path.Path );
+				StorageApplicationPermissions.FutureAccessList.Add ( storageFile );
+				pathes.Add ( storageFile.Path );
 			}
 
-			await DoCompression ( pathes );
+			await DoCompression ( items );
+
+			StorageApplicationPermissions.FutureAccessList.Clear ();
 		}
 
-		private async Task DoCompression ( IReadOnlyList<string> pathes )
+		private async Task DoCompression ( IReadOnlyList<IStorageItem> storageItems )
 		{
-			if ( pathes.Count > 0 )
+			if ( storageItems.Count > 0 )
 			{
 				var resourceLoader = Windows.ApplicationModel.Resources.ResourceLoader.GetForCurrentView ();
 
-				ButtonSelectFiles.IsEnabled = ToggleFileOverwrite.IsEnabled = ToggleDeleteSourceFile.IsEnabled
+				ButtonSelectFiles.IsEnabled
+					= ToggleFileOverwrite.IsEnabled
+					//= ToggleDeleteSourceFile.IsEnabled
 					= ComboBoxImageFormat.IsEnabled = TextBoxMaximumHeight.IsEnabled = ToggleDither.IsEnabled
 					= ToggleResizeBicubic.IsEnabled = TextBoxQuality.IsEnabled = ToggleIndexedPixelFormat.IsEnabled
 					= false;
@@ -196,18 +211,37 @@ namespace Daramee.Degra
 				}
 
 				Argument args = new Argument ( settings, ToggleDither.IsOn, ToggleResizeBicubic.IsOn, uint.Parse ( TextBoxMaximumHeight.Text ) );
-				bool fileOverwrite = ToggleFileOverwrite.IsOn,
-					deleteSource = ToggleDeleteSourceFile.IsOn;
+				bool fileOverwrite = ToggleFileOverwrite.IsOn;
 
 				var failed = new ConcurrentQueue<string> ();
 				int proceedCount = 0;
-				foreach ( var path in pathes )
+				foreach ( var sourceStorageItem in storageItems )
 				{
+					if ( !( sourceStorageItem is IStorageFile ) )
+					{
+						failed.Enqueue ( $"{resourceLoader.GetString ( "Error_IO" )} - {sourceStorageItem.Path}" );
+						continue;
+					}
+
 					ProgressState state = new ProgressState ();
-					string tempPath = Path.Combine ( Path.GetDirectoryName ( path ), Guid.NewGuid ().ToString () );
+					var sourceFolder = await StorageFolder.GetFolderFromPathAsync ( sourceStorageItem.Path );
+					var sourceFile = sourceStorageItem;
+					IStorageFile newFile;
 					try
 					{
-						var compressionTask = ImageCompressor.DoCompression ( tempPath, path, args, state );
+						if ( !fileOverwrite )
+							newFile = await sourceFolder.CreateFileAsync ( Path.Combine ( sourceFolder.Path, Guid.NewGuid ().ToString () )
+								, CreationCollisionOption.GenerateUniqueName );
+						else newFile = sourceFile as IStorageFile;
+					}
+					catch
+					{
+						newFile = sourceFile as IStorageFile;
+					}
+
+					try
+					{
+						var compressionTask = ImageCompressor.DoCompression ( newFile, sourceFile as IStorageFile, args, state );
 
 						string lastFilename = null;
 						while ( !( compressionTask.Status == TaskStatus.RanToCompletion || compressionTask.Status == TaskStatus.Faulted || compressionTask.Status == TaskStatus.Canceled ) )
@@ -217,7 +251,7 @@ namespace Daramee.Degra
 								await Dispatcher.RunIdleAsync ( ( IdleDispatchedHandlerArgs e ) =>
 								{
 									TextBlockProceedLog.Text = $"{resourceLoader.GetString ( "Proceed" )}: {state.ProceedFile}";
-									Progress.Value = ( proceedCount / ( double ) pathes.Count ) + ( ( 1 / ( double ) pathes.Count ) * state.Progress );
+									Progress.Value = ( proceedCount / ( double ) storageItems.Count ) + ( ( 1 / ( double ) storageItems.Count ) * state.Progress );
 								} );
 								lastFilename = state.ProceedFile;
 							}
@@ -235,29 +269,20 @@ namespace Daramee.Degra
 
 							_ => throw new Exception (),
 						};
-						string newPath = Path.Combine ( Path.GetDirectoryName ( path ), Path.GetFileNameWithoutExtension ( path ) );
-						if ( path == newPath + formatExtension && !fileOverwrite )
-							newPath += " - New";
+						string newPath = Path.Combine ( Path.GetDirectoryName ( sourceFile.Path ), Path.GetFileNameWithoutExtension ( sourceFile.Path ) );
+						if ( sourceFile.Path == newPath + formatExtension && !fileOverwrite )
+							newPath += " (1)";
 						newPath += formatExtension;
-
-						var destStorageFolder = await Windows.Storage.StorageFolder.GetFolderFromPathAsync ( Path.GetDirectoryName ( tempPath ) );
-						var destStorageFile = await destStorageFolder.GetFileAsync ( Path.GetFileName ( tempPath ) );
-
-						await destStorageFile.MoveAsync ( destStorageFolder, Path.GetFileName ( newPath ),
-							fileOverwrite ? Windows.Storage.NameCollisionOption.ReplaceExisting : Windows.Storage.NameCollisionOption.GenerateUniqueName );
-
-						if ( path != newPath && deleteSource )
-						{
-							var srcStorageFolder = await Windows.Storage.StorageFolder.GetFolderFromPathAsync ( Path.GetDirectoryName ( path ) );
-							var srcStorageFile = await destStorageFolder.GetFileAsync ( Path.GetFileName ( path ) );
-							await srcStorageFile.DeleteAsync ();
-						}
+						
+						if ( sourceStorageItem != newFile )
+							await newFile.MoveAsync ( sourceFolder, Path.GetFileName ( newPath ),
+								fileOverwrite ? Windows.Storage.NameCollisionOption.ReplaceExisting : Windows.Storage.NameCollisionOption.GenerateUniqueName );
 					}
 					catch ( Exception ex )
 					{
 						Debug.WriteLine ( ex );
 
-						var failedMessage = path;
+						var failedMessage = sourceStorageItem.Path;
 						if ( ex is Exception && ex.InnerException != null )
 							ex = ex.InnerException;
 
@@ -275,15 +300,13 @@ namespace Daramee.Degra
 
 						if ( !( ex is UnauthorizedAccessException ) )
 						{
-							var destStorageFolder = await Windows.Storage.StorageFolder.GetFolderFromPathAsync ( Path.GetDirectoryName ( tempPath ) );
-							var destStorageFile = await destStorageFolder.GetFileAsync ( Path.GetFileName ( tempPath ) );
-							await destStorageFile.DeleteAsync ();
+							await newFile.DeleteAsync ();
 						}
 
 						await Dispatcher.RunIdleAsync ( ( IdleDispatchedHandlerArgs e ) =>
 						{
-							TextBlockProceedLog.Text = $"{resourceLoader.GetString ( "Error" )}: {path}";
-							Progress.Value = ( ( proceedCount + 1 ) / ( double ) pathes.Count );
+							TextBlockProceedLog.Text = $"{resourceLoader.GetString ( "Error" )}: {sourceStorageItem}";
+							Progress.Value = ( ( proceedCount + 1 ) / ( double ) storageItems.Count );
 						} );
 					}
 
@@ -304,7 +327,9 @@ namespace Daramee.Degra
 
 				TextBlockProceedLog.Text = resourceLoader.GetString ( "Done" );
 				Progress.IsIndeterminate = true;
-				ButtonSelectFiles.IsEnabled = ToggleFileOverwrite.IsEnabled = ToggleDeleteSourceFile.IsEnabled
+				ButtonSelectFiles.IsEnabled
+					= ToggleFileOverwrite.IsEnabled
+					//= ToggleDeleteSourceFile.IsEnabled
 					= ComboBoxImageFormat.IsEnabled = TextBoxMaximumHeight.IsEnabled = ToggleDither.IsEnabled
 					= ToggleResizeBicubic.IsEnabled = TextBoxQuality.IsEnabled = ToggleIndexedPixelFormat.IsEnabled
 					= true;
@@ -320,6 +345,36 @@ namespace Daramee.Degra
 		private void ButtonDoneHelp_Click ( object sender, RoutedEventArgs e )
 		{
 
+		}
+
+		private void TextBoxMaximumHeight_LostFocus ( object sender, RoutedEventArgs e )
+		{
+			if ( string.IsNullOrEmpty ( TextBoxMaximumHeight.Text ) )
+				TextBoxMaximumHeight.Text = "1";
+			else if ( int.TryParse ( TextBoxMaximumHeight.Text, out int result ) )
+			{
+				if ( result < 1 )
+					TextBoxMaximumHeight.Text = "1";
+				else if ( result > int.MaxValue )
+					TextBoxMaximumHeight.Text = int.MaxValue.ToString ();
+			}
+			else
+				TextBoxMaximumHeight.Text = "4096";
+		}
+
+		private void TextBoxQuality_LostFocus ( object sender, RoutedEventArgs e )
+		{
+			if ( string.IsNullOrEmpty ( TextBoxQuality.Text ) )
+				TextBoxQuality.Text = "1";
+			else if ( int.TryParse ( TextBoxQuality.Text, out int result ) )
+			{
+				if ( result < 1 )
+					TextBoxQuality.Text = "1";
+				else if ( result > 100 )
+					TextBoxQuality.Text = "100";
+			}
+			else
+				TextBoxQuality.Text = "90";
 		}
 	}
 }

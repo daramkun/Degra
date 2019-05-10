@@ -12,13 +12,19 @@ namespace Daramee_Degra
 	public interface class IEncodingSettings
 	{
 	public:
-
+		virtual property Platform::String^ Extension
+		{
+			Platform::String^ get () = 0;
+		}
 	};
 
 	public ref class WebPSettings sealed : public IEncodingSettings
 	{
 	public:
 		WebPSettings ( int quality );
+
+	public:
+		virtual property Platform::String^ Extension { Platform::String^ get () { return L".webp"; } }
 
 	public:
 		property int Quality
@@ -36,6 +42,9 @@ namespace Daramee_Degra
 		JpegSettings ( int quality );
 
 	public:
+		virtual property Platform::String^ Extension { Platform::String^ get () { return L".jpg"; } }
+
+	public:
 		property int Quality
 		{
 			int get () { return quality; }
@@ -49,6 +58,9 @@ namespace Daramee_Degra
 	{
 	public:
 		PngSettings ( bool indexed );
+
+	public:
+		virtual property Platform::String^ Extension { Platform::String^ get () { return L".png"; } }
 
 	public:
 		property bool Indexed

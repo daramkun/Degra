@@ -143,17 +143,9 @@ namespace Daramee.Degra
 			picker.FileTypeFilter.Add ( ".tiff" );
 			picker.FileTypeFilter.Add ( ".hdp" );
 
-			var pathes = new List<string> ();
 			var files = await picker.PickMultipleFilesAsync ();
-			foreach ( var storageFile in files )
-			{
-				StorageApplicationPermissions.FutureAccessList.Add ( storageFile );
-				pathes.Add ( storageFile.Path );
-			}
 
 			await DoCompression ( files );
-
-			StorageApplicationPermissions.FutureAccessList.Clear ();
 		}
 
 		private void SplitView_DragOver ( object sender, DragEventArgs e )
@@ -173,16 +165,7 @@ namespace Daramee.Degra
 				return;
 			var items = await e.DataView.GetStorageItemsAsync ();
 
-			List<string> pathes = new List<string> ();
-			foreach ( var storageFile in items )
-			{
-				StorageApplicationPermissions.FutureAccessList.Add ( storageFile );
-				pathes.Add ( storageFile.Path );
-			}
-
 			await DoCompression ( items );
-
-			StorageApplicationPermissions.FutureAccessList.Clear ();
 		}
 
 		private async Task DoCompression ( IReadOnlyList<IStorageItem> storageItems )
@@ -217,6 +200,8 @@ namespace Daramee.Degra
 				int proceedCount = 0;
 				foreach ( var sourceStorageItem in storageItems )
 				{
+					StorageApplicationPermissions.FutureAccessList.Add ( sourceStorageItem );
+
 					if ( !( sourceStorageItem is IStorageFile ) )
 					{
 						failed.Enqueue ( $"{resourceLoader.GetString ( "Error_IO" )} - {sourceStorageItem.Path}" );
@@ -224,13 +209,13 @@ namespace Daramee.Degra
 					}
 
 					ProgressState state = new ProgressState ();
-					var sourceFolder = await StorageFolder.GetFolderFromPathAsync ( sourceStorageItem.Path );
+					var sourceFolder = await StorageFolder.GetFolderFromPathAsync ( Path.GetDirectoryName ( sourceStorageItem.Path ) );
 					var sourceFile = sourceStorageItem;
 					IStorageFile newFile;
 					try
 					{
 						if ( !fileOverwrite )
-							newFile = await sourceFolder.CreateFileAsync ( Path.Combine ( sourceFolder.Path, Guid.NewGuid ().ToString () )
+							newFile = await sourceFolder.CreateFileAsync ( Guid.NewGuid ().ToString ()
 								, CreationCollisionOption.GenerateUniqueName );
 						else newFile = sourceFile as IStorageFile;
 					}
@@ -312,6 +297,8 @@ namespace Daramee.Degra
 
 					System.Threading.Interlocked.Increment ( ref proceedCount );
 				}
+
+				StorageApplicationPermissions.FutureAccessList.Clear ();
 
 				var flyoutDone = Resources [ "FlyoutDone" ] as Flyout;
 				if ( failed.Count > 0 )

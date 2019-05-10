@@ -1,7 +1,15 @@
 #include "DegraCore.h"
 
+#include <functional>
+
 #include <webp/encode.h>
 #pragma comment ( lib, "libwebp.lib" )
+
+#if defined ( _M_AMD64 ) || defined ( _M_IA32 )
+#	include <jpeglib.h>
+#	include <turbojpeg.h>
+#	pragma comment ( lib, "turbojpeg-static.lib" )
+#endif
 
 #pragma comment ( lib, "WindowsCodecs.lib" )
 
@@ -156,22 +164,6 @@ void STDMETHODCALLTYPE Degra_Inner_ArrangeImage ( IWICImagingFactory* wicFactory
 
 		ret = formatConverter.Detach ();
 	}
-	else if ( args->Dither )
-	{
-		WICPixelFormatGUID pixelFormat;
-		ret->GetPixelFormat ( &pixelFormat );
-
-		CComPtr<IWICFormatConverter> formatConverter;
-		if ( FAILED ( wicFactory->CreateFormatConverter ( &formatConverter ) ) )
-			throw ref new Platform::FailureException ( L"Initializing Dither Image is failed." );
-
-		if ( FAILED ( formatConverter->Initialize ( ret, pixelFormat,
-			args->Dither ? WICBitmapDitherTypeOrdered16x16 : WICBitmapDitherTypeNone,
-			nullptr, 1, WICBitmapPaletteTypeMedianCut ) ) )
-			throw ref new Platform::FailureException ( L"Dithering Image is failed." );
-
-		ret = formatConverter.Detach ();
-	}
 
 	if ( dynamic_cast< Daramee_Degra::WebPSettings^ > ( args->Settings ) )
 	{
@@ -196,8 +188,11 @@ void STDMETHODCALLTYPE Degra_Inner_ArrangeImage ( IWICImagingFactory* wicFactory
 		ret = formatConverter.Detach ();
 	}
 
-	if ( *arranged != ret )
-		* arranged = ret.Detach ();
+	CComPtr<IWICBitmap> tempBitmap;
+	if ( FAILED ( wicFactory->CreateBitmapFromSource ( ret, WICBitmapCacheOnDemand, &tempBitmap ) ) )
+		throw ref new Platform::FailureException ( L"Failed Create Copied Bitmap." );
+
+	*arranged = tempBitmap.Detach ();
 }
 
 int Degra_Inner_SaveTo_WebP_Writer ( const uint8_t * data, size_t data_size, const WebPPicture * picture )
@@ -231,34 +226,30 @@ void STDMETHODCALLTYPE Degra_Inner_SaveTo_WebP ( IWICBitmapSource * source, IStr
 	picture.user_data = dest;
 	picture.writer = Degra_Inner_SaveTo_WebP_Writer;
 
-	if ( !WebPConfigInit ( &config ) )
-		throw ref new Platform::FailureException ( L"WebP Config initializing is failed." );
-	if ( !WebPPictureAlloc ( &picture ) )
-		throw ref new Platform::FailureException ( L"WebP Picture initializing is failed." );
+	if ( !WebPConfigInit ( &config ) || !WebPPictureAlloc ( &picture ) )
+		throw ref new Platform::FailureException ( L"WebP initializing is failed." );
 
 	config.thread_level = 1;
-
 	if ( !WebPValidateConfig ( &config ) )
 		throw ref new Platform::FailureException ( L"WebP Config check validation is failed." );
 
-	BYTE * bytes;
+	int stride;
+	std::function<int ( WebPPicture *, const uint8_t *, int )> importPixels;
 	if ( pixelFormat == GUID_WICPixelFormat32bppBGRA )
 	{
-		int stride = width * 4;
-		bytes = new BYTE [ stride * height ];
-		source->CopyPixels ( nullptr, stride, stride * height, bytes );
-		WebPPictureImportBGRA ( &picture, bytes, stride );
-		delete [] bytes;
+		stride = width * 4;
+		importPixels = WebPPictureImportBGRA;
 	}
 	else
 	{
-		int bytesPerPixel = ( 24 + 7 ) / 8;
-		int stride = 4 * ( ( width * bytesPerPixel + 3 ) / 4 );
-		bytes = new BYTE [ stride * height ];
-		source->CopyPixels ( nullptr, stride, stride * height, bytes );
-		WebPPictureImportBGR ( &picture, bytes, stride );
-		delete [] bytes;
+		stride = 4 * ( ( width * ( ( 24 + 7 ) / 8 ) + 3 ) / 4 );
+		importPixels = WebPPictureImportBGR;
 	}
+
+	BYTE* bytes = new BYTE [ stride * height ];
+	source->CopyPixels ( nullptr, stride, stride * height, bytes );
+	importPixels ( &picture, bytes, stride );
+	delete [] bytes;
 
 	if ( !WebPEncode ( &config, &picture ) )
 		throw ref new Platform::FailureException ( L"WebP Encoding is failed." );
@@ -315,36 +306,6 @@ void STDMETHODCALLTYPE Degra_Inner_SaveTo_WIC ( IWICImagingFactory* wicFactory, 
 	if ( FAILED ( encodeFrame->Initialize ( options ) ) )
 		throw ref new Platform::FailureException ( L"Image Frame initializing is failed." );
 
-	UINT width, height;
-	if ( FAILED ( source->GetSize ( &width, &height ) ) )
-		throw ref new Platform::FailureException ( L"Getting image size is failed." );
-	if ( FAILED ( encodeFrame->SetSize ( width, height ) ) )
-		throw ref new Platform::FailureException ( L"Setting image size is failed." );
-
-	WICPixelFormatGUID pixelFormat;
-	if ( FAILED ( source->GetPixelFormat ( &pixelFormat ) ) )
-		throw ref new Platform::FailureException ( L"Getting Pixel format is failed." );
-	if ( FAILED ( encodeFrame->SetPixelFormat ( &pixelFormat ) ) )
-		throw ref new Platform::FailureException ( L"Setting Pixel format is failed." );
-
-	double dpiX, dpiY;
-	if ( FAILED ( source->GetResolution ( &dpiX, &dpiY ) ) )
-		throw ref new Platform::FailureException ( L"Getting DPI is failed." );
-	if ( FAILED ( encodeFrame->SetResolution ( dpiX, dpiY ) ) )
-		throw ref new Platform::FailureException ( L"Setting DPI is failed." );
-
-	if ( pixelFormat == GUID_WICPixelFormat8bppIndexed || pixelFormat == GUID_WICPixelFormat4bppIndexed
-		|| pixelFormat == GUID_WICPixelFormat2bppIndexed || pixelFormat == GUID_WICPixelFormat1bppIndexed )
-	{
-		CComPtr<IWICPalette> palette;
-		if ( FAILED ( wicFactory->CreatePalette ( &palette ) ) )
-			throw ref new Platform::FailureException ( L"Palette Creation is failed." );
-		if ( FAILED ( source->CopyPalette ( palette ) ) )
-			throw ref new Platform::FailureException ( L"Palette Copying is failed." );
-		if ( FAILED ( encodeFrame->SetPalette ( palette ) ) )
-			throw ref new Platform::FailureException ( L"Setting Palette is failed." );
-	}
-
 	if ( FAILED ( encodeFrame->WriteSource ( source, nullptr ) ) )
 		throw ref new Platform::FailureException ( L"WIC Encoding is failed." );
 
@@ -352,6 +313,11 @@ void STDMETHODCALLTYPE Degra_Inner_SaveTo_WIC ( IWICImagingFactory* wicFactory, 
 		throw ref new Platform::FailureException ( L"Image Frame Committing is failed." );
 	if ( FAILED ( encoder->Commit () ) )
 		throw ref new Platform::FailureException ( L"Image Committing is failed." );
+}
+
+void STDMETHODCALLTYPE Degra_Inner_SaveTo_Jpeg_MozJpeg ( IWICBitmapSource* source, IStream* dest, Daramee_Degra::Argument^ args )
+{
+	tjhandle handle;
 }
 
 void STDMETHODCALLTYPE Degra_Inner_SaveTo ( IWICImagingFactory* wicFactory, IWICBitmapSource * source, IStream * dest, Daramee_Degra::Argument^ args )
@@ -380,16 +346,22 @@ Daramee_Degra::DegraCore::~DegraCore ()
 
 void Daramee_Degra::DegraCore::ConvertImage ( IDegraStream^ destStream, IDegraStream^ srcStream, Argument^ argument )
 {
-	CComPtr<IStream> destStreamNative, srcStreamNative;
-	*&destStreamNative = new ImplementedIStream ( destStream );
-	*&srcStreamNative = new ImplementedIStream ( srcStream );
-
-	CComPtr<IWICBitmapSource> sourceBitmap;
-	Degra_Inner_LoadBitmap ( wicFactory, srcStreamNative, &sourceBitmap );
-
 	CComPtr<IWICBitmapSource> arranged;
-	Degra_Inner_ArrangeImage ( wicFactory, sourceBitmap, argument, &arranged );
+	{
+		CComPtr<IWICBitmapSource> sourceBitmap;
+		{
+			CComPtr<IStream> srcStreamNative;
+			*&srcStreamNative = new ImplementedIStream ( srcStream );
+			Degra_Inner_LoadBitmap ( wicFactory, srcStreamNative, &sourceBitmap );
+		}
 
-	destStreamNative->Seek ( { 0 }, STREAM_SEEK_SET, nullptr );
-	Degra_Inner_SaveTo ( wicFactory, arranged, destStreamNative, argument );
+		Degra_Inner_ArrangeImage ( wicFactory, sourceBitmap, argument, &arranged );
+	}
+
+	{
+		CComPtr<IStream> destStreamNative;
+		*&destStreamNative = new ImplementedIStream ( destStream );
+		destStreamNative->Seek ( { 0 }, STREAM_SEEK_SET, nullptr );
+		Degra_Inner_SaveTo ( wicFactory, arranged, destStreamNative, argument );
+	}
 }

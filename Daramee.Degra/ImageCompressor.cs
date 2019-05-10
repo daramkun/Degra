@@ -34,6 +34,8 @@ namespace Daramee.Degra
 	{
 		static readonly DegraCore core = new DegraCore ();
 
+		static readonly string [] SupportDecodingImageFormats = new [] { "bmp", "png", "jpg", "hdp", "tif", "gif" };
+
 		private static ProceedFormat CompressionWIC ( Stream dest, Stream src, Argument args )
 		{
 			Compress ( dest, src, args );
@@ -51,11 +53,7 @@ namespace Daramee.Degra
 			using ZipArchive sourceArchive = new ZipArchive ( src, ZipArchiveMode.Read );
 			using ZipArchive destinationArchive = new ZipArchive ( dest, ZipArchiveMode.Create );
 
-			string extension;
-			if ( args.Settings is WebPSettings ) extension = ".webp";
-			else if ( args.Settings is JpegSettings ) extension = ".jpg";
-			else if ( args.Settings is PngSettings ) extension = ".png";
-			else throw new ArgumentException ();
+			var extension = args.Settings.Extension;
 
 			List<ZipArchiveEntry> entries = new List<ZipArchiveEntry> ( sourceArchive.Entries );
 			int proceedCount = 0;
@@ -71,9 +69,7 @@ namespace Daramee.Degra
 				memoryStream.Position = 0;
 				var imgDetect = DetectorService.DetectDetector ( memoryStream );
 				memoryStream.Position = 0;
-				if ( imgDetect != null && ( imgDetect.Extension == "jpg" || imgDetect.Extension == "bmp"
-					|| imgDetect.Extension == "png" || imgDetect.Extension == "gif" || imgDetect.Extension == "tif"
-					|| imgDetect.Extension == "hdp" ) )
+				if ( imgDetect != null && SupportDecodingImageFormats.Contains ( imgDetect.Extension ) )
 				{
 					var destinationEntry = destinationArchive.CreateEntry (
 						Path.Combine ( Path.GetDirectoryName ( sourceEntry.FullName ), Path.GetFileNameWithoutExtension ( sourceEntry.FullName ) + extension )

@@ -2,116 +2,7 @@
 
 #include <functional>
 
-#include <webp/encode.h>
-#pragma comment ( lib, "libwebp.lib" )
-
-#if defined ( _M_AMD64 ) || defined ( _M_IA32 )
-#	include <jpeglib.h>
-#	include <turbojpeg.h>
-#	pragma comment ( lib, "turbojpeg-static.lib" )
-#endif
-
 #pragma comment ( lib, "WindowsCodecs.lib" )
-
-#pragma region Settings Objects
-Daramee_Degra::WebPSettings::WebPSettings ( int quality )
-{
-	if ( quality < 1 || quality > 100 )
-		throw ref new Platform::InvalidArgumentException ( L"Quality value must 1-100." );
-
-	this->quality = quality;
-}
-
-Daramee_Degra::JpegSettings::JpegSettings ( int quality )
-{
-	if ( quality < 1 || quality > 100 )
-		throw ref new Platform::InvalidArgumentException ( L"Quality value must 1-100." );
-
-	this->quality = quality;
-}
-
-Daramee_Degra::PngSettings::PngSettings ( bool indexed )
-{
-	this->indexed = indexed;
-}
-
-Daramee_Degra::Argument::Argument ( IEncodingSettings^ settings, bool dither, bool resizeBicubic, unsigned int maximumHeight )
-{
-	this->dither = dither;
-	this->resizeBicubic = resizeBicubic;
-	this->settings = settings;
-	this->maximumHeight = maximumHeight;
-}
-#pragma endregion
-
-class ImplementedIStream : public IStream
-{
-public:
-	ImplementedIStream ( Daramee_Degra::IDegraStream^ stream ) : refCount ( 1 ), stream ( stream ) { }
-	~ImplementedIStream () { stream = nullptr; }
-
-public:
-	virtual HRESULT __stdcall QueryInterface ( REFIID riid, void** ppvObject ) override
-	{
-		if ( riid == __uuidof ( IStream ) || riid == __uuidof ( IUnknown )
-			|| riid == __uuidof( ISequentialStream ) )
-		{
-			*ppvObject = this;
-			AddRef ();
-			return S_OK;
-		}
-		return E_NOINTERFACE;
-	}
-	virtual ULONG __stdcall AddRef ( void ) override { return InterlockedIncrement ( &refCount ); }
-	virtual ULONG __stdcall Release ( void ) override { auto ret = InterlockedDecrement ( &refCount ); if ( ret == 0 ) delete this; return ret; }
-
-public:
-	virtual HRESULT __stdcall Read ( void* pv, ULONG cb, ULONG* pcbRead ) override
-	{
-		auto arr = ref new Platform::Array<byte> ( ( byte* ) pv, cb );
-		auto read = stream->Read ( arr, cb );
-		memcpy ( pv, arr->Data, read );
-		if ( pcbRead )
-			* pcbRead = read;
-		return S_OK;
-	}
-	virtual HRESULT __stdcall Write ( const void* pv, ULONG cb, ULONG* pcbWritten ) override
-	{
-		auto arr = ref new Platform::Array<byte> ( ( byte* ) pv, cb );
-		auto written = stream->Write ( arr, cb );
-		if ( pcbWritten )
-			* pcbWritten = written;
-		return S_OK;
-	}
-	virtual HRESULT __stdcall Seek ( LARGE_INTEGER dlibMove, DWORD dwOrigin, ULARGE_INTEGER* plibNewPosition ) override
-	{
-		int pos = stream->Seek ( ( Daramee_Degra::SeekOrigin ) dwOrigin, ( int ) dlibMove.QuadPart );
-		if ( plibNewPosition )
-			plibNewPosition->QuadPart = ( ULONGLONG ) pos;
-		return S_OK;
-	}
-
-	virtual HRESULT __stdcall Stat ( STATSTG* pstatstg, DWORD grfStatFlag ) override
-	{
-		memset ( pstatstg, 0, sizeof ( STATSTG ) );
-		pstatstg->type = STGTY_STREAM;
-		pstatstg->cbSize.QuadPart = stream->Length;
-		pstatstg->grfMode = STGM_READ | STGM_WRITE;
-		return S_OK;
-	}
-
-	virtual HRESULT __stdcall SetSize ( ULARGE_INTEGER libNewSize ) override { return E_NOTIMPL; }
-	virtual HRESULT __stdcall CopyTo ( IStream* pstm, ULARGE_INTEGER cb, ULARGE_INTEGER* pcbRead, ULARGE_INTEGER* pcbWritten ) override { return E_NOTIMPL; }
-	virtual HRESULT __stdcall Commit ( DWORD grfCommitFlags ) override { stream->Flush (); return S_OK; }
-	virtual HRESULT __stdcall Revert ( void ) override { return E_NOTIMPL; }
-	virtual HRESULT __stdcall LockRegion ( ULARGE_INTEGER libOffset, ULARGE_INTEGER cb, DWORD dwLockType ) override { return E_NOTIMPL; }
-	virtual HRESULT __stdcall UnlockRegion ( ULARGE_INTEGER libOffset, ULARGE_INTEGER cb, DWORD dwLockType ) override { return E_NOTIMPL; }
-	virtual HRESULT __stdcall Clone ( IStream** ppstm ) override { return E_NOTIMPL; }
-
-private:
-	ULONG refCount;
-	Daramee_Degra::IDegraStream^ stream;
-};
 
 #pragma region Native Functions
 void STDMETHODCALLTYPE Degra_Inner_LoadBitmap ( IWICImagingFactory * wicFactory, IStream* src, IWICBitmapSource** source )
@@ -187,6 +78,18 @@ void STDMETHODCALLTYPE Degra_Inner_ArrangeImage ( IWICImagingFactory* wicFactory
 
 		ret = formatConverter.Detach ();
 	}
+	else if ( dynamic_cast< Daramee_Degra::JpegSettings^ >( args->Settings ) )
+	{
+		CComPtr<IWICFormatConverter> formatConverter;
+		if ( FAILED ( wicFactory->CreateFormatConverter ( &formatConverter ) ) )
+			throw ref new Platform::FailureException ( L"Initializing Reformat Image is failed." );
+
+		if ( FAILED ( formatConverter->Initialize ( ret, GUID_WICPixelFormat24bppBGR,
+			WICBitmapDitherTypeNone, nullptr, 1, WICBitmapPaletteTypeMedianCut ) ) )
+			throw ref new Platform::FailureException ( L"Reformatting Image is failed." );
+
+		ret = formatConverter.Detach ();
+	}
 
 	CComPtr<IWICBitmap> tempBitmap;
 	if ( FAILED ( wicFactory->CreateBitmapFromSource ( ret, WICBitmapCacheOnDemand, &tempBitmap ) ) )
@@ -195,137 +98,20 @@ void STDMETHODCALLTYPE Degra_Inner_ArrangeImage ( IWICImagingFactory* wicFactory
 	*arranged = tempBitmap.Detach ();
 }
 
-int Degra_Inner_SaveTo_WebP_Writer ( const uint8_t * data, size_t data_size, const WebPPicture * picture )
-{
-	ULONG written;
-	IStream* stream = reinterpret_cast< IStream* >( picture->user_data );
-	if ( FAILED ( stream->Write ( data, ( ULONG ) data_size, &written ) ) )
-		return -1;
-	return written;
-}
-
-void STDMETHODCALLTYPE Degra_Inner_SaveTo_WebP ( IWICBitmapSource * source, IStream * dest, Daramee_Degra::Argument^ args )
-{
-	UINT width, height;
-	if ( FAILED ( source->GetSize ( &width, &height ) ) ) throw ref new Platform::FailureException ( L"Getting Image Size is failed." );
-	WICPixelFormatGUID pixelFormat;
-	if ( FAILED ( source->GetPixelFormat ( &pixelFormat ) ) )
-		throw ref new Platform::FailureException ( L"Getting Image Pixel Format is failed." );
-
-	WebPConfig config = {};
-	WebPPicture picture = {};
-
-	memset ( &config, 0, sizeof ( config ) );
-	memset ( &picture, 0, sizeof ( picture ) );
-
-	config.quality = ( float ) dynamic_cast< Daramee_Degra::WebPSettings^ > ( args->Settings )->Quality;
-
-	picture.width = width;
-	picture.height = height;
-	picture.colorspace = WEBP_YUV420;
-	picture.user_data = dest;
-	picture.writer = Degra_Inner_SaveTo_WebP_Writer;
-
-	if ( !WebPConfigInit ( &config ) || !WebPPictureAlloc ( &picture ) )
-		throw ref new Platform::FailureException ( L"WebP initializing is failed." );
-
-	config.thread_level = 1;
-	if ( !WebPValidateConfig ( &config ) )
-		throw ref new Platform::FailureException ( L"WebP Config check validation is failed." );
-
-	int stride;
-	std::function<int ( WebPPicture *, const uint8_t *, int )> importPixels;
-	if ( pixelFormat == GUID_WICPixelFormat32bppBGRA )
-	{
-		stride = width * 4;
-		importPixels = WebPPictureImportBGRA;
-	}
-	else
-	{
-		stride = 4 * ( ( width * ( ( 24 + 7 ) / 8 ) + 3 ) / 4 );
-		importPixels = WebPPictureImportBGR;
-	}
-
-	BYTE* bytes = new BYTE [ stride * height ];
-	source->CopyPixels ( nullptr, stride, stride * height, bytes );
-	importPixels ( &picture, bytes, stride );
-	delete [] bytes;
-
-	if ( !WebPEncode ( &config, &picture ) )
-		throw ref new Platform::FailureException ( L"WebP Encoding is failed." );
-
-	WebPPictureFree ( &picture );
-}
-
-void STDMETHODCALLTYPE Degra_Inner_SaveTo_WIC ( IWICImagingFactory* wicFactory, IWICBitmapSource * source, IStream * dest, Daramee_Degra::Argument^ args )
-{
-	GUID containerFormat;
-	if ( dynamic_cast< Daramee_Degra::JpegSettings^ > ( args->Settings ) != nullptr ) containerFormat = GUID_ContainerFormatJpeg;
-	else if ( dynamic_cast< Daramee_Degra::PngSettings^ > ( args->Settings ) != nullptr ) containerFormat = GUID_ContainerFormatPng;
-	else throw ref new Platform::InvalidArgumentException ();
-
-	CComPtr<IWICBitmapEncoder> encoder;
-	if ( FAILED ( wicFactory->CreateEncoder ( containerFormat, &GUID_VendorMicrosoft, &encoder ) ) )
-		throw ref new Platform::FailureException ( L"Encoder Create is failed." );
-
-	if ( FAILED ( encoder->Initialize ( dest, WICBitmapEncoderNoCache ) ) )
-		throw ref new Platform::FailureException ( L"Encoder Initialize is failed." );
-
-	CComPtr<IWICBitmapFrameEncode> encodeFrame;
-	CComPtr<IPropertyBag2> options;
-	if ( FAILED ( encoder->CreateNewFrame ( &encodeFrame, &options ) ) )
-		throw ref new Platform::FailureException ( L"New Frame creation is failed." );
-
-	if ( containerFormat == GUID_ContainerFormatJpeg )
-	{
-		PROPBAG2 imageQuality = {};
-		imageQuality.pstrName = ( LPOLESTR ) L"ImageQuality";
-		imageQuality.vt = VT_R4;
-
-		VARIANT imageQualityVar = {};
-		imageQualityVar.vt = VT_R4;
-		imageQualityVar.fltVal = dynamic_cast< Daramee_Degra::JpegSettings^ > ( args->Settings )->Quality / 100.0f;
-
-		if ( FAILED ( options->Write ( 0, &imageQuality, &imageQualityVar ) ) )
-			throw ref new Platform::FailureException ( L"JPEG Option setting is failed." );
-	}
-	else if ( containerFormat == GUID_ContainerFormatPng )
-	{
-		PROPBAG2 filter = {};
-		filter.pstrName = ( LPOLESTR ) L"FilterOption";
-		filter.vt = VT_R4;
-
-		VARIANT filterVar = {};
-		filterVar.vt = VT_UI1;
-		filterVar.bVal = WICPngFilterAdaptive;
-
-		if ( FAILED ( options->Write ( 0, &filter, &filterVar ) ) )
-			throw ref new Platform::FailureException ( L"PNG Option setting is failed." );
-	}
-
-	if ( FAILED ( encodeFrame->Initialize ( options ) ) )
-		throw ref new Platform::FailureException ( L"Image Frame initializing is failed." );
-
-	if ( FAILED ( encodeFrame->WriteSource ( source, nullptr ) ) )
-		throw ref new Platform::FailureException ( L"WIC Encoding is failed." );
-
-	if ( FAILED ( encodeFrame->Commit () ) )
-		throw ref new Platform::FailureException ( L"Image Frame Committing is failed." );
-	if ( FAILED ( encoder->Commit () ) )
-		throw ref new Platform::FailureException ( L"Image Committing is failed." );
-}
-
-void STDMETHODCALLTYPE Degra_Inner_SaveTo_Jpeg_MozJpeg ( IWICBitmapSource* source, IStream* dest, Daramee_Degra::Argument^ args )
-{
-	tjhandle handle;
-}
-
 void STDMETHODCALLTYPE Degra_Inner_SaveTo ( IWICImagingFactory* wicFactory, IWICBitmapSource * source, IStream * dest, Daramee_Degra::Argument^ args )
 {
 	if ( dynamic_cast< Daramee_Degra::WebPSettings^ > ( args->Settings ) )
-		Degra_Inner_SaveTo_WebP ( source, dest, args );
-	else
-		Degra_Inner_SaveTo_WIC ( wicFactory, source, dest, args );
+		Encode_WebP ( dest, source, dynamic_cast< Daramee_Degra::WebPSettings^ > ( args->Settings )->Quality );
+	else if ( dynamic_cast< Daramee_Degra::JpegSettings^ >( args->Settings ) )
+	{
+#if defined( _M_AMD64 ) || defined ( _M_IA32 )
+		Encode_MozJpeg_Jpeg ( dest, source, dynamic_cast< Daramee_Degra::JpegSettings^ >( args->Settings )->Quality );
+#else
+		Encode_WIC_Jpeg ( wicFactory, dest, source, dynamic_cast< Daramee_Degra::JpegSettings^ >( args->Settings )->Quality );
+#endif
+	}
+	else if ( dynamic_cast< Daramee_Degra::PngSettings^ >( args->Settings ) )
+		Encode_WIC_PNG ( wicFactory, dest, source );
 }
 #pragma endregion
 
@@ -344,7 +130,7 @@ Daramee_Degra::DegraCore::~DegraCore ()
 	wicFactory = nullptr;
 }
 
-void Daramee_Degra::DegraCore::ConvertImage ( IDegraStream^ destStream, IDegraStream^ srcStream, Argument^ argument )
+void Daramee_Degra::DegraCore::CompressImage ( IDegraStream^ destStream, IDegraStream^ srcStream, Argument^ argument )
 {
 	CComPtr<IWICBitmapSource> arranged;
 	{

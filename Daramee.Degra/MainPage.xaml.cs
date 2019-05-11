@@ -168,18 +168,23 @@ namespace Daramee.Degra
 			await DoCompression ( items );
 		}
 
+		private void EnableControls ( bool enable )
+		{
+			ButtonSelectFiles.IsEnabled
+				= ToggleFileOverwrite.IsEnabled
+				//= ToggleDeleteSourceFile.IsEnabled
+				= ComboBoxImageFormat.IsEnabled = TextBoxMaximumHeight.IsEnabled = ToggleDither.IsEnabled
+				= ToggleResizeBicubic.IsEnabled = TextBoxQuality.IsEnabled = ToggleIndexedPixelFormat.IsEnabled
+				= enable;
+		}
+
 		private async Task DoCompression ( IReadOnlyList<IStorageItem> storageItems )
 		{
 			if ( storageItems.Count > 0 )
 			{
 				var resourceLoader = Windows.ApplicationModel.Resources.ResourceLoader.GetForCurrentView ();
 
-				ButtonSelectFiles.IsEnabled
-					= ToggleFileOverwrite.IsEnabled
-					//= ToggleDeleteSourceFile.IsEnabled
-					= ComboBoxImageFormat.IsEnabled = TextBoxMaximumHeight.IsEnabled = ToggleDither.IsEnabled
-					= ToggleResizeBicubic.IsEnabled = TextBoxQuality.IsEnabled = ToggleIndexedPixelFormat.IsEnabled
-					= false;
+				EnableControls ( false );
 				Progress.IsIndeterminate = false;
 				Progress.Value = 0;
 				Progress.Maximum = 1;
@@ -219,11 +224,8 @@ namespace Daramee.Degra
 								, CreationCollisionOption.GenerateUniqueName );
 						else newFile = sourceFile as IStorageFile;
 					}
-					catch
-					{
-						newFile = sourceFile as IStorageFile;
-					}
-
+					catch { newFile = sourceFile as IStorageFile; }
+					
 					try
 					{
 						var compressionTask = ImageCompressor.DoCompression ( newFile, sourceFile as IStorageFile, args, state );
@@ -314,12 +316,7 @@ namespace Daramee.Degra
 
 				TextBlockProceedLog.Text = resourceLoader.GetString ( "Done" );
 				Progress.IsIndeterminate = true;
-				ButtonSelectFiles.IsEnabled
-					= ToggleFileOverwrite.IsEnabled
-					//= ToggleDeleteSourceFile.IsEnabled
-					= ComboBoxImageFormat.IsEnabled = TextBoxMaximumHeight.IsEnabled = ToggleDither.IsEnabled
-					= ToggleResizeBicubic.IsEnabled = TextBoxQuality.IsEnabled = ToggleIndexedPixelFormat.IsEnabled
-					= true;
+				EnableControls ( true );
 			}
 		}
 

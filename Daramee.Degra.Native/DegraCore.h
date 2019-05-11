@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __DARAMEE_DEGRA__CORE_H__
+#define __DARAMEE_DEGRA__CORE_H__
 
 #include <wrl.h>
 #include <collection.h>
@@ -7,105 +8,12 @@
 #include <atlbase.h>
 #include <wincodec.h>
 
+#include "IDegraStream.h"
+#include "Argument.h"
+#include "Encoding.h"
+
 namespace Daramee_Degra
 {
-	public interface class IEncodingSettings
-	{
-	public:
-		virtual property Platform::String^ Extension
-		{
-			Platform::String^ get () = 0;
-		}
-	};
-
-	public ref class WebPSettings sealed : public IEncodingSettings
-	{
-	public:
-		WebPSettings ( int quality );
-
-	public:
-		virtual property Platform::String^ Extension { Platform::String^ get () { return L".webp"; } }
-
-	public:
-		property int Quality
-		{
-			int get () { return quality; }
-		};
-
-	private:
-		int quality;
-	};
-
-	public ref class JpegSettings sealed : public IEncodingSettings
-	{
-	public:
-		JpegSettings ( int quality );
-
-	public:
-		virtual property Platform::String^ Extension { Platform::String^ get () { return L".jpg"; } }
-
-	public:
-		property int Quality
-		{
-			int get () { return quality; }
-		};
-
-	private:
-		int quality;
-	};
-
-	public ref class PngSettings sealed : public IEncodingSettings
-	{
-	public:
-		PngSettings ( bool indexed );
-
-	public:
-		virtual property Platform::String^ Extension { Platform::String^ get () { return L".png"; } }
-
-	public:
-		property bool Indexed
-		{
-			bool get () { return indexed; }
-		}
-
-	private:
-		bool indexed;
-	};
-
-	public enum class SeekOrigin
-	{
-		Begin,
-		Current,
-		End,
-	};
-
-	public interface class IDegraStream
-	{
-	public:
-		virtual int Read ( Platform::WriteOnlyArray<byte>^ buffer, int length ) = 0;
-		virtual int Write ( const Platform::Array<byte>^ data, int length ) = 0;
-		virtual int Seek ( SeekOrigin origin, int offset ) = 0;
-		virtual void Flush () = 0;
-		property int Length { int get (); };
-	};
-
-	public ref class Argument sealed
-	{
-	public:
-		Argument ( IEncodingSettings^ settings, bool dither, bool resizeBicubic, unsigned int maximumHeight );
-
-	public:
-		property unsigned int MaximumHeight { unsigned int get () { return maximumHeight; } };
-		property bool Dither { bool get () { return dither; } }
-		property bool ResizeBicubic { bool get () { return resizeBicubic; } }
-		property IEncodingSettings^ Settings { IEncodingSettings^ get () { return settings; } }
-
-	private:
-		unsigned int maximumHeight;
-		bool dither, resizeBicubic;
-		IEncodingSettings^ settings;
-	};
-
 	public ref class DegraCore sealed
 	{
 	public:
@@ -115,9 +23,11 @@ namespace Daramee_Degra
 		~DegraCore ();
 
 	public:
-		void ConvertImage ( IDegraStream^ destStream, IDegraStream^ srcStream, Argument^ argument );
+		void CompressImage ( IDegraStream^ destStream, IDegraStream^ srcStream, Argument^ argument );
 
 	private:
 		IWICImagingFactory2* wicFactory;
 	};
 }
+
+#endif

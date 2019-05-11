@@ -2,8 +2,19 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="DegraCore.h" />
+    <ClInclude Include="IDegraStream.h" />
+    <ClInclude Include="Settings.h" />
+    <ClInclude Include="Argument.h" />
+    <ClInclude Include="Encoding.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DegraCore.cpp" />
+    <ClCompile Include="Argument.cpp" />
+    <ClCompile Include="Settings.cpp" />
+    <ClCompile Include="IDegraStream.cpp" />
+    <ClCompile Include="Encode.WebP.cpp" />
+    <ClCompile Include="Encode.WIC.Jpeg.cpp" />
+    <ClCompile Include="Encode.WIC.Png.cpp" />
+    <ClCompile Include="Encode.MozJpeg.Jpeg.cpp" />
   </ItemGroup>
 </Project>

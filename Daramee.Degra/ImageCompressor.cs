@@ -36,6 +36,8 @@ namespace Daramee.Degra
 
 		static readonly string [] SupportDecodingImageFormats = new [] { "bmp", "png", "jpg", "hdp", "tif", "gif" };
 
+		static readonly Stream readStream = new MemoryStream (), writeStream = new MemoryStream ();
+
 		private static ProceedFormat CompressionWIC ( Stream dest, Stream src, Argument args )
 		{
 			Compress ( dest, src, args );
@@ -57,18 +59,17 @@ namespace Daramee.Degra
 
 			List<ZipArchiveEntry> entries = new List<ZipArchiveEntry> ( sourceArchive.Entries );
 			int proceedCount = 0;
-			using Stream memoryStream = new MemoryStream ();
 			foreach ( var sourceEntry in sourceArchive.Entries )
 			{
-				memoryStream.SetLength ( 0 );
-				memoryStream.Position = 0;
+				readStream.SetLength ( 0 );
+				readStream.Position = 0;
 
 				using Stream sourceEntryStream = sourceEntry.Open ();
-				sourceEntryStream.CopyTo ( memoryStream );
+				sourceEntryStream.CopyTo ( readStream );
 
-				memoryStream.Position = 0;
-				var imgDetect = DetectorService.DetectDetector ( memoryStream );
-				memoryStream.Position = 0;
+				readStream.Position = 0;
+				var imgDetect = DetectorService.DetectDetector ( readStream );
+				readStream.Position = 0;
 				if ( imgDetect != null && SupportDecodingImageFormats.Contains ( imgDetect.Extension ) )
 				{
 					var destinationEntry = destinationArchive.CreateEntry (
@@ -78,7 +79,7 @@ namespace Daramee.Degra
 
 					try
 					{
-						Compress ( destinationEntryStream, memoryStream, args );
+						Compress ( destinationEntryStream, readStream, args );
 					}
 					catch
 					{
@@ -87,7 +88,7 @@ namespace Daramee.Degra
 
 						destinationEntry = destinationArchive.CreateEntry ( sourceEntry.FullName, CompressionLevel.Optimal );
 						destinationEntryStream = destinationEntry.Open ();
-						memoryStream.CopyTo ( destinationEntryStream );
+						readStream.CopyTo ( destinationEntryStream );
 					}
 					finally
 					{
@@ -99,7 +100,7 @@ namespace Daramee.Degra
 				{
 					var destinationEntry = destinationArchive.CreateEntry ( sourceEntry.FullName, CompressionLevel.Optimal );
 					using Stream destinationEntryStream = destinationEntry.Open ();
-					memoryStream.CopyTo ( destinationEntryStream );
+					readStream.CopyTo ( destinationEntryStream );
 					destinationEntryStream.Flush ();
 					destinationEntryStream.Dispose ();
 				}
@@ -126,7 +127,6 @@ namespace Daramee.Degra
 
 			List<ZipArchiveEntry> entries = new List<ZipArchiveEntry> ( destinationArchive.Entries );
 			int proceedCount = 0;
-			using Stream readStream = new MemoryStream (), writeStream = new MemoryStream ();
 			foreach ( var sourceEntry in entries )
 			{
 				readStream.SetLength ( 0 );
@@ -197,7 +197,12 @@ namespace Daramee.Degra
 			}
 			else
 			{
-				var format = CompressionWIC ( destinationStream, sourceStream, args );
+				writeStream.SetLength ( 0 );
+				var format = CompressionWIC ( writeStream, sourceStream, args );
+
+				destinationStream.SetLength ( 0 );
+				writeStream.Position = 0;
+				writeStream.CopyTo ( destinationStream );
 
 				if ( format != ProceedFormat.Unknown && state != null )
 				{
@@ -215,7 +220,7 @@ namespace Daramee.Degra
 			destStream = new StreamBridge ( dest );
 			srcStream = new StreamBridge ( src );
 
-			core.ConvertImage ( destStream, srcStream, args );
+			core.CompressImage ( destStream, srcStream, args );
 		}
 
 		private sealed class StreamBridge : IDegraStream

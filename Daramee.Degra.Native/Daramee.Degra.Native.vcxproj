@@ -48,6 +48,7 @@
     <ClCompile Include="Encode.WebP.cpp" />
     <ClCompile Include="Encode.WIC.Jpeg.cpp" />
     <ClCompile Include="Encode.WIC.Png.cpp" />
+    <ClCompile Include="Encode.Zopfli.Png.cpp" />
     <ClCompile Include="IDegraStream.cpp" />
     <ClCompile Include="Settings.cpp" />
   </ItemGroup>
@@ -189,12 +190,12 @@
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>28204</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>..\libwebp\libwebp\src;..\ExternalLibraries\mozjpeg\include;..\ExternalLibraries\libwebp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libwebp\libwebp\src;..\ExternalLibraries\mozjpeg\include;..\ExternalLibraries\libwebp\include;..\ExternalLibraries\zopfli\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <AdditionalLibraryDirectories>..\Built\$(PlatformTarget)-$(Configuration)\;..\ExternalLibraries\mozjpeg\lib\$(PlatformTarget)\;..\ExternalLibraries\libwebp\lib\$(PlatformTarget)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Built\$(PlatformTarget)-$(Configuration)\;..\ExternalLibraries\mozjpeg\lib\$(PlatformTarget)\;..\ExternalLibraries\libwebp\lib\$(PlatformTarget)\;..\ExternalLibraries\zopfli\lib\$(PlatformTarget)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -207,12 +208,12 @@
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>28204</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>..\libwebp\libwebp\src;..\ExternalLibraries\mozjpeg\include;..\ExternalLibraries\libwebp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libwebp\libwebp\src;..\ExternalLibraries\mozjpeg\include;..\ExternalLibraries\libwebp\include;..\ExternalLibraries\zopfli\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <AdditionalLibraryDirectories>..\Built\$(PlatformTarget)-$(Configuration)\;..\ExternalLibraries\mozjpeg\lib\$(PlatformTarget)\;..\ExternalLibraries\libwebp\lib\$(PlatformTarget)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Built\$(PlatformTarget)-$(Configuration)\;..\ExternalLibraries\mozjpeg\lib\$(PlatformTarget)\;..\ExternalLibraries\libwebp\lib\$(PlatformTarget)\;..\ExternalLibraries\zopfli\lib\$(PlatformTarget)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
@@ -225,12 +226,12 @@
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>28204</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>..\libwebp\libwebp\src;..\ExternalLibraries\mozjpeg\include;..\ExternalLibraries\libwebp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libwebp\libwebp\src;..\ExternalLibraries\mozjpeg\include;..\ExternalLibraries\libwebp\include;..\ExternalLibraries\zopfli\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <AdditionalLibraryDirectories>..\Built\$(PlatformTarget)-$(Configuration)\;..\ExternalLibraries\mozjpeg\lib\$(PlatformTarget)\;..\ExternalLibraries\libwebp\lib\$(PlatformTarget)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Built\$(PlatformTarget)-$(Configuration)\;..\ExternalLibraries\mozjpeg\lib\$(PlatformTarget)\;..\ExternalLibraries\libwebp\lib\$(PlatformTarget)\;..\ExternalLibraries\zopfli\lib\$(PlatformTarget)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
@@ -243,12 +244,12 @@
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>28204</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>..\libwebp\libwebp\src;..\ExternalLibraries\mozjpeg\include;..\ExternalLibraries\libwebp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libwebp\libwebp\src;..\ExternalLibraries\mozjpeg\include;..\ExternalLibraries\libwebp\include;..\ExternalLibraries\zopfli\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <AdditionalLibraryDirectories>..\Built\$(PlatformTarget)-$(Configuration)\;..\ExternalLibraries\mozjpeg\lib\$(PlatformTarget)\;..\ExternalLibraries\libwebp\lib\$(PlatformTarget)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Built\$(PlatformTarget)-$(Configuration)\;..\ExternalLibraries\mozjpeg\lib\$(PlatformTarget)\;..\ExternalLibraries\libwebp\lib\$(PlatformTarget)\;..\ExternalLibraries\zopfli\lib\$(PlatformTarget)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
@@ -261,12 +262,12 @@
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>28204</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>..\libwebp\libwebp\src;..\ExternalLibraries\mozjpeg\include;..\ExternalLibraries\libwebp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libwebp\libwebp\src;..\ExternalLibraries\mozjpeg\include;..\ExternalLibraries\libwebp\include;..\ExternalLibraries\zopfli\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <AdditionalLibraryDirectories>..\Built\$(PlatformTarget)-$(Configuration)\;..\ExternalLibraries\mozjpeg\lib\$(PlatformTarget)\;..\ExternalLibraries\libwebp\lib\$(PlatformTarget)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Built\$(PlatformTarget)-$(Configuration)\;..\ExternalLibraries\mozjpeg\lib\$(PlatformTarget)\;..\ExternalLibraries\libwebp\lib\$(PlatformTarget)\;..\ExternalLibraries\zopfli\lib\$(PlatformTarget)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
@@ -279,12 +280,12 @@
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>28204</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>..\libwebp\libwebp\src;..\ExternalLibraries\mozjpeg\include;..\ExternalLibraries\libwebp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libwebp\libwebp\src;..\ExternalLibraries\mozjpeg\include;..\ExternalLibraries\libwebp\include;..\ExternalLibraries\zopfli\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <AdditionalLibraryDirectories>..\Built\$(PlatformTarget)-$(Configuration)\;..\ExternalLibraries\mozjpeg\lib\$(PlatformTarget)\;..\ExternalLibraries\libwebp\lib\$(PlatformTarget)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Built\$(PlatformTarget)-$(Configuration)\;..\ExternalLibraries\mozjpeg\lib\$(PlatformTarget)\;..\ExternalLibraries\libwebp\lib\$(PlatformTarget)\;..\ExternalLibraries\zopfli\lib\$(PlatformTarget)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -297,12 +298,12 @@
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>28204</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>..\libwebp\libwebp\src;..\ExternalLibraries\mozjpeg\include;..\ExternalLibraries\libwebp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libwebp\libwebp\src;..\ExternalLibraries\mozjpeg\include;..\ExternalLibraries\libwebp\include;..\ExternalLibraries\zopfli\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <AdditionalLibraryDirectories>..\Built\$(PlatformTarget)-$(Configuration)\;..\ExternalLibraries\mozjpeg\lib\$(PlatformTarget)\;..\ExternalLibraries\libwebp\lib\$(PlatformTarget)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Built\$(PlatformTarget)-$(Configuration)\;..\ExternalLibraries\mozjpeg\lib\$(PlatformTarget)\;..\ExternalLibraries\libwebp\lib\$(PlatformTarget)\;..\ExternalLibraries\zopfli\lib\$(PlatformTarget)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -315,12 +316,12 @@
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>28204</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>..\libwebp\libwebp\src;..\ExternalLibraries\mozjpeg\include;..\ExternalLibraries\libwebp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libwebp\libwebp\src;..\ExternalLibraries\mozjpeg\include;..\ExternalLibraries\libwebp\include;..\ExternalLibraries\zopfli\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <AdditionalLibraryDirectories>..\Built\$(PlatformTarget)-$(Configuration)\;..\ExternalLibraries\mozjpeg\lib\$(PlatformTarget)\;..\ExternalLibraries\libwebp\lib\$(PlatformTarget)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Built\$(PlatformTarget)-$(Configuration)\;..\ExternalLibraries\mozjpeg\lib\$(PlatformTarget)\;..\ExternalLibraries\libwebp\lib\$(PlatformTarget)\;..\ExternalLibraries\zopfli\lib\$(PlatformTarget)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

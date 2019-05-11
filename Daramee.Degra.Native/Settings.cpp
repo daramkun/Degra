@@ -16,7 +16,8 @@ Daramee_Degra::JpegSettings::JpegSettings ( int quality )
 	this->quality = quality;
 }
 
-Daramee_Degra::PngSettings::PngSettings ( bool indexed )
+Daramee_Degra::PngSettings::PngSettings ( bool indexed, bool zopfli )
 {
 	this->indexed = indexed;
+	this->zopfli = zopfli;
 }

@@ -213,4 +213,7 @@
   <data name="TextBlockSettings.Text" xml:space="preserve">
     <value>Settings</value>
   </data>
+  <data name="TextBlockUseZopfli.Text" xml:space="preserve">
+    <value>Use Zopfli for Compression(PNG)</value>
+  </data>
 </root>

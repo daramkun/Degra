@@ -163,9 +163,9 @@ namespace Daramee.Degra
 		{
 			if ( !e.DataView.Contains ( StandardDataFormats.StorageItems ) )
 				return;
-			var items = await e.DataView.GetStorageItemsAsync ();
+			var files = await e.DataView.GetStorageItemsAsync ();
 
-			await DoCompression ( items );
+			await DoCompression ( files );
 		}
 
 		private void EnableControls ( bool enable )
@@ -194,7 +194,7 @@ namespace Daramee.Degra
 				{
 					case 0: settings = new WebPSettings ( int.Parse ( TextBoxQuality.Text ) ); break;
 					case 1: settings = new JpegSettings ( int.Parse ( TextBoxQuality.Text ) ); break;
-					case 2: settings = new PngSettings ( ToggleIndexedPixelFormat.IsOn ); break;
+					case 2: settings = new PngSettings ( ToggleIndexedPixelFormat.IsOn, ToggleUseZopfli.IsOn ); break;
 					default: throw new ArgumentException ();
 				}
 
@@ -203,103 +203,105 @@ namespace Daramee.Degra
 
 				var failed = new ConcurrentQueue<string> ();
 				int proceedCount = 0;
-				foreach ( var sourceStorageItem in storageItems )
+				await Task.Run ( async () =>
 				{
-					StorageApplicationPermissions.FutureAccessList.Add ( sourceStorageItem );
-
-					if ( !( sourceStorageItem is IStorageFile ) )
+					foreach ( var sourceStorageItem in storageItems )
 					{
-						failed.Enqueue ( $"{resourceLoader.GetString ( "Error_IO" )} - {sourceStorageItem.Path}" );
-						continue;
-					}
+						StorageApplicationPermissions.FutureAccessList.Add ( sourceStorageItem );
 
-					ProgressState state = new ProgressState ();
-					var sourceFolder = await StorageFolder.GetFolderFromPathAsync ( Path.GetDirectoryName ( sourceStorageItem.Path ) );
-					var sourceFile = sourceStorageItem;
-					IStorageFile newFile;
-					try
-					{
-						if ( !fileOverwrite )
-							newFile = await sourceFolder.CreateFileAsync ( Guid.NewGuid ().ToString ()
-								, CreationCollisionOption.GenerateUniqueName );
-						else newFile = sourceFile as IStorageFile;
-					}
-					catch { newFile = sourceFile as IStorageFile; }
-					
-					try
-					{
-						var compressionTask = ImageCompressor.DoCompression ( newFile, sourceFile as IStorageFile, args, state );
-
-						string lastFilename = null;
-						while ( !( compressionTask.Status == TaskStatus.RanToCompletion || compressionTask.Status == TaskStatus.Faulted || compressionTask.Status == TaskStatus.Canceled ) )
+						if ( !( sourceStorageItem is IStorageFile ) )
 						{
-							if ( state.ProceedFile != lastFilename )
+							failed.Enqueue ( $"{resourceLoader.GetString ( "Error_IO" )} - {sourceStorageItem.Path}" );
+							continue;
+						}
+
+						ProgressState state = new ProgressState ();
+						var sourceFolder = await StorageFolder.GetFolderFromPathAsync ( Path.GetDirectoryName ( sourceStorageItem.Path ) );
+						var sourceFile = sourceStorageItem;
+						IStorageFile newFile;
+						try
+						{
+							if ( !fileOverwrite )
+								newFile = await sourceFolder.CreateFileAsync ( Guid.NewGuid ().ToString ()
+									, CreationCollisionOption.GenerateUniqueName );
+							else newFile = sourceFile as IStorageFile;
+						}
+						catch { newFile = sourceFile as IStorageFile; }
+
+						try
+						{
+							var compressionTask = ImageCompressor.DoCompression ( newFile, sourceFile as IStorageFile, args, state );
+
+							string lastFilename = null;
+							while ( !( compressionTask.Status == TaskStatus.RanToCompletion || compressionTask.Status == TaskStatus.Faulted || compressionTask.Status == TaskStatus.Canceled ) )
 							{
-								await Dispatcher.RunIdleAsync ( ( IdleDispatchedHandlerArgs e ) =>
+								if ( state.ProceedFile != lastFilename )
 								{
-									TextBlockProceedLog.Text = $"{resourceLoader.GetString ( "Proceed" )}: {state.ProceedFile}";
-									Progress.Value = ( proceedCount / ( double ) storageItems.Count ) + ( ( 1 / ( double ) storageItems.Count ) * state.Progress );
-								} );
-								lastFilename = state.ProceedFile;
+									await Dispatcher.RunIdleAsync ( ( IdleDispatchedHandlerArgs e ) =>
+									{
+										TextBlockProceedLog.Text = $"{resourceLoader.GetString ( "Proceed" )}: {state.ProceedFile}";
+										Progress.Value = ( proceedCount / ( double ) storageItems.Count ) + ( ( 1 / ( double ) storageItems.Count ) * state.Progress );
+									} );
+									lastFilename = state.ProceedFile;
+								}
+								await Task.Delay ( 1 );
 							}
-							await Task.Delay ( 1 );
+							var format = compressionTask.Result;
+
+							string formatExtension = format switch
+							{
+								ProceedFormat.WebP => ".webp",
+								ProceedFormat.Jpeg => ".jpg",
+								ProceedFormat.Png => ".png",
+
+								ProceedFormat.Zip => ".zip",
+
+								_ => throw new Exception (),
+							};
+							string newPath = Path.Combine ( Path.GetDirectoryName ( sourceFile.Path ), Path.GetFileNameWithoutExtension ( sourceFile.Path ) );
+							if ( sourceFile.Path == newPath + formatExtension && !fileOverwrite )
+								newPath += " (1)";
+							newPath += formatExtension;
+
+							if ( sourceStorageItem != newFile )
+								await newFile.MoveAsync ( sourceFolder, Path.GetFileName ( newPath ),
+									fileOverwrite ? Windows.Storage.NameCollisionOption.ReplaceExisting : Windows.Storage.NameCollisionOption.GenerateUniqueName );
 						}
-						var format = compressionTask.Result;
-
-						string formatExtension = format switch
+						catch ( Exception ex )
 						{
-							ProceedFormat.WebP => ".webp",
-							ProceedFormat.Jpeg => ".jpg",
-							ProceedFormat.Png => ".png",
+							Debug.WriteLine ( ex );
 
-							ProceedFormat.Zip => ".zip",
+							var failedMessage = sourceStorageItem.Path;
+							if ( ex is Exception && ex.InnerException != null )
+								ex = ex.InnerException;
 
-							_ => throw new Exception (),
-						};
-						string newPath = Path.Combine ( Path.GetDirectoryName ( sourceFile.Path ), Path.GetFileNameWithoutExtension ( sourceFile.Path ) );
-						if ( sourceFile.Path == newPath + formatExtension && !fileOverwrite )
-							newPath += " (1)";
-						newPath += formatExtension;
-						
-						if ( sourceStorageItem != newFile )
-							await newFile.MoveAsync ( sourceFolder, Path.GetFileName ( newPath ),
-								fileOverwrite ? Windows.Storage.NameCollisionOption.ReplaceExisting : Windows.Storage.NameCollisionOption.GenerateUniqueName );
-					}
-					catch ( Exception ex )
-					{
-						Debug.WriteLine ( ex );
+							if ( ex is UnauthorizedAccessException )
+								failedMessage = $"{resourceLoader.GetString ( "Error_Unauthorized" )} - {failedMessage}";
+							else if ( ex is System.IO.IOException )
+								failedMessage = $"{resourceLoader.GetString ( "Error_IO" )} - {failedMessage}";
+							else if ( ex.Message == "Decoder from Stream is failed."
+								|| ex.Message == "Getting Image Frame is failed." )
+								failedMessage = $"{resourceLoader.GetString ( "Error_IsNotImage" )} - {failedMessage}";
+							else
+								failedMessage = $"{resourceLoader.GetString ( "Error_Unknown" )} - {failedMessage}";
 
-						var failedMessage = sourceStorageItem.Path;
-						if ( ex is Exception && ex.InnerException != null )
-							ex = ex.InnerException;
+							failed.Enqueue ( failedMessage );
 
-						if ( ex is UnauthorizedAccessException )
-							failedMessage = $"{resourceLoader.GetString ( "Error_Unauthorized" )} - {failedMessage}";
-						else if ( ex is System.IO.IOException )
-							failedMessage = $"{resourceLoader.GetString ( "Error_IO" )} - {failedMessage}";
-						else if ( ex.Message == "Decoder from Stream is failed."
-							|| ex.Message == "Getting Image Frame is failed." )
-							failedMessage = $"{resourceLoader.GetString ( "Error_IsNotImage" )} - {failedMessage}";
-						else
-							failedMessage = $"{resourceLoader.GetString ( "Error_Unknown" )} - {failedMessage}";
+							if ( !( ex is UnauthorizedAccessException ) )
+							{
+								await newFile.DeleteAsync ();
+							}
 
-						failed.Enqueue ( failedMessage );
-
-						if ( !( ex is UnauthorizedAccessException ) )
-						{
-							await newFile.DeleteAsync ();
+							await Dispatcher.RunIdleAsync ( ( IdleDispatchedHandlerArgs e ) =>
+							{
+								TextBlockProceedLog.Text = $"{resourceLoader.GetString ( "Error" )}: {sourceStorageItem}";
+								Progress.Value = ( ( proceedCount + 1 ) / ( double ) storageItems.Count );
+							} );
 						}
 
-						await Dispatcher.RunIdleAsync ( ( IdleDispatchedHandlerArgs e ) =>
-						{
-							TextBlockProceedLog.Text = $"{resourceLoader.GetString ( "Error" )}: {sourceStorageItem}";
-							Progress.Value = ( ( proceedCount + 1 ) / ( double ) storageItems.Count );
-						} );
+						System.Threading.Interlocked.Increment ( ref proceedCount );
 					}
-
-					System.Threading.Interlocked.Increment ( ref proceedCount );
-				}
-
+				} );
 				StorageApplicationPermissions.FutureAccessList.Clear ();
 
 				var flyoutDone = Resources [ "FlyoutDone" ] as Flyout;

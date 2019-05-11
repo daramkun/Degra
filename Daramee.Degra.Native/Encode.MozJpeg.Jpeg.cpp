@@ -11,6 +11,7 @@
 #	endif
 #endif
 
+#pragma region Stream Initialize
 struct degra_destination_mgr
 {
 	jpeg_destination_mgr pub;
@@ -53,7 +54,7 @@ void term_stream_destination ( j_compress_ptr cinfo )
 
 	if ( datacount > 0 ) {
 		ULONG written;
-		if ( FAILED ( dest->stream->Write ( dest->buffer, datacount, &written ) ) || written != datacount )
+		if ( FAILED ( dest->stream->Write ( dest->buffer, ( ULONG ) datacount, &written ) ) || written != datacount )
 			throw ref new Platform::FailureException ( L"Stream Written is failed." );
 	}
 	dest->stream->Commit ( 0 );
@@ -78,6 +79,7 @@ void jpeg_stream_dest ( j_compress_ptr cinfo, IStream* stream )
 	dest->pub.term_destination = term_stream_destination;
 	dest->stream = stream;
 }
+#pragma endregion
 
 void Encode_MozJpeg_Jpeg ( IStream* stream, IWICBitmapSource* source, int quality )
 {
@@ -88,10 +90,6 @@ void Encode_MozJpeg_Jpeg ( IStream* stream, IWICBitmapSource* source, int qualit
 	cinfo.err = jpeg_std_error ( &jerr );
 	jpeg_create_compress ( &cinfo );
 
-	// TODO: Stream setting to cinfo
-	//uint8_t* outBuffer = nullptr;
-	//unsigned long outLength = 0;
-	//jpeg_mem_dest ( &cinfo, &outBuffer, &outLength );
 	jpeg_stream_dest ( &cinfo, stream );
 
 	UINT width, height;
@@ -110,22 +108,18 @@ void Encode_MozJpeg_Jpeg ( IStream* stream, IWICBitmapSource* source, int qualit
 
 	int row_stride = 4 * ( ( width * ( ( 24 + 7 ) / 8 ) + 3 ) / 4 );
 
-	byte* row_pointer = new byte [ row_stride * height ];
+	byte* row_pointer = new byte [ row_stride ];
 	
 	while ( cinfo.next_scanline < cinfo.image_height ) {
 
 		JSAMPROW rows [ 1 ];
 		rows [ 0 ] = row_pointer;
 
-		WICRect rect = { 0, cinfo.next_scanline, width, 1 };
+		WICRect rect = { 0, ( int ) cinfo.next_scanline, ( int ) width, 1 };
 		source->CopyPixels ( &rect, row_stride, row_stride, row_pointer );
 
 		jpeg_write_scanlines ( &cinfo, rows, 1 );
 	}
-	/*source->CopyPixels ( nullptr, row_stride, row_stride * height, row_pointer );
-	JSAMPROW rows [ 1 ];
-	rows [ 0 ] = row_pointer;
-	jpeg_write_scanlines ( &cinfo, rows, height );*/
 
 	delete [] row_pointer;
 

@@ -16,5 +16,6 @@
     <ClCompile Include="Encode.WIC.Jpeg.cpp" />
     <ClCompile Include="Encode.WIC.Png.cpp" />
     <ClCompile Include="Encode.MozJpeg.Jpeg.cpp" />
+    <ClCompile Include="Encode.Zopfli.Png.cpp" />
   </ItemGroup>
 </Project>

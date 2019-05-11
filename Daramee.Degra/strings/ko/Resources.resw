@@ -213,4 +213,7 @@
   <data name="TextBlockSettings.Text" xml:space="preserve">
     <value>설정</value>
   </data>
+  <data name="TextBlockUseZopfli.Text" xml:space="preserve">
+    <value>압축에 Zopfli 사용(PNG)</value>
+  </data>
 </root>

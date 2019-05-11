@@ -111,7 +111,13 @@ void STDMETHODCALLTYPE Degra_Inner_SaveTo ( IWICImagingFactory* wicFactory, IWIC
 #endif
 	}
 	else if ( dynamic_cast< Daramee_Degra::PngSettings^ >( args->Settings ) )
-		Encode_WIC_PNG ( wicFactory, dest, source );
+	{
+		auto pngSettings = dynamic_cast< Daramee_Degra::PngSettings^ >( args->Settings );
+		if ( pngSettings->UseZopfli )
+			Encode_Zopfli_PNG ( wicFactory, dest, source );
+		else
+			Encode_WIC_PNG ( wicFactory, dest, source );
+	}
 }
 #pragma endregion
 

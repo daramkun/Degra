@@ -51,7 +51,7 @@ namespace Daramee_Degra
 	public ref class PngSettings sealed : public IEncodingSettings
 	{
 	public:
-		PngSettings ( bool indexed );
+		PngSettings ( bool indexed, bool zopfli );
 
 	public:
 		virtual property Platform::String^ Extension { Platform::String^ get () { return L".png"; } }
@@ -61,9 +61,13 @@ namespace Daramee_Degra
 		{
 			bool get () { return indexed; }
 		}
+		property bool UseZopfli
+		{
+			bool get () { return zopfli; }
+		}
 
 	private:
-		bool indexed;
+		bool indexed, zopfli;
 	};
 }
 

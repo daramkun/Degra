@@ -84,6 +84,11 @@
 							<TextBlock x:Uid="TextBlockIndexedPixelFormat" Text="8-bit Indexed Pixel Format(PNG)" FontSize="12" Margin="0,0,0,4" />
 							<ToggleSwitch x:Name="ToggleIndexedPixelFormat" IsOn="False" />
 						</StackPanel>
+
+						<StackPanel Margin="50,0,0,16">
+							<TextBlock x:Uid="TextBlockUseZopfli" FontSize="12" Margin="0,0,0,4" />
+							<ToggleSwitch x:Name="ToggleUseZopfli" IsOn="False" />
+						</StackPanel>
 					</StackPanel>
 				</ScrollViewer>
 			</Grid>

@@ -49,7 +49,7 @@ void STDMETHODCALLTYPE Degra_Inner_ArrangeImage ( IWICImagingFactory* wicFactory
 			throw ref new Platform::FailureException ( L"Initializing Reformat Image is failed." );
 
 		if ( FAILED ( formatConverter->Initialize ( ret, GUID_WICPixelFormat8bppIndexed,
-			args->Dither ? WICBitmapDitherTypeOrdered16x16 : WICBitmapDitherTypeNone,
+			args->Dither ? WICBitmapDitherTypeErrorDiffusion : WICBitmapDitherTypeNone,
 			nullptr, 1, WICBitmapPaletteTypeMedianCut ) ) )
 			throw ref new Platform::FailureException ( L"Reformatting Image is failed." );
 

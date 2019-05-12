@@ -144,6 +144,9 @@
   <data name="ButtonYes" xml:space="preserve">
     <value>Yes</value>
   </data>
+  <data name="ComboBoxItemOriginalFormat.Content" xml:space="preserve">
+    <value>Original Format</value>
+  </data>
   <data name="Done" xml:space="preserve">
     <value>Done.</value>
   </data>
@@ -193,7 +196,7 @@
     <value>Image Format</value>
   </data>
   <data name="TextBlockIndexedPixelFormat.Text" xml:space="preserve">
-    <value>8-bit Indexed Pixel Format(PNG)</value>
+    <value>Palette managed Pixel Format(PNG)</value>
   </data>
   <data name="TextBlockMaximumHeight.Text" xml:space="preserve">
     <value>Maximum Image Height</value>
@@ -215,5 +218,8 @@
   </data>
   <data name="TextBlockUseZopfli.Text" xml:space="preserve">
     <value>Use Zopfli for Compression(PNG)</value>
+  </data>
+  <data name="Working" xml:space="preserve">
+    <value>Working...</value>
   </data>
 </root>

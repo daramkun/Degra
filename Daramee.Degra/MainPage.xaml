@@ -52,6 +52,7 @@
 						<StackPanel Margin="50,0,0,16">
 							<TextBlock x:Uid="TextBlockImageFormat" Text="Image Format" FontSize="12" Margin="0,0,0,4" />
 							<ComboBox x:Name="ComboBoxImageFormat" HorizontalAlignment="Stretch" SelectedIndex="0">
+								<ComboBoxItem x:Uid="ComboBoxItemOriginalFormat" />
 								<ComboBoxItem Content="WebP" />
 								<ComboBoxItem Content="JPEG" />
 								<ComboBoxItem Content="PNG" />

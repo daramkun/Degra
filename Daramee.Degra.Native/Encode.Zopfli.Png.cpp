@@ -36,10 +36,10 @@ void Encode_Zopfli_PNG ( IWICImagingFactory* wicFactory, IStream* stream, IWICBi
 	options.num_iterations_large *= 4;
 
 	std::vector<byte> firstPassData ( firstPassStatStg.cbSize.QuadPart );
-	firstPassStream->Read ( firstPassData.data (), firstPassData.size (), nullptr );
+	firstPassStream->Read ( firstPassData.data (), ( ULONG ) firstPassData.size (), nullptr );
 
 	std::vector<byte> secondPassData;
 	ZopfliPNGOptimize ( firstPassData, options, false, &secondPassData );
 
-	stream->Write ( secondPassData.data (), secondPassData.size (), nullptr );
+	stream->Write ( secondPassData.data (), ( ULONG ) secondPassData.size (), nullptr );
 }

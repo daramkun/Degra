@@ -45,6 +45,7 @@ void Encode_WebP ( IStream* stream, IWICBitmapSource* source, int quality )
 	{
 		stride = width * 4;
 		importPixels = WebPPictureImportBGRA;
+		picture.use_argb = true;
 	}
 	else
 	{

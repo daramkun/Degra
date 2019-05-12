@@ -188,17 +188,23 @@ namespace Daramee.Degra
 				Progress.IsIndeterminate = false;
 				Progress.Value = 0;
 				Progress.Maximum = 1;
+				TextBlockProceedLog.Text = resourceLoader.GetString ( "Working" );
 
-				IEncodingSettings settings;
+				IEncodingSettings webPSettings = null, jpegSettings = null, pngSettings = null;
 				switch ( ComboBoxImageFormat.SelectedIndex )
 				{
-					case 0: settings = new WebPSettings ( int.Parse ( TextBoxQuality.Text ) ); break;
-					case 1: settings = new JpegSettings ( int.Parse ( TextBoxQuality.Text ) ); break;
-					case 2: settings = new PngSettings ( ToggleIndexedPixelFormat.IsOn, ToggleUseZopfli.IsOn ); break;
+					case 0:
+						webPSettings = new WebPSettings ( int.Parse ( TextBoxQuality.Text ) );
+						jpegSettings = new JpegSettings ( int.Parse ( TextBoxQuality.Text ) );
+						pngSettings = new PngSettings ( ToggleIndexedPixelFormat.IsOn, ToggleUseZopfli.IsOn );
+						break;
+					case 1: webPSettings = new WebPSettings ( int.Parse ( TextBoxQuality.Text ) ); break;
+					case 2: jpegSettings = new JpegSettings ( int.Parse ( TextBoxQuality.Text ) ); break;
+					case 3: pngSettings = new PngSettings ( ToggleIndexedPixelFormat.IsOn, ToggleUseZopfli.IsOn ); break;
 					default: throw new ArgumentException ();
 				}
 
-				Argument args = new Argument ( settings, ToggleDither.IsOn, ToggleResizeBicubic.IsOn, uint.Parse ( TextBoxMaximumHeight.Text ) );
+				Argument args = new Argument ( null, ToggleDither.IsOn, ToggleResizeBicubic.IsOn, uint.Parse ( TextBoxMaximumHeight.Text ) );
 				bool fileOverwrite = ToggleFileOverwrite.IsOn;
 
 				var failed = new ConcurrentQueue<string> ();
@@ -230,7 +236,8 @@ namespace Daramee.Degra
 
 						try
 						{
-							var compressionTask = ImageCompressor.DoCompression ( newFile, sourceFile as IStorageFile, args, state );
+							var compressionTask = ImageCompressor.DoCompression ( newFile, sourceFile as IStorageFile, args,
+								webPSettings, jpegSettings, pngSettings, state );
 
 							string lastFilename = null;
 							while ( !( compressionTask.Status == TaskStatus.RanToCompletion || compressionTask.Status == TaskStatus.Faulted || compressionTask.Status == TaskStatus.Canceled ) )

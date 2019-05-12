@@ -38,7 +38,31 @@ namespace Daramee.Degra
 
 		static readonly Stream readStream = new MemoryStream (), writeStream = new MemoryStream ();
 
-		private static ProceedFormat CompressionWIC ( Stream dest, Stream src, Argument args )
+		private static bool SetSettings ( Argument args, IEncodingSettings webPSettings, IEncodingSettings jpegSettings, IEncodingSettings pngSettings, IDetector detector )
+		{
+			if ( !( detector.Extension == "webp" || detector.Extension == "jpg" || detector.Extension == "png" ) )
+				return false;
+
+			if ( webPSettings != null && jpegSettings != null && pngSettings != null )
+			{
+				if ( detector.Extension == "webp" )
+					args.Settings = webPSettings;
+				else if ( detector.Extension == "jpg" )
+					args.Settings = jpegSettings;
+				else if ( detector.Extension == "png" )
+					args.Settings = pngSettings;
+				else
+					return false;
+			}
+			else
+			{
+				args.Settings = webPSettings ?? jpegSettings ?? pngSettings ?? throw new ArgumentNullException ();
+			}
+
+			return true;
+		}
+
+		private static ProceedFormat CompressionSingleFile ( Stream dest, Stream src, Argument args )
 		{
 			Compress ( dest, src, args );
 			dest.Flush ();
@@ -50,7 +74,9 @@ namespace Daramee.Degra
 			return ProceedFormat.Unknown;
 		}
 
-		private static ProceedFormat CompressionZIPDifferent ( Stream dest, Stream src, Argument args, ProgressState state, string srcPath )
+		private static ProceedFormat CompressionZIPDifferent ( Stream dest, Stream src, Argument args,
+			IEncodingSettings webPSettings, IEncodingSettings jpegSettings, IEncodingSettings pngSettings, 
+			ProgressState state, string srcPath )
 		{
 			using ZipArchive sourceArchive = new ZipArchive ( src, ZipArchiveMode.Read );
 			using ZipArchive destinationArchive = new ZipArchive ( dest, ZipArchiveMode.Create );
@@ -72,6 +98,8 @@ namespace Daramee.Degra
 				readStream.Position = 0;
 				if ( imgDetect != null && SupportDecodingImageFormats.Contains ( imgDetect.Extension ) )
 				{
+					SetSettings ( args, webPSettings, jpegSettings, pngSettings, imgDetect );
+
 					var destinationEntry = destinationArchive.CreateEntry (
 						Path.Combine ( Path.GetDirectoryName ( sourceEntry.FullName ), Path.GetFileNameWithoutExtension ( sourceEntry.FullName ) + extension )
 					);
@@ -115,7 +143,9 @@ namespace Daramee.Degra
 			return ProceedFormat.Zip;
 		}
 
-		private static ProceedFormat CompressionZIPSame ( Stream dest, Argument args, ProgressState state, string srcPath )
+		private static ProceedFormat CompressionZIPSame ( Stream dest, Argument args,
+			IEncodingSettings webPSettings, IEncodingSettings jpegSettings, IEncodingSettings pngSettings,
+			ProgressState state, string srcPath )
 		{
 			using ZipArchive destinationArchive = new ZipArchive ( dest, ZipArchiveMode.Update );
 
@@ -138,10 +168,10 @@ namespace Daramee.Degra
 				readStream.Position = 0;
 				var imgDetect = DetectorService.DetectDetector ( readStream );
 				readStream.Position = 0;
-				if ( imgDetect != null && ( imgDetect.Extension == "jpg" || imgDetect.Extension == "bmp"
-					|| imgDetect.Extension == "png" || imgDetect.Extension == "gif" || imgDetect.Extension == "tif"
-					|| imgDetect.Extension == "hdp" ) )
+				if ( imgDetect != null && SupportDecodingImageFormats.Contains ( imgDetect.Extension ) )
 				{
+					SetSettings ( args, webPSettings, jpegSettings, pngSettings, imgDetect );
+
 					var sourceEntryName = sourceEntry.FullName;
 					sourceEntry.Delete ();
 
@@ -180,7 +210,9 @@ namespace Daramee.Degra
 			return ProceedFormat.Zip;
 		}
 
-		public static async Task<ProceedFormat> DoCompression ( IStorageFile dest, IStorageFile src, Argument args, ProgressState state = null )
+		public static async Task<ProceedFormat> DoCompression ( IStorageFile dest, IStorageFile src, Argument args,
+			IEncodingSettings webPSettings, IEncodingSettings jpegSettings, IEncodingSettings pngSettings,
+			ProgressState state = null )
 		{
 			using var srcStorageFileStream = await src.OpenAsync ( Windows.Storage.FileAccessMode.Read );
 			using var sourceStream = srcStorageFileStream.AsStream ();
@@ -192,13 +224,16 @@ namespace Daramee.Degra
 			sourceStream.Position = 0;
 			if ( detector.Extension == "zip" )
 			{
-				return ( dest == src ) ? CompressionZIPDifferent ( destinationStream, sourceStream, args, state, src.Path ) :
-					CompressionZIPSame ( destinationStream, args, state, src.Path );
+				return ( dest == src ) ? CompressionZIPDifferent ( destinationStream, sourceStream, args, webPSettings, jpegSettings, pngSettings, state, src.Path ) :
+					CompressionZIPSame ( destinationStream, args, webPSettings, jpegSettings, pngSettings, state, src.Path );
 			}
 			else
 			{
+				if ( !SetSettings ( args, webPSettings, jpegSettings, pngSettings, detector ) )
+					throw new NotSupportedException ();
+
 				writeStream.SetLength ( 0 );
-				var format = CompressionWIC ( writeStream, sourceStream, args );
+				var format = CompressionSingleFile ( writeStream, sourceStream, args );
 
 				destinationStream.SetLength ( 0 );
 				writeStream.Position = 0;

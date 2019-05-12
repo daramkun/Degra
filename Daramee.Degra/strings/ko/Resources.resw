@@ -144,6 +144,9 @@
   <data name="ButtonYes" xml:space="preserve">
     <value>예</value>
   </data>
+  <data name="ComboBoxItemOriginalFormat.Content" xml:space="preserve">
+    <value>원본 형식</value>
+  </data>
   <data name="Done" xml:space="preserve">
     <value>완료.</value>
   </data>
@@ -193,7 +196,7 @@
     <value>이미지 형식</value>
   </data>
   <data name="TextBlockIndexedPixelFormat.Text" xml:space="preserve">
-    <value>8비트 인덱싱 된 픽셀 형식(PNG)</value>
+    <value>팔레트로 관리되는 픽셀 형식(PNG)</value>
   </data>
   <data name="TextBlockMaximumHeight.Text" xml:space="preserve">
     <value>최대 이미지 세로 크기</value>
@@ -215,5 +218,8 @@
   </data>
   <data name="TextBlockUseZopfli.Text" xml:space="preserve">
     <value>압축에 Zopfli 사용(PNG)</value>
+  </data>
+  <data name="Working" xml:space="preserve">
+    <value>작업 중...</value>
   </data>
 </root>

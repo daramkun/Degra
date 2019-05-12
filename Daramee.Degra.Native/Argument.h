@@ -14,7 +14,11 @@ namespace Daramee_Degra
 		property unsigned int MaximumHeight { unsigned int get () { return maximumHeight; } };
 		property bool Dither { bool get () { return dither; } }
 		property bool ResizeBicubic { bool get () { return resizeBicubic; } }
-		property IEncodingSettings^ Settings { IEncodingSettings^ get () { return settings; } }
+		property IEncodingSettings^ Settings
+		{
+			IEncodingSettings^ get () { return settings; }
+			void set ( IEncodingSettings^ value ) { settings = value; }
+		}
 
 	private:
 		unsigned int maximumHeight;

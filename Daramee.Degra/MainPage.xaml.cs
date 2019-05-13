@@ -86,6 +86,7 @@ namespace Daramee.Degra
 				TextBoxMaximumHeight.Text = ( ( int ) container.Values [ "MaximumHeight" ] ).ToString ();
 				ToggleDither.IsOn = ( bool ) container.Values [ "Dither" ];
 				ToggleResizeBicubic.IsOn = ( bool ) container.Values [ "ResizeBicubic" ];
+				ToggleDeepCheckAlpha.IsOn = ( bool ) container.Values [ "DeepCheckAlpha" ];
 				TextBoxQuality.Text = ( ( int ) container.Values [ "Quality" ] ).ToString ();
 				ToggleIndexedPixelFormat.IsOn = ( bool ) container.Values [ "IndexedPixelFormat" ];
 			}
@@ -103,6 +104,7 @@ namespace Daramee.Degra
 			container.Values [ "MaximumHeight" ] = int.Parse ( TextBoxMaximumHeight.Text );
 			container.Values [ "Dither" ] = ToggleDither.IsOn;
 			container.Values [ "ResizeBicubic" ] = ToggleResizeBicubic.IsOn;
+			container.Values [ "DeepCheckAlpha" ] = ToggleDeepCheckAlpha.IsOn;
 			container.Values [ "Quality" ] = int.Parse ( TextBoxQuality.Text );
 			container.Values [ "IndexedPixelFormat" ] = ToggleIndexedPixelFormat.IsOn;
 		}

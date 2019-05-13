@@ -1,4 +1,4 @@
-#include "DegraCore.h"
+#include "../DegraCore.h"
 
 #if defined ( _M_AMD64 ) || defined ( _M_IA32 )
 #	include <jpeglib.h>

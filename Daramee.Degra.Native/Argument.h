@@ -8,12 +8,13 @@ namespace Daramee_Degra
 	public ref class Argument sealed
 	{
 	public:
-		Argument ( IEncodingSettings^ settings, bool dither, bool resizeBicubic, unsigned int maximumHeight );
+		Argument ( IEncodingSettings^ settings, bool dither, bool resizeBicubic, bool deepCheckAlpha, unsigned int maximumHeight );
 
 	public:
 		property unsigned int MaximumHeight { unsigned int get () { return maximumHeight; } };
 		property bool Dither { bool get () { return dither; } }
 		property bool ResizeBicubic { bool get () { return resizeBicubic; } }
+		property bool DeepCheckAlpha { bool get () { return deepCheckAlpha; } }
 		property IEncodingSettings^ Settings
 		{
 			IEncodingSettings^ get () { return settings; }
@@ -22,7 +23,7 @@ namespace Daramee_Degra
 
 	private:
 		unsigned int maximumHeight;
-		bool dither, resizeBicubic;
+		bool dither, resizeBicubic, deepCheckAlpha;
 		IEncodingSettings^ settings;
 	};
 }

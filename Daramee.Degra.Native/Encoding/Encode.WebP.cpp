@@ -1,4 +1,4 @@
-#include "DegraCore.h"
+#include "../DegraCore.h"
 
 #include <webp/encode.h>
 #pragma comment ( lib, "libwebp.lib" )

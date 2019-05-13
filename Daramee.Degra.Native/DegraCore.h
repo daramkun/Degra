@@ -11,6 +11,7 @@
 #include "IDegraStream.h"
 #include "Argument.h"
 #include "Encoding.h"
+#include "Process.h"
 
 namespace Daramee_Degra
 {

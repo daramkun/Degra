@@ -1,4 +1,4 @@
-#include "DegraCore.h"
+#include "../DegraCore.h"
 
 void Encode_WIC_Jpeg ( IWICImagingFactory* wicFactory, IStream* stream, IWICBitmapSource* source, int quality )
 {

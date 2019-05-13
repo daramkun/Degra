@@ -172,9 +172,9 @@ namespace Daramee.Degra
 		{
 			ButtonSelectFiles.IsEnabled
 				= ToggleFileOverwrite.IsEnabled
-				//= ToggleDeleteSourceFile.IsEnabled
-				= ComboBoxImageFormat.IsEnabled = TextBoxMaximumHeight.IsEnabled = ToggleDither.IsEnabled
-				= ToggleResizeBicubic.IsEnabled = TextBoxQuality.IsEnabled = ToggleIndexedPixelFormat.IsEnabled
+				= ComboBoxImageFormat.IsEnabled = TextBoxMaximumHeight.IsEnabled
+				= ToggleDither.IsEnabled = ToggleResizeBicubic.IsEnabled = ToggleDeepCheckAlpha.IsEnabled
+				= TextBoxQuality.IsEnabled = ToggleIndexedPixelFormat.IsEnabled
 				= enable;
 		}
 
@@ -204,7 +204,7 @@ namespace Daramee.Degra
 					default: throw new ArgumentException ();
 				}
 
-				Argument args = new Argument ( null, ToggleDither.IsOn, ToggleResizeBicubic.IsOn, uint.Parse ( TextBoxMaximumHeight.Text ) );
+				Argument args = new Argument ( null, ToggleDither.IsOn, ToggleResizeBicubic.IsOn, ToggleDeepCheckAlpha.IsOn, uint.Parse ( TextBoxMaximumHeight.Text ) );
 				bool fileOverwrite = ToggleFileOverwrite.IsOn;
 
 				var failed = new ConcurrentQueue<string> ();

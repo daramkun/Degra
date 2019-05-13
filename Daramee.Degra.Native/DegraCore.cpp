@@ -15,7 +15,11 @@ void STDMETHODCALLTYPE Degra_Inner_LoadBitmap ( IWICImagingFactory * wicFactory,
 	if ( FAILED ( decoder->GetFrame ( 0, &decodeFrame ) ) )
 		throw ref new Platform::FailureException ( L"Getting Image Frame is failed." );
 
-	*source = decodeFrame.Detach ();
+	CComPtr<IWICBitmap> tempBitmap;
+	if ( FAILED ( wicFactory->CreateBitmapFromSource ( decodeFrame, WICBitmapCacheOnDemand, &tempBitmap ) ) )
+		throw ref new Platform::FailureException ( L"Failed Create Copied Bitmap." );
+
+	*source = tempBitmap.Detach ();
 }
 
 void STDMETHODCALLTYPE Degra_Inner_ArrangeImage ( IWICImagingFactory* wicFactory, IWICBitmapSource * source, Daramee_Degra::Argument^ args, IWICBitmapSource * *arranged )
@@ -23,79 +27,16 @@ void STDMETHODCALLTYPE Degra_Inner_ArrangeImage ( IWICImagingFactory* wicFactory
 	CComQIPtr<IWICBitmapSource> ret;
 	ret = source;
 
-	UINT width, height;
-	if ( FAILED ( ret->GetSize ( &width, &height ) ) )
-		throw ref new Platform::FailureException ( L"Getting Image Size is failed." );
+	for ( auto process : g_processFunctions )
+		ret = process ( wicFactory, ret, args );
 
-	if ( height > args->MaximumHeight )
-	{
-		float scaleFactor = args->MaximumHeight / ( float ) height;
-		CComPtr<IWICBitmapScaler> scaler;
-		if ( FAILED ( wicFactory->CreateBitmapScaler ( &scaler ) ) )
-			throw ref new Platform::FailureException ( L"Initializing Scale Image is failed." );
+	//ret = Process_Resize ( wicFactory, ret, args );
+	//ret = Process_DeepCheckAlpha ( wicFactory, ret, args );
+	//ret = Process_ReformatForWebP ( wicFactory, ret, args );
+	//ret = Process_ReformatForJpeg ( wicFactory, ret, args );
+	//ret = Process_ReformatForPng ( wicFactory, ret, args );
 
-		if ( FAILED ( scaler->Initialize ( ret,
-			( UINT ) ( width * scaleFactor ), ( UINT ) ( height * scaleFactor ),
-			args->ResizeBicubic ? WICBitmapInterpolationModeHighQualityCubic : WICBitmapInterpolationModeNearestNeighbor ) ) )
-			throw ref new Platform::FailureException ( L"Scaling Image is failed." );
-
-		ret = scaler.Detach ();
-	}
-
-	if ( dynamic_cast< Daramee_Degra::PngSettings ^> ( args->Settings ) != nullptr && dynamic_cast< Daramee_Degra::PngSettings^ > ( args->Settings )->Indexed )
-	{
-		CComPtr<IWICFormatConverter> formatConverter;
-		if ( FAILED ( wicFactory->CreateFormatConverter ( &formatConverter ) ) )
-			throw ref new Platform::FailureException ( L"Initializing Reformat Image is failed." );
-
-		if ( FAILED ( formatConverter->Initialize ( ret, GUID_WICPixelFormat8bppIndexed,
-			args->Dither ? WICBitmapDitherTypeErrorDiffusion : WICBitmapDitherTypeNone,
-			nullptr, 1, WICBitmapPaletteTypeMedianCut ) ) )
-			throw ref new Platform::FailureException ( L"Reformatting Image is failed." );
-
-		ret = formatConverter.Detach ();
-	}
-
-	if ( dynamic_cast< Daramee_Degra::WebPSettings^ > ( args->Settings ) )
-	{
-		CComPtr<IWICFormatConverter> formatConverter;
-		if ( FAILED ( wicFactory->CreateFormatConverter ( &formatConverter ) ) )
-			throw ref new Platform::FailureException ( L"Initializing Reformat Image is failed." );
-
-		WICPixelFormatGUID pixelFormat;
-		ret->GetPixelFormat ( &pixelFormat );
-
-		if ( pixelFormat == GUID_WICPixelFormat128bppPRGBAFloat || pixelFormat == GUID_WICPixelFormat128bppRGBAFixedPoint || pixelFormat == GUID_WICPixelFormat128bppRGBAFloat
-			|| pixelFormat == GUID_WICPixelFormat16bppBGRA5551 || pixelFormat == GUID_WICPixelFormat32bppBGRA || pixelFormat == GUID_WICPixelFormat32bppPBGRA
-			|| pixelFormat == GUID_WICPixelFormat32bppPRGBA || pixelFormat == GUID_WICPixelFormat32bppR10G10B10A2 || pixelFormat == GUID_WICPixelFormat32bppR10G10B10A2HDR10
-			|| pixelFormat == GUID_WICPixelFormat32bppRGBA || pixelFormat == GUID_WICPixelFormat32bppRGBA1010102 || pixelFormat == GUID_WICPixelFormat32bppRGBA1010102XR )
-			pixelFormat = GUID_WICPixelFormat32bppBGRA;
-		else
-			pixelFormat = GUID_WICPixelFormat24bppBGR;
-
-		if ( FAILED ( formatConverter->Initialize ( ret, pixelFormat, WICBitmapDitherTypeNone, nullptr, 1, WICBitmapPaletteTypeMedianCut ) ) )
-			throw ref new Platform::FailureException ( L"Reformatting Image is failed." );
-
-		ret = formatConverter.Detach ();
-	}
-	else if ( dynamic_cast< Daramee_Degra::JpegSettings^ >( args->Settings ) )
-	{
-		CComPtr<IWICFormatConverter> formatConverter;
-		if ( FAILED ( wicFactory->CreateFormatConverter ( &formatConverter ) ) )
-			throw ref new Platform::FailureException ( L"Initializing Reformat Image is failed." );
-
-		if ( FAILED ( formatConverter->Initialize ( ret, GUID_WICPixelFormat24bppBGR,
-			WICBitmapDitherTypeNone, nullptr, 1, WICBitmapPaletteTypeMedianCut ) ) )
-			throw ref new Platform::FailureException ( L"Reformatting Image is failed." );
-
-		ret = formatConverter.Detach ();
-	}
-
-	CComPtr<IWICBitmap> tempBitmap;
-	if ( FAILED ( wicFactory->CreateBitmapFromSource ( ret, WICBitmapCacheOnDemand, &tempBitmap ) ) )
-		throw ref new Platform::FailureException ( L"Failed Create Copied Bitmap." );
-
-	*arranged = tempBitmap.Detach ();
+	*arranged = ret.Detach ();
 }
 
 void STDMETHODCALLTYPE Degra_Inner_SaveTo ( IWICImagingFactory* wicFactory, IWICBitmapSource * source, IStream * dest, Daramee_Degra::Argument^ args )

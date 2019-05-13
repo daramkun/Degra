@@ -1,4 +1,4 @@
-#include "DegraCore.h"
+#include "../DegraCore.h"
 
 #include <Shlwapi.h>
 

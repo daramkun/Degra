@@ -201,6 +201,9 @@
   <data name="TextBlockIndexedPixelFormat.Text" xml:space="preserve">
     <value>Palette managed Pixel Format(PNG)</value>
   </data>
+  <data name="TextBlockLossless.Text" xml:space="preserve">
+    <value>Lossless Compression(WebP)</value>
+  </data>
   <data name="TextBlockMaximumHeight.Text" xml:space="preserve">
     <value>Maximum Image Height</value>
   </data>

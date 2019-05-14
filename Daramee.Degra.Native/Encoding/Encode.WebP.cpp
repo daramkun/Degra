@@ -3,7 +3,7 @@
 #include <webp/encode.h>
 #pragma comment ( lib, "libwebp.lib" )
 
-void Encode_WebP ( IStream* stream, IWICBitmapSource* source, int quality )
+void Encode_WebP ( IStream* stream, IWICBitmapSource* source, int quality, bool lossless )
 {
 	UINT width, height;
 	if ( FAILED ( source->GetSize ( &width, &height ) ) ) throw ref new Platform::FailureException ( L"Getting Image Size is failed." );
@@ -18,6 +18,7 @@ void Encode_WebP ( IStream* stream, IWICBitmapSource* source, int quality )
 	memset ( &picture, 0, sizeof ( picture ) );
 
 	config.quality = ( float ) quality;
+	config.lossless = lossless;
 
 	picture.width = width;
 	picture.height = height;

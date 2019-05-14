@@ -30,19 +30,16 @@ void STDMETHODCALLTYPE Degra_Inner_ArrangeImage ( IWICImagingFactory* wicFactory
 	for ( auto process : g_processFunctions )
 		ret = process ( wicFactory, ret, args );
 
-	//ret = Process_Resize ( wicFactory, ret, args );
-	//ret = Process_DeepCheckAlpha ( wicFactory, ret, args );
-	//ret = Process_ReformatForWebP ( wicFactory, ret, args );
-	//ret = Process_ReformatForJpeg ( wicFactory, ret, args );
-	//ret = Process_ReformatForPng ( wicFactory, ret, args );
-
 	*arranged = ret.Detach ();
 }
 
 void STDMETHODCALLTYPE Degra_Inner_SaveTo ( IWICImagingFactory* wicFactory, IWICBitmapSource * source, IStream * dest, Daramee_Degra::Argument^ args )
 {
 	if ( dynamic_cast< Daramee_Degra::WebPSettings^ > ( args->Settings ) )
-		Encode_WebP ( dest, source, dynamic_cast< Daramee_Degra::WebPSettings^ > ( args->Settings )->Quality );
+	{
+		auto webPSettings = dynamic_cast< Daramee_Degra::WebPSettings^ > ( args->Settings );
+		Encode_WebP ( dest, source, webPSettings->Quality, webPSettings->LosslessCompression );
+	}
 	else if ( dynamic_cast< Daramee_Degra::JpegSettings^ >( args->Settings ) )
 	{
 #if defined( _M_AMD64 ) || defined ( _M_IA32 )

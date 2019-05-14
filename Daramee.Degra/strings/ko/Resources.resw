@@ -201,6 +201,9 @@
   <data name="TextBlockIndexedPixelFormat.Text" xml:space="preserve">
     <value>팔레트로 관리되는 픽셀 형식(PNG)</value>
   </data>
+  <data name="TextBlockLossless.Text" xml:space="preserve">
+    <value>비손실 압축(WebP)</value>
+  </data>
   <data name="TextBlockMaximumHeight.Text" xml:space="preserve">
     <value>최대 이미지 세로 크기</value>
   </data>

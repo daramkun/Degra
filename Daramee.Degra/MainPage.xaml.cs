@@ -88,7 +88,9 @@ namespace Daramee.Degra
 				ToggleResizeBicubic.IsOn = ( bool ) container.Values [ "ResizeBicubic" ];
 				ToggleDeepCheckAlpha.IsOn = ( bool ) container.Values [ "DeepCheckAlpha" ];
 				TextBoxQuality.Text = ( ( int ) container.Values [ "Quality" ] ).ToString ();
+				ToggleLossless.IsOn = ( bool ) container.Values [ "LosslessCompression" ];
 				ToggleIndexedPixelFormat.IsOn = ( bool ) container.Values [ "IndexedPixelFormat" ];
+				ToggleUseZopfli.IsOn = ( bool ) container.Values [ "UseZopfli" ];
 			}
 			catch { }
 		}
@@ -106,7 +108,9 @@ namespace Daramee.Degra
 			container.Values [ "ResizeBicubic" ] = ToggleResizeBicubic.IsOn;
 			container.Values [ "DeepCheckAlpha" ] = ToggleDeepCheckAlpha.IsOn;
 			container.Values [ "Quality" ] = int.Parse ( TextBoxQuality.Text );
+			container.Values [ "LosslessCompression" ] = ToggleLossless.IsOn;
 			container.Values [ "IndexedPixelFormat" ] = ToggleIndexedPixelFormat.IsOn;
+			container.Values [ "UseZopfli" ] = ToggleUseZopfli.IsOn;
 		}
 
 		private void HamburgerButton_Click ( object sender, RoutedEventArgs e )
@@ -196,11 +200,11 @@ namespace Daramee.Degra
 				switch ( ComboBoxImageFormat.SelectedIndex )
 				{
 					case 0:
-						webPSettings = new WebPSettings ( int.Parse ( TextBoxQuality.Text ) );
+						webPSettings = new WebPSettings ( int.Parse ( TextBoxQuality.Text ), ToggleLossless.IsOn );
 						jpegSettings = new JpegSettings ( int.Parse ( TextBoxQuality.Text ) );
 						pngSettings = new PngSettings ( ToggleIndexedPixelFormat.IsOn, ToggleUseZopfli.IsOn );
 						break;
-					case 1: webPSettings = new WebPSettings ( int.Parse ( TextBoxQuality.Text ) ); break;
+					case 1: webPSettings = new WebPSettings ( int.Parse ( TextBoxQuality.Text ), ToggleLossless.IsOn ); break;
 					case 2: jpegSettings = new JpegSettings ( int.Parse ( TextBoxQuality.Text ) ); break;
 					case 3: pngSettings = new PngSettings ( ToggleIndexedPixelFormat.IsOn, ToggleUseZopfli.IsOn ); break;
 					default: throw new ArgumentException ();

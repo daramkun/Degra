@@ -9,7 +9,6 @@
 #	else
 #		pragma comment ( lib, "turbojpeg-static.lib" )
 #	endif
-#endif
 
 #pragma region Stream Initialize
 struct degra_destination_mgr
@@ -80,6 +79,8 @@ void jpeg_stream_dest ( j_compress_ptr cinfo, IStream* stream )
 	dest->stream = stream;
 }
 #pragma endregion
+
+#endif
 
 void Encode_MozJpeg_Jpeg ( IStream* stream, IWICBitmapSource* source, int quality )
 {

@@ -8,9 +8,9 @@
   IgnorableNamespaces="uap mp rescap">
 
 	<Identity
-	  Name="17270Daramkun.Degra"
+	  Name="Degra"
 	  Publisher="CN=DF3D7011-1E8D-4278-81C3-565FF92A9A0B"
-	  Version="1.1.1.0" />
+	  Version="1.2.0.0" />
 
 	<mp:PhoneIdentity PhoneProductId="cce68fe3-83d4-4ce5-85a7-dbc08490db02" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 

@@ -180,7 +180,8 @@ namespace Daramee.Degra
 				= ToggleFileOverwrite.IsEnabled
 				= ComboBoxImageFormat.IsEnabled = TextBoxMaximumHeight.IsEnabled
 				= ToggleDither.IsEnabled = ToggleResizeBicubic.IsEnabled = ToggleDeepCheckAlpha.IsEnabled
-				= TextBoxQuality.IsEnabled = ToggleIndexedPixelFormat.IsEnabled
+				= TextBoxQuality.IsEnabled = ToggleLossless.IsEnabled
+				= ToggleIndexedPixelFormat.IsEnabled = ToggleUseZopfli.IsEnabled
 				= enable;
 		}
 

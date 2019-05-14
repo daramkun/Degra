@@ -8,7 +8,7 @@
   IgnorableNamespaces="uap mp rescap">
 
 	<Identity
-	  Name="Degra"
+	  Name="17270Daramkun.Degra"
 	  Publisher="CN=DF3D7011-1E8D-4278-81C3-565FF92A9A0B"
 	  Version="1.2.0.0" />
 

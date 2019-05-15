@@ -197,19 +197,10 @@ namespace Daramee.Degra
 				Progress.Maximum = 1;
 				TextBlockProceedLog.Text = resourceLoader.GetString ( "Working" );
 
-				IEncodingSettings webPSettings = null, jpegSettings = null, pngSettings = null;
-				switch ( ComboBoxImageFormat.SelectedIndex )
-				{
-					case 0:
-						webPSettings = new WebPSettings ( int.Parse ( TextBoxQuality.Text ), ToggleLossless.IsOn );
-						jpegSettings = new JpegSettings ( int.Parse ( TextBoxQuality.Text ) );
-						pngSettings = new PngSettings ( ToggleIndexedPixelFormat.IsOn, ToggleUseZopfli.IsOn );
-						break;
-					case 1: webPSettings = new WebPSettings ( int.Parse ( TextBoxQuality.Text ), ToggleLossless.IsOn ); break;
-					case 2: jpegSettings = new JpegSettings ( int.Parse ( TextBoxQuality.Text ) ); break;
-					case 3: pngSettings = new PngSettings ( ToggleIndexedPixelFormat.IsOn, ToggleUseZopfli.IsOn ); break;
-					default: throw new ArgumentException ();
-				}
+				int imageFormat = ComboBoxImageFormat.SelectedIndex;
+				IEncodingSettings webPSettings = webPSettings = new WebPSettings ( int.Parse ( TextBoxQuality.Text ), ToggleLossless.IsOn ),
+					jpegSettings = jpegSettings = new JpegSettings ( int.Parse ( TextBoxQuality.Text ) ),
+					pngSettings = pngSettings = new PngSettings ( ToggleIndexedPixelFormat.IsOn, ToggleUseZopfli.IsOn );
 
 				Argument args = new Argument ( null, ToggleDither.IsOn, ToggleResizeBicubic.IsOn, ToggleDeepCheckAlpha.IsOn, uint.Parse ( TextBoxMaximumHeight.Text ) );
 				bool fileOverwrite = ToggleFileOverwrite.IsOn;
@@ -220,6 +211,8 @@ namespace Daramee.Degra
 				{
 					foreach ( var sourceStorageItem in storageItems )
 					{
+						int innerImageFormat = imageFormat;
+
 						StorageApplicationPermissions.FutureAccessList.Add ( sourceStorageItem );
 
 						if ( !( sourceStorageItem is IStorageFile ) )
@@ -229,7 +222,17 @@ namespace Daramee.Degra
 						}
 
 						ProgressState state = new ProgressState ();
-						var sourceFolder = await StorageFolder.GetFolderFromPathAsync ( Path.GetDirectoryName ( sourceStorageItem.Path ) );
+						IStorageFolder sourceFolder = null;
+						try
+						{
+							sourceFolder = await StorageFolder.GetFolderFromPathAsync ( Path.GetDirectoryName ( sourceStorageItem.Path ) );
+						}
+						catch
+						{
+							sourceFolder = null;
+							innerImageFormat = 0;
+						}
+
 						var sourceFile = sourceStorageItem;
 						IStorageFile newFile;
 						try
@@ -243,8 +246,13 @@ namespace Daramee.Degra
 
 						try
 						{
-							var compressionTask = ImageCompressor.DoCompression ( newFile, sourceFile as IStorageFile, args,
-								webPSettings, jpegSettings, pngSettings, state );
+							var compressionTask = ImageCompressor.DoCompression (
+								newFile,
+								sourceFile as IStorageFile, args,
+								( innerImageFormat == 0 || innerImageFormat == 1 ) ? webPSettings : null,
+								( innerImageFormat == 0 || innerImageFormat == 2 ) ? jpegSettings : null,
+								( innerImageFormat == 0 || innerImageFormat == 3 ) ? pngSettings : null,
+								state );
 
 							string lastFilename = null;
 							while ( !( compressionTask.Status == TaskStatus.RanToCompletion || compressionTask.Status == TaskStatus.Faulted || compressionTask.Status == TaskStatus.Canceled ) )
@@ -277,9 +285,11 @@ namespace Daramee.Degra
 								newPath += " (1)";
 							newPath += formatExtension;
 
-							if ( sourceStorageItem != newFile )
+							if ( sourceStorageItem.Path != newPath )
 								await newFile.MoveAsync ( sourceFolder, Path.GetFileName ( newPath ),
-									fileOverwrite ? Windows.Storage.NameCollisionOption.ReplaceExisting : Windows.Storage.NameCollisionOption.GenerateUniqueName );
+									fileOverwrite
+										? NameCollisionOption.ReplaceExisting
+										: NameCollisionOption.GenerateUniqueName );
 						}
 						catch ( Exception ex )
 						{

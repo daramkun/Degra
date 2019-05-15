@@ -198,6 +198,9 @@
   <data name="TextBlockImageFormat.Text" xml:space="preserve">
     <value>이미지 형식</value>
   </data>
+  <data name="TextBlockImageFormatDetail.Text" xml:space="preserve">
+    <value>이 설정은 파일 시스템 권한이 꺼져 있을 경우 강제로 원본 형식으로 인코딩합니다.</value>
+  </data>
   <data name="TextBlockIndexedPixelFormat.Text" xml:space="preserve">
     <value>팔레트로 관리되는 픽셀 형식(PNG)</value>
   </data>

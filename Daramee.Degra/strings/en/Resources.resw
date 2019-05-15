@@ -187,7 +187,7 @@
     <value>File Overwrite</value>
   </data>
   <data name="TextBlockFileOverwriteDetail.Text" xml:space="preserve">
-    <value>This option is enforced if File System permission is off.</value>
+    <value>This option is enforced enable if File System permission is off.</value>
   </data>
   <data name="TextBlockFlyoutDone.Text" xml:space="preserve">
     <value>Compression is done</value>
@@ -197,6 +197,9 @@
   </data>
   <data name="TextBlockImageFormat.Text" xml:space="preserve">
     <value>Image Format</value>
+  </data>
+  <data name="TextBlockImageFormatDetail.Text" xml:space="preserve">
+    <value>This option is enforced to Original Format if File System permission is off.</value>
   </data>
   <data name="TextBlockIndexedPixelFormat.Text" xml:space="preserve">
     <value>Palette managed Pixel Format(PNG)</value>

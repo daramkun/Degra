@@ -221,6 +221,7 @@ namespace Daramee.Degra
 							continue;
 						}
 
+						bool noFileSystemPermission = false;
 						ProgressState state = new ProgressState ();
 						IStorageFolder sourceFolder = null;
 						try
@@ -231,6 +232,7 @@ namespace Daramee.Degra
 						{
 							sourceFolder = null;
 							innerImageFormat = 0;
+							noFileSystemPermission = true;
 						}
 
 						var sourceFile = sourceStorageItem;
@@ -242,7 +244,11 @@ namespace Daramee.Degra
 									, CreationCollisionOption.GenerateUniqueName );
 							else newFile = sourceFile as IStorageFile;
 						}
-						catch { newFile = sourceFile as IStorageFile; }
+						catch
+						{
+							newFile = sourceFile as IStorageFile;
+							noFileSystemPermission = true;
+						}
 
 						try
 						{
@@ -285,7 +291,7 @@ namespace Daramee.Degra
 								newPath += " (1)";
 							newPath += formatExtension;
 
-							if ( sourceStorageItem.Path != newPath )
+							if ( !noFileSystemPermission && sourceStorageItem.Path != newPath )
 								await newFile.MoveAsync ( sourceFolder, Path.GetFileName ( newPath ),
 									fileOverwrite
 										? NameCollisionOption.ReplaceExisting

@@ -33,7 +33,11 @@ namespace Daramee.Degra
 		private void PC ( string name ) { PropertyChanged?.Invoke ( this, new PropertyChangedEventArgs ( name ) ); }
 
 		ObservableCollection<FileInfo> files = new ObservableCollection<FileInfo> ();
+		
 		SaveData saveData = new SaveData ();
+		Optionizer<SaveData> optionizer = new Optionizer<SaveData> ();
+
+		ProgressStatus status = new ProgressStatus ();
 
 		public string ConversionPath { get { return saveData.ConversionPath; } set { saveData.ConversionPath = value; PC ( nameof ( ConversionPath ) ); } }
 		public bool FileOverwrite { get { return saveData.FileOverwrite; } set { saveData.FileOverwrite = value; } }
@@ -49,9 +53,20 @@ namespace Daramee.Degra
 		{
 			SharedWindow = this;
 
+			saveData = optionizer.Options;
+
 			InitializeComponent ();
 
 			ListViewFiles.ItemsSource = files;
+
+			ProgressBarLog.DataContext = status;
+			TextBlockLog.DataContext = status;
+		}
+
+		private void Window_Closing ( object sender, CancelEventArgs e )
+		{
+			optionizer.Options = saveData;
+			optionizer.Save ();
 		}
 
 		private void ButtonBrowseConversionPath_Click ( object sender, RoutedEventArgs e )
@@ -111,10 +126,6 @@ namespace Daramee.Degra
 		private async void MenuItem_Apply_Click ( object sender, RoutedEventArgs e )
 		{
 			ButtonApply.IsEnabled = ButtonClear.IsEnabled = ScrollViewerSettings.IsEnabled = false;
-
-			ProgressStatus status = new ProgressStatus ();
-			ProgressBarLog.DataContext = status;
-			TextBlockLog.DataContext = status;
 
 			DegrationArguments args = new DegrationArguments
 			{

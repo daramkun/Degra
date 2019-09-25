@@ -1,10 +1,12 @@
 ﻿using Daramee.Degra.Native;
 using Daramee.FileTypeDetector;
+using SharpCompress.Archives;
+using SharpCompress.Archives.Zip;
+using SharpCompress.Readers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -119,9 +121,10 @@ namespace Daramee.Degra
 		{
 			byte [] buffer = new byte [ 4096 ];
 			int totalRead = 0;
-			while ( totalRead < src.Length )
+			while ( true )
 			{
 				int read = src.Read ( buffer, 0, buffer.Length );
+				if ( read == 0 ) break;
 				dest.Write ( buffer, 0, read );
 				totalRead += read;
 			}
@@ -147,7 +150,7 @@ namespace Daramee.Degra
 			if ( extensionPosition == -1 )
 				return $"{filename}.{GetExtension ( format )}";
 			else
-				return $"{filename.Substring ( 0, extensionPosition )}{GetExtension ( format )}";
+				return $"{filename.Substring ( 0, extensionPosition )}.{GetExtension ( format )}";
 		}
 
 		private static DegrationFormat GetFormat (IDetector detector, DegrationFormat format)
@@ -173,51 +176,61 @@ namespace Daramee.Degra
 
 		private static bool Degration_Zip ( Stream dest, Stream src, ProgressStatus status, DegrationArguments args )
 		{
-			using ( ZipArchive srcArchive = new ZipArchive ( src, ZipArchiveMode.Read, true ) )
+			using ( IArchive srcArchive = ArchiveFactory.Open ( src, new ReaderOptions () { LeaveStreamOpen = true } ) )
 			{
-				using ( ZipArchive destArchive = new ZipArchive ( dest, ZipArchiveMode.Create, true ) )
+				int entryCount = srcArchive.Entries.Count ();
+				using ( System.IO.Compression.ZipArchive destArchive = new System.IO.Compression.ZipArchive (dest, System.IO.Compression.ZipArchiveMode.Create, true ) )
 				{
-					int proceed = 0;
-					foreach ( var entry in srcArchive.Entries )
+					using ( MemoryStream readStream = new MemoryStream (), convStream = new MemoryStream () )
 					{
-						using ( Stream entryStream = entry.Open () )
+						int proceed = 0;
+						foreach ( var entry in srcArchive.Entries )
 						{
-							status.ProceedFile = entry.Name;
-							var detector = DetectorService.DetectDetector ( entryStream );
-							if ( detector.Extension == "bmp" || detector.Extension == "jpg" || detector.Extension == "jp2" || detector.Extension == "webp" || detector.Extension == "png" )
+							if ( entry.IsDirectory )
+								continue;
+							using ( Stream entryStream = entry.OpenEntryStream () )
 							{
-								entryStream.Position = 0;
-								MemoryStream newStream = new MemoryStream ();
-								DegrationFormat format2;
-								bool ret = Degration_SingleFile ( newStream, entryStream, out format2, args );
-								status.Progress = ( ++proceed ) / ( double ) srcArchive.Entries.Count;
+								readStream.SetLength ( 0 );
+								convStream.SetLength ( 0 );
 
-								if ( !ret )
+								StreamCopy ( readStream, entryStream );
+
+								status.ProceedFile = entry.Key;
+								var detector = DetectorService.DetectDetector ( readStream );
+								if ( detector.Extension == "bmp" || detector.Extension == "jpg" || detector.Extension == "jp2" || detector.Extension == "webp" || detector.Extension == "png" )
 								{
-									var destEntry = destArchive.CreateEntry ( entry.FullName );
+									readStream.Position = 0;
+									DegrationFormat format2;
+									bool ret = Degration_SingleFile ( convStream, readStream, out format2, args );
+									convStream.Position = 0;
+									status.Progress = ( ++proceed ) / ( double ) entryCount;
+
+									if ( !ret )
+									{
+										var destEntry = destArchive.CreateEntry ( entry.Key );
+										using ( Stream destEntryStream = destEntry.Open () )
+										{
+											StreamCopy ( destEntryStream, entryStream );
+										}
+										continue;
+									}
+									else
+									{
+										var destEntry = destArchive.CreateEntry ( GetFileName ( entry.Key, format2 ) );
+										using ( Stream destEntryStream = destEntry.Open () )
+										{
+											StreamCopy ( destEntryStream, convStream );
+										}
+									}
+								}
+								else
+								{
+									var destEntry = destArchive.CreateEntry ( entry.Key );
 									using ( Stream destEntryStream = destEntry.Open () )
 									{
 										StreamCopy ( destEntryStream, entryStream );
 									}
-									continue;
-								}
-								else
-								{
-									var destEntry = destArchive.CreateEntry ( GetFileName ( entry.FullName, format2 ) );
-									using ( Stream destEntryStream = destEntry.Open () )
-									{
-										StreamCopy ( destEntryStream, newStream );
-									}
-								}
-							}
-							else
-							{
-								status.Progress = ( ++proceed ) / ( double ) srcArchive.Entries.Count;
-
-								var destEntry = destArchive.CreateEntry ( entry.FullName );
-								using ( Stream destEntryStream = destEntry.Open () )
-								{
-									StreamCopy ( destEntryStream, entryStream );
+									status.Progress = ( ++proceed ) / ( double ) entryCount;
 								}
 							}
 						}

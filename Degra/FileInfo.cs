@@ -19,8 +19,8 @@ namespace Daramee.Degra
 
 	public class FileInfo : INotifyPropertyChanged
 	{
-		bool queued;
-		DegraStatus status;
+		bool queued = true;
+		DegraStatus status = DegraStatus.Waiting;
 
 		public bool Queued
 		{

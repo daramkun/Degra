@@ -18,7 +18,8 @@ namespace Daramee.Degra
 	{
 		public App ()
 		{
-			DetectorService.AddDetectors ( Assembly.GetEntryAssembly () );
+			DetectorService.AddDetectors ( Assembly.GetEntryAssembly (), FormatCategories.Archive );
+			DetectorService.AddDetectors ( Assembly.GetEntryAssembly (), FormatCategories.Image );
 			NativeBridge.Degra_Initialize ();
 		}
 	}

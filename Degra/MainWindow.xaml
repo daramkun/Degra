@@ -83,22 +83,27 @@
 
 					<StackPanel Margin="0,0,0,8">
 						<TextBlock x:Uid="TextBlockQuality" Text="Image Quality(WebP, JPEG)" FontSize="12" Margin="0,0,0,4" />
-						<TextBox x:Name="TextBoxQuality" HorizontalAlignment="Stretch" Text="90" InputScope="Number" />
+						<TextBox x:Name="TextBoxQuality" HorizontalAlignment="Stretch" Text="{Binding Source={x:Static local:MainWindow.SharedWindow}, Path=ImageQuality}" InputScope="Number" />
 					</StackPanel>
 
 					<StackPanel Margin="0,0,0,8">
 						<TextBlock x:Uid="TextBlockLossless" Text="Lossless Compression(WebP)" FontSize="12" Margin="0,0,0,4" />
-						<CheckBox x:Name="ToggleLossless" IsChecked="False" />
+						<CheckBox x:Name="ToggleLossless" IsChecked="{Binding Source={x:Static local:MainWindow.SharedWindow}, Path=Lossless}" />
 					</StackPanel>
 
 					<StackPanel Margin="0,0,0,8">
 						<TextBlock x:Uid="TextBlockIndexedPixelFormat" Text="8-bit Indexed Pixel Format(PNG)" FontSize="12" Margin="0,0,0,4" />
-						<CheckBox x:Name="ToggleIndexedPixelFormat" IsChecked="False" />
+						<CheckBox x:Name="ToggleIndexedPixelFormat" IsChecked="{Binding Source={x:Static local:MainWindow.SharedWindow}, Path=IndexedPixelFormat}" />
 					</StackPanel>
 
 					<StackPanel Margin="0,0,0,8">
 						<TextBlock Text="Use Zopfli PNG Compression" FontSize="12" Margin="0,0,0,4" />
-						<CheckBox x:Name="ToggleUseZopfli" IsChecked="False" />
+						<CheckBox x:Name="ToggleUseZopfli" IsChecked="{Binding Source={x:Static local:MainWindow.SharedWindow}, Path=ZopfliPNGOptimization}" />
+					</StackPanel>
+
+					<StackPanel Margin="0,0,0,8">
+						<TextBlock Text="Use Histogram Equalization" FontSize="12" Margin="0,0,0,4" />
+						<CheckBox x:Name="ToggleHistogramEqualization" IsChecked="{Binding Source={x:Static local:MainWindow.SharedWindow}, Path=HistogramEqualization}" />
 					</StackPanel>
 
 					<Button x:Uid="ButtonLicenses" Content="Licenses" HorizontalAlignment="Stretch" Height="24" />

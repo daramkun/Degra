@@ -149,6 +149,22 @@ DegraImage __stdcall Degra_ImageResize (DegraImage image, DegraImage_ResizeFilte
 
 	return bitmap.detach ();
 }
+DegraImage __stdcall Degra_ImageHistogramEqualization (DegraImage image)
+{
+	dseed::auto_object<dseed::bitmap> temp;
+	if (dseed::failed (dseed::reformat_bitmap (image, dseed::pixelformat_hsva8888, &temp)))
+		return nullptr;
+
+	dseed::auto_object<dseed::bitmap> temp2;
+	if (dseed::failed (dseed::bitmap_auto_histogram_equalization (temp, dseed::histogram_color_third, 0, &temp2)))
+		return nullptr;
+
+	dseed::auto_object<dseed::bitmap> temp3;
+	if (dseed::failed (dseed::reformat_bitmap (temp2, dseed::pixelformat_rgba8888, &temp)))
+		return nullptr;
+
+	return temp3.detach ();
+}
 
 BOOL __stdcall Degra_SaveImageToStreamJPEG (DegraImage image, const JPEGOptions* options, DegraStream stream)
 {

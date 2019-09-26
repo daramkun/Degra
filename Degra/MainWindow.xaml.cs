@@ -48,6 +48,7 @@ namespace Daramee.Degra
 		public bool Lossless { get { return saveData.Lossless; } set { saveData.Lossless = value; } }
 		public bool IndexedPixelFormat { get { return saveData.IndexedPixelFormat; } set { saveData.IndexedPixelFormat = value; } }
 		public bool ZopfliPNGOptimization { get { return saveData.ZopfliPNGOptimization; } set { saveData.ZopfliPNGOptimization = value; } }
+		public bool HistogramEqualization { get { return saveData.HistogramEqualization; } set { saveData.HistogramEqualization = value; } }
 
 		public MainWindow ()
 		{

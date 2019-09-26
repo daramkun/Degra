@@ -19,6 +19,7 @@ namespace Daramee.Degra
 		bool lossless = false;
 		bool indexedPixelFormat = true;
 		bool zopfliOpt = true;
+		bool histogramEqualization = false;
 
 		public event PropertyChangedEventHandler PropertyChanged;
 		private void PC ( string name ) { PropertyChanged?.Invoke ( this, new PropertyChangedEventArgs ( name ) ); }
@@ -110,6 +111,16 @@ namespace Daramee.Degra
 			{
 				zopfliOpt = value;
 				PC ( nameof ( ZopfliPNGOptimization ) );
+			}
+		}
+
+		public bool HistogramEqualization
+		{
+			get { return histogramEqualization; }
+			set
+			{
+				histogramEqualization = value;
+				PC ( nameof ( HistogramEqualization ) );
 			}
 		}
 	}

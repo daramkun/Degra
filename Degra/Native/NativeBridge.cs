@@ -45,13 +45,11 @@ namespace Daramee.Degra.Native
 		public static extern bool Degra_Uninitialize ();
 
 		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
-		//[return: MarshalAs ( UnmanagedType.Interface )]
 		public static extern IntPtr Degra_CreateStream ( ref DegraStreamInitializer initializer );
 		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
 		public static extern void Degra_DestroyStream ( /*[MarshalAs ( UnmanagedType.Interface )]*/ IntPtr stream );
 
 		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
-		//[return: MarshalAs ( UnmanagedType.Interface )]
 		public static extern IntPtr Degra_LoadImageFromStream ( /*[MarshalAs ( UnmanagedType.Interface )]*/ IntPtr stream );
 		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
 		public static extern void Degra_DestroyImage ( /*[MarshalAs ( UnmanagedType.Interface )]*/ IntPtr image );
@@ -60,11 +58,11 @@ namespace Daramee.Degra.Native
 		public static extern void Degra_GetImageSize ( /*[MarshalAs ( UnmanagedType.Interface )]*/ IntPtr image, out uint width, out uint height );
 
 		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
-		//[return: MarshalAs ( UnmanagedType.Interface )]
 		public static extern IntPtr Degra_ImagePixelFormatToPalette8Bit ( /*[MarshalAs ( UnmanagedType.Interface )]*/ IntPtr image );
 		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
-		//[return: MarshalAs ( UnmanagedType.Interface )]
 		public static extern IntPtr Degra_ImageResize ( /*[MarshalAs ( UnmanagedType.Interface )]*/ IntPtr image, DegraImageResizeFilter filter, int height );
+		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
+		public static extern IntPtr Degra_ImageHistogramEqualization ( /*[MarshalAs ( UnmanagedType.Interface )]*/ IntPtr image );
 
 		[StructLayout ( LayoutKind.Sequential )]
 		public struct JPEGOptions

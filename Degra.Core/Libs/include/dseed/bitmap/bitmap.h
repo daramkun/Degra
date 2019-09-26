@@ -197,26 +197,29 @@ namespace dseed
 	
 	enum histogram_color_t
 	{
-		histogram_color_y,
-		histogram_color_index,
-		histogram_color_red,
-		histogram_color_green,
-		histogram_color_blue,
-		histogram_color_alpha,
+		histogram_color_first,
+		histogram_color_second,
+		histogram_color_third,
+		histogram_color_fourth,
 	};
 
 	struct histogram
 	{
 		int histogram[256];
 		size_t total_pixels;
+
+		bool calced_table;
+		int histogram_table[256];
 	};
 
 	// Generate Histogram from Bitmap
-	DSEEDEXP error_t bitmap_generate_histogram (dseed::bitmap* original, histogram_color_t color, histogram* histogram);
+	DSEEDEXP error_t bitmap_generate_histogram (dseed::bitmap* original, histogram_color_t color, uint32_t depth, histogram* histogram);
 	// Doing Histogram Equalization
 	DSEEDEXP error_t histogram_equalization (histogram* histogram);
 	// Apply Histogram to Bitmap
-	DSEEDEXP error_t bitmap_apply_histogram (dseed::bitmap* original, histogram_color_t color, const histogram* histogram, dseed::bitmap** bitmap);
+	DSEEDEXP error_t bitmap_apply_histogram (dseed::bitmap* original, histogram_color_t color, uint32_t depth, const histogram* histogram, dseed::bitmap** bitmap);
+	// Bitmap Processing to Generate Histogram, Histogram Equalization, Apply Histogram
+	DSEEDEXP error_t bitmap_auto_histogram_equalization (dseed::bitmap* original, histogram_color_t color, uint32_t depth, dseed::bitmap** bitmap);
 
 	// Bitmap Binary Operation
 	//  : RGBA, RGB, BGRA, BGR, Grayscale, YCbCr(YUV, 4:4:4) only support.

@@ -80,7 +80,7 @@ namespace Daramee.Degra
 					{
 						var detector = DetectorService.DetectDetector ( sourceStream );
 						sourceStream.Position = 0;
-						if ( detector.Extension == "zip" )
+						if ( detector.Extension == "zip" || detector.Extension == "rar" || detector.Extension == "7z" || detector.Extension == "tar" )
 						{
 							ret = Degration_Zip ( destinationStream, sourceStream, status, args );
 							if ( ret )

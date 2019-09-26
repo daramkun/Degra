@@ -4,11 +4,13 @@ using SharpCompress.Archives;
 using SharpCompress.Archives.Zip;
 using SharpCompress.Readers;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Daramee.Degra
@@ -58,6 +60,8 @@ namespace Daramee.Degra
 		public bool LosslessCompression;
 		public bool ZopfliPNGOptimization;
 		public bool PNGPixelFormatTo8BitQuantization;
+		public bool HistogramEqualization;
+		public bool NoConvertTransparentDetected;
 	}
 
 	public static class Degrator
@@ -174,67 +178,96 @@ namespace Daramee.Degra
 			return format;
 		}
 
+		static ConcurrentQueue<MemoryStream> StreamBag = new ConcurrentQueue<MemoryStream> ();
+		static MemoryStream GetMemoryStream()
+		{
+			if ( StreamBag.TryDequeue ( out MemoryStream ret ) )
+				return ret;
+			return new MemoryStream ();
+		}
+		static void ReturnMemoryStream (MemoryStream stream)
+		{
+			StreamBag.Enqueue ( stream );
+		}
+		public static void CleanupMemory()
+		{
+			while ( StreamBag.TryDequeue ( out MemoryStream stream ) )
+				stream.Dispose ();
+			GC.Collect ();
+		}
+
 		private static bool Degration_Zip ( Stream dest, Stream src, ProgressStatus status, DegrationArguments args )
 		{
 			using ( IArchive srcArchive = ArchiveFactory.Open ( src, new ReaderOptions () { LeaveStreamOpen = true } ) )
 			{
 				int entryCount = srcArchive.Entries.Count ();
-				using ( System.IO.Compression.ZipArchive destArchive = new System.IO.Compression.ZipArchive (dest, System.IO.Compression.ZipArchiveMode.Create, true ) )
+				using ( System.IO.Compression.ZipArchive destArchive = new System.IO.Compression.ZipArchive ( dest, System.IO.Compression.ZipArchiveMode.Create, true ) )
 				{
-					using ( MemoryStream readStream = new MemoryStream (), convStream = new MemoryStream () )
-					{
-						int proceed = 0;
-						foreach ( var entry in srcArchive.Entries )
+					int proceed = 0;
+					ConcurrentQueue<KeyValuePair<string, MemoryStream>> cache = new ConcurrentQueue<KeyValuePair<string, MemoryStream>> ();
+
+					Task.Run (
+						() => Parallel.ForEach ( srcArchive.Entries, ( entry ) =>
 						{
 							if ( entry.IsDirectory )
-								continue;
-							using ( Stream entryStream = entry.OpenEntryStream () )
 							{
-								readStream.SetLength ( 0 );
-								convStream.SetLength ( 0 );
-
-								StreamCopy ( readStream, entryStream );
-
-								status.ProceedFile = entry.Key;
-								var detector = DetectorService.DetectDetector ( readStream );
-								if ( detector.Extension == "bmp" || detector.Extension == "jpg" || detector.Extension == "jp2" || detector.Extension == "webp" || detector.Extension == "png" )
-								{
-									readStream.Position = 0;
-									DegrationFormat format2;
-									bool ret = Degration_SingleFile ( convStream, readStream, out format2, args );
-									convStream.Position = 0;
-									status.Progress = ( ++proceed ) / ( double ) entryCount;
-
-									if ( !ret )
-									{
-										var destEntry = destArchive.CreateEntry ( entry.Key );
-										using ( Stream destEntryStream = destEntry.Open () )
-										{
-											StreamCopy ( destEntryStream, entryStream );
-										}
-										continue;
-									}
-									else
-									{
-										var destEntry = destArchive.CreateEntry ( GetFileName ( entry.Key, format2 ) );
-										using ( Stream destEntryStream = destEntry.Open () )
-										{
-											StreamCopy ( destEntryStream, convStream );
-										}
-									}
-								}
-								else
-								{
-									var destEntry = destArchive.CreateEntry ( entry.Key );
-									using ( Stream destEntryStream = destEntry.Open () )
-									{
-										StreamCopy ( destEntryStream, entryStream );
-									}
-									status.Progress = ( ++proceed ) / ( double ) entryCount;
-								}
+								Interlocked.Increment ( ref proceed );
+								return;
 							}
+
+							MemoryStream readStream = GetMemoryStream ();
+							MemoryStream convStream = GetMemoryStream ();
+
+							lock ( srcArchive )
+							{
+								using ( Stream entryStream = entry.OpenEntryStream () )
+									StreamCopy ( readStream, entryStream );
+							}
+
+							status.ProceedFile = entry.Key;
+							var detector = DetectorService.DetectDetector ( readStream );
+							if ( detector.Extension == "bmp" || detector.Extension == "jpg" || detector.Extension == "jp2" || detector.Extension == "webp" || detector.Extension == "png" )
+							{
+								readStream.Position = 0;
+								DegrationFormat format2;
+								bool ret = Degration_SingleFile ( convStream, readStream, out format2, args );
+								convStream.Position = 0;
+
+								if ( !ret || ( ( GetExtension ( format2 ) == detector.Extension ) && ( readStream.Length <= convStream.Length ) ) )
+									cache.Enqueue ( new KeyValuePair<string, MemoryStream> ( entry.Key, readStream ) );
+								else
+									cache.Enqueue ( new KeyValuePair<string, MemoryStream> ( GetFileName ( entry.Key, format2 ), convStream ) );
+							}
+							else
+								cache.Enqueue ( new KeyValuePair<string, MemoryStream> ( entry.Key, readStream ) );
+						} )
+					);
+
+					Task.Run ( () =>
+					{
+						while ( status.Progress < 1 )
+						{
+							if ( !cache.TryDequeue ( out KeyValuePair<string, MemoryStream> kv ) )
+								continue;
+
+							status.ProceedFile = kv.Key;
+
+							var destEntry = destArchive.CreateEntry ( kv.Key );
+							using ( Stream destEntryStream = destEntry.Open () )
+							{
+								kv.Value.Position = 0;
+								StreamCopy ( destEntryStream, kv.Value );
+							}
+
+							status.Progress = Interlocked.Increment ( ref proceed ) / ( double ) entryCount;
+
+							kv.Value.SetLength ( 0 );
+							ReturnMemoryStream ( kv.Value );
 						}
-					}
+					} );
+
+					while ( status.Progress < 1 )
+						Thread.Sleep ( 0 );
 				}
 			}
 			return true;
@@ -269,8 +302,16 @@ namespace Daramee.Degra
 
 			DegraBitmap bitmap = new DegraBitmap ( src );
 			dest.Position = 0;
+
+			if ( format == DegrationFormat.JPEG && args.NoConvertTransparentDetected )
+				if ( bitmap.DetectTransparent () )
+					return false;
+
 			if ( bitmap.Size.Height > args.MaximumImageHeight )
 				bitmap.Resize ( args.MaximumImageHeight, args.ResizeFilter );
+
+			if ( args.HistogramEqualization )
+				bitmap.HistogramEqualization ();
 
 			switch ( format )
 			{

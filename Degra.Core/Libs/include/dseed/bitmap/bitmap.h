@@ -227,6 +227,9 @@ namespace dseed
 	// Bitmap Unary Operation
 	//  : RGBA, RGB, BGRA, BGR, Grayscale, YCbCr(YUV, 4:4:4) only support.
 	DSEEDEXP error_t bitmap_unary_operation (dseed::bitmap* b, dseed::unary_operator_t op, dseed::bitmap** bitmap);
+
+	// Detect Transparented Alpha Value from Bitmap
+	DSEEDEXP error_t bitmap_detect_transparent (dseed::bitmap* bitmap, bool* transparent);
 }
 
 #include <dseed/bitmap/bitmap.decoders.h>

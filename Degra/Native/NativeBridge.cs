@@ -63,6 +63,8 @@ namespace Daramee.Degra.Native
 		public static extern IntPtr Degra_ImageResize ( /*[MarshalAs ( UnmanagedType.Interface )]*/ IntPtr image, DegraImageResizeFilter filter, int height );
 		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
 		public static extern IntPtr Degra_ImageHistogramEqualization ( /*[MarshalAs ( UnmanagedType.Interface )]*/ IntPtr image );
+		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
+		public static extern bool Degra_DetectTransparent ( /*[MarshalAs ( UnmanagedType.Interface )]*/ IntPtr image );
 
 		[StructLayout ( LayoutKind.Sequential )]
 		public struct JPEGOptions

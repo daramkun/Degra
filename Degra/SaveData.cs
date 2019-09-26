@@ -20,6 +20,7 @@ namespace Daramee.Degra
 		bool indexedPixelFormat = true;
 		bool zopfliOpt = true;
 		bool histogramEqualization = false;
+		bool noConvTransparentDetect = true;
 
 		public event PropertyChangedEventHandler PropertyChanged;
 		private void PC ( string name ) { PropertyChanged?.Invoke ( this, new PropertyChangedEventArgs ( name ) ); }
@@ -121,6 +122,16 @@ namespace Daramee.Degra
 			{
 				histogramEqualization = value;
 				PC ( nameof ( HistogramEqualization ) );
+			}
+		}
+
+		public bool NoConvertTransparentDetected
+		{
+			get { return noConvTransparentDetect; }
+			set
+			{
+				noConvTransparentDetect = value;
+				PC ( nameof ( NoConvertTransparentDetected ) );
 			}
 		}
 	}

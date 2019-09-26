@@ -160,10 +160,16 @@ DegraImage __stdcall Degra_ImageHistogramEqualization (DegraImage image)
 		return nullptr;
 
 	dseed::auto_object<dseed::bitmap> temp3;
-	if (dseed::failed (dseed::reformat_bitmap (temp2, dseed::pixelformat_rgba8888, &temp)))
+	if (dseed::failed (dseed::reformat_bitmap (temp2, dseed::pixelformat_rgba8888, &temp3)))
 		return nullptr;
 
 	return temp3.detach ();
+}
+BOOL __stdcall Degra_DetectTransparent (DegraImage image)
+{
+	bool transparent;
+	dseed::bitmap_detect_transparent (image, &transparent);
+	return transparent;
 }
 
 BOOL __stdcall Degra_SaveImageToStreamJPEG (DegraImage image, const JPEGOptions* options, DegraStream stream)

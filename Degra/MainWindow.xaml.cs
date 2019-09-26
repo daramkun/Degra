@@ -49,6 +49,7 @@ namespace Daramee.Degra
 		public bool IndexedPixelFormat { get { return saveData.IndexedPixelFormat; } set { saveData.IndexedPixelFormat = value; } }
 		public bool ZopfliPNGOptimization { get { return saveData.ZopfliPNGOptimization; } set { saveData.ZopfliPNGOptimization = value; } }
 		public bool HistogramEqualization { get { return saveData.HistogramEqualization; } set { saveData.HistogramEqualization = value; } }
+		public bool NoConvertTransparentDetected { get { return saveData.NoConvertTransparentDetected; } set { saveData.NoConvertTransparentDetected = value; } }
 
 		public MainWindow ()
 		{
@@ -136,7 +137,9 @@ namespace Daramee.Degra
 				ResizeFilter = ResizeFilter,
 				LosslessCompression = Lossless,
 				PNGPixelFormatTo8BitQuantization = IndexedPixelFormat,
-				ZopfliPNGOptimization = ZopfliPNGOptimization
+				ZopfliPNGOptimization = ZopfliPNGOptimization,
+				HistogramEqualization = HistogramEqualization,
+				NoConvertTransparentDetected = NoConvertTransparentDetected,
 			};
 
 			await Task.Run ( () =>
@@ -153,6 +156,8 @@ namespace Daramee.Degra
 					Degrator.Degration ( fileInfo, ConversionPath, FileOverwrite, status, args );
 				}
 				Daramee.Winston.File.Operation.End ();
+
+				Degrator.CleanupMemory ();
 			} );
 
 			ButtonApply.IsEnabled = ButtonClear.IsEnabled = ScrollViewerSettings.IsEnabled = true;

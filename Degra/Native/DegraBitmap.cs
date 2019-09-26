@@ -87,6 +87,21 @@ namespace Daramee.Degra.Native
 			else throw new Exception ();
 		}
 
+		public void HistogramEqualization ()
+		{
+			var newBitmap = NativeBridge.Degra_ImageHistogramEqualization ( nativeBitmap );
+			if ( newBitmap != IntPtr.Zero )
+			{
+				NativeBridge.Degra_DestroyImage ( nativeBitmap );
+				nativeBitmap = newBitmap;
+			}
+			else throw new Exception ();
+		}
+		public bool DetectTransparent ()
+		{
+			return NativeBridge.Degra_DetectTransparent ( nativeBitmap );
+		}
+
 		public void SaveToJPEG ( Stream stream, int quality )
 		{
 			if ( quality < 1 || quality > 100 )

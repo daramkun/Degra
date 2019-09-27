@@ -66,7 +66,7 @@ namespace Daramee.Degra
 
 	public static class Degrator
 	{
-		public static bool Degration ( FileInfo fileInfo, string destination, bool overwrite, ProgressStatus status, DegrationArguments args )
+		public static bool Degration ( FileInfo fileInfo, string destination, bool overwrite, ProgressStatus status, DegrationArguments args, CancellationToken cancellationToken )
 		{
 			fileInfo.Status = DegraStatus.Processing;
 
@@ -86,14 +86,14 @@ namespace Daramee.Degra
 						sourceStream.Position = 0;
 						if ( detector.Extension == "zip" || detector.Extension == "rar" || detector.Extension == "7z" || detector.Extension == "tar" )
 						{
-							ret = Degration_Zip ( destinationStream, sourceStream, status, args );
+							ret = Degration_Zip ( destinationStream, sourceStream, status, args, cancellationToken );
 							if ( ret )
 								newFileName = Path.Combine ( destination, Path.GetFileNameWithoutExtension ( fileInfo.OriginalFilename ) + ".zip" );
 						}
 						else
 						{
 							DegrationFormat format;
-							ret = Degration_SingleFile ( destinationStream, sourceStream, out format, args );
+							ret = Degration_SingleFile ( destinationStream, sourceStream, out format, args, cancellationToken );
 
 							if ( ret )
 								newFileName = Path.Combine ( destination, GetFileName ( Path.GetFileNameWithoutExtension ( fileInfo.OriginalFilename ), format ) );
@@ -111,6 +111,8 @@ namespace Daramee.Degra
 				{
 					if ( ret )
 						fileInfo.Status = DegraStatus.Done;
+					else if ( cancellationToken.IsCancellationRequested )
+						fileInfo.Status = DegraStatus.Cancelled;
 					else
 						fileInfo.Status = DegraStatus.Failed;
 
@@ -196,7 +198,7 @@ namespace Daramee.Degra
 			GC.Collect ();
 		}
 
-		private static bool Degration_Zip ( Stream dest, Stream src, ProgressStatus status, DegrationArguments args )
+		private static bool Degration_Zip ( Stream dest, Stream src, ProgressStatus status, DegrationArguments args, CancellationToken cancellationToken )
 		{
 			using ( IArchive srcArchive = ArchiveFactory.Open ( src, new ReaderOptions () { LeaveStreamOpen = true } ) )
 			{
@@ -207,46 +209,62 @@ namespace Daramee.Degra
 					ConcurrentQueue<KeyValuePair<string, MemoryStream>> cache = new ConcurrentQueue<KeyValuePair<string, MemoryStream>> ();
 
 					Task.Run (
-						() => Parallel.ForEach ( srcArchive.Entries, ( entry ) =>
+						() =>
 						{
-							if ( entry.IsDirectory )
+							try
 							{
-								Interlocked.Increment ( ref proceed );
-								return;
+								Parallel.ForEach ( srcArchive.Entries,
+									new ParallelOptions () { CancellationToken = cancellationToken },
+									( entry ) =>
+									{
+										if ( entry.IsDirectory || cancellationToken.IsCancellationRequested )
+										{
+											Interlocked.Increment ( ref proceed );
+											return;
+										}
+
+										MemoryStream readStream = GetMemoryStream ();
+										MemoryStream convStream = GetMemoryStream ();
+
+										lock ( srcArchive )
+										{
+											using ( Stream entryStream = entry.OpenEntryStream () )
+												StreamCopy ( readStream, entryStream );
+										}
+
+										status.ProceedFile = entry.Key;
+										var detector = DetectorService.DetectDetector ( readStream );
+										if ( detector.Extension == "bmp" || detector.Extension == "jpg" || detector.Extension == "jp2" || detector.Extension == "webp" || detector.Extension == "png" )
+										{
+											readStream.Position = 0;
+											DegrationFormat format2;
+											bool ret = Degration_SingleFile ( convStream, readStream, out format2, args, cancellationToken );
+											convStream.Position = 0;
+
+											if ( !ret || ( ( GetExtension ( format2 ) == detector.Extension ) && ( readStream.Length <= convStream.Length ) && !args.HistogramEqualization ) )
+												cache.Enqueue ( new KeyValuePair<string, MemoryStream> ( entry.Key, readStream ) );
+											else
+												cache.Enqueue ( new KeyValuePair<string, MemoryStream> ( GetFileName ( entry.Key, format2 ), convStream ) );
+										}
+										else
+											cache.Enqueue ( new KeyValuePair<string, MemoryStream> ( entry.Key, readStream ) );
+									}
+								);
 							}
-
-							MemoryStream readStream = GetMemoryStream ();
-							MemoryStream convStream = GetMemoryStream ();
-
-							lock ( srcArchive )
+							catch ( OperationCanceledException ex )
 							{
-								using ( Stream entryStream = entry.OpenEntryStream () )
-									StreamCopy ( readStream, entryStream );
+								
 							}
-
-							status.ProceedFile = entry.Key;
-							var detector = DetectorService.DetectDetector ( readStream );
-							if ( detector.Extension == "bmp" || detector.Extension == "jpg" || detector.Extension == "jp2" || detector.Extension == "webp" || detector.Extension == "png" )
-							{
-								readStream.Position = 0;
-								DegrationFormat format2;
-								bool ret = Degration_SingleFile ( convStream, readStream, out format2, args );
-								convStream.Position = 0;
-
-								if ( !ret || ( ( GetExtension ( format2 ) == detector.Extension ) && ( readStream.Length <= convStream.Length ) ) )
-									cache.Enqueue ( new KeyValuePair<string, MemoryStream> ( entry.Key, readStream ) );
-								else
-									cache.Enqueue ( new KeyValuePair<string, MemoryStream> ( GetFileName ( entry.Key, format2 ), convStream ) );
-							}
-							else
-								cache.Enqueue ( new KeyValuePair<string, MemoryStream> ( entry.Key, readStream ) );
-						} )
+						}
 					);
 
 					Task.Run ( () =>
 					{
 						while ( status.Progress < 1 )
 						{
+							if ( cancellationToken.IsCancellationRequested )
+								break;
+
 							if ( !cache.TryDequeue ( out KeyValuePair<string, MemoryStream> kv ) )
 								continue;
 
@@ -267,14 +285,24 @@ namespace Daramee.Degra
 					} );
 
 					while ( status.Progress < 1 )
+					{
+						if ( cancellationToken.IsCancellationRequested )
+							break;
 						Thread.Sleep ( 0 );
+					}
 				}
 			}
-			return true;
+			return cancellationToken.IsCancellationRequested ? false : true;
 		}
 
-		private static bool Degration_SingleFile ( Stream dest, Stream src, out DegrationFormat format, DegrationArguments args )
+		private static bool Degration_SingleFile ( Stream dest, Stream src, out DegrationFormat format, DegrationArguments args, CancellationToken cancellationToken )
 		{
+			if ( cancellationToken.IsCancellationRequested )
+			{
+				format = DegrationFormat.Auto;
+				return false;
+			}
+
 			var detector = DetectorService.DetectDetector ( src );
 			src.Position = 0;
 

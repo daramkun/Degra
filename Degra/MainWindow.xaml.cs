@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -125,9 +126,15 @@ namespace Daramee.Degra
 			files.Clear ();
 		}
 
+		CancellationTokenSource cancelToken;
+
 		private async void MenuItem_Apply_Click ( object sender, RoutedEventArgs e )
 		{
 			ButtonApply.IsEnabled = ButtonClear.IsEnabled = ScrollViewerSettings.IsEnabled = false;
+			ButtonCancel.IsEnabled = true;
+
+			foreach ( var fileInfo in files )
+				fileInfo.Status = DegraStatus.Waiting;
 
 			DegrationArguments args = new DegrationArguments
 			{
@@ -142,6 +149,8 @@ namespace Daramee.Degra
 				NoConvertTransparentDetected = NoConvertTransparentDetected,
 			};
 
+			cancelToken = new CancellationTokenSource ();
+
 			await Task.Run ( () =>
 			{
 				Daramee.Winston.File.Operation.Begin ();
@@ -153,14 +162,21 @@ namespace Daramee.Degra
 					status.ProceedFile = fileInfo.OriginalFilename;
 					status.Progress = 0;
 
-					Degrator.Degration ( fileInfo, ConversionPath, FileOverwrite, status, args );
+					Degrator.Degration ( fileInfo, ConversionPath, FileOverwrite, status, args, cancelToken.Token );
 				}
 				Daramee.Winston.File.Operation.End ();
 
 				Degrator.CleanupMemory ();
-			} );
+			}, cancelToken.Token );
 
+			ButtonCancel.IsEnabled = false;
 			ButtonApply.IsEnabled = ButtonClear.IsEnabled = ScrollViewerSettings.IsEnabled = true;
+		}
+
+		private void MenuItem_Cancel_Click ( object sender, RoutedEventArgs e )
+		{
+			cancelToken.Cancel ();
+			ButtonCancel.IsEnabled = false;
 		}
 	}
 }

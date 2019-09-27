@@ -15,6 +15,7 @@ namespace Daramee.Degra
 		Processing,
 		Done,
 		Failed,
+		Cancelled,
 	}
 
 	public class FileInfo : INotifyPropertyChanged

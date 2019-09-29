@@ -7,6 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -42,10 +43,10 @@ namespace Daramee.Degra
 		public event PropertyChangedEventHandler PropertyChanged;
 	}
 
-	public enum DegrationFormat
+	public enum DegrationFormat : int
 	{
 		Zip = -1,
-		Auto = 0,
+		OriginalFormat = 0,
 		WebP,
 		JPEG,
 		PNG,
@@ -62,6 +63,7 @@ namespace Daramee.Degra
 		public bool PNGPixelFormatTo8BitQuantization;
 		public bool HistogramEqualization;
 		public bool NoConvertTransparentDetected;
+		public int ThreadCount;
 	}
 
 	public static class Degrator
@@ -161,7 +163,7 @@ namespace Daramee.Degra
 
 		private static DegrationFormat GetFormat (IDetector detector, DegrationFormat format)
 		{
-			if ( format == DegrationFormat.Auto )
+			if ( format == DegrationFormat.OriginalFormat )
 			{
 				if ( detector.Extension == "png" )
 					return DegrationFormat.PNG;
@@ -214,7 +216,7 @@ namespace Daramee.Degra
 							try
 							{
 								Parallel.ForEach ( srcArchive.Entries,
-									new ParallelOptions () { CancellationToken = cancellationToken },
+									new ParallelOptions () { CancellationToken = cancellationToken, MaxDegreeOfParallelism = args.ThreadCount },
 									( entry ) =>
 									{
 										if ( entry.IsDirectory || cancellationToken.IsCancellationRequested )
@@ -234,7 +236,7 @@ namespace Daramee.Degra
 
 										status.ProceedFile = entry.Key;
 										var detector = DetectorService.DetectDetector ( readStream );
-										if ( detector.Extension == "bmp" || detector.Extension == "jpg" || detector.Extension == "jp2" || detector.Extension == "webp" || detector.Extension == "png" )
+										if ( detector != null && ( detector.Extension == "bmp" || detector.Extension == "jpg" || detector.Extension == "jp2" || detector.Extension == "webp" || detector.Extension == "png" ) )
 										{
 											readStream.Position = 0;
 											DegrationFormat format2;
@@ -253,7 +255,7 @@ namespace Daramee.Degra
 							}
 							catch ( OperationCanceledException ex )
 							{
-								
+								Debug.WriteLine ( ex );
 							}
 						}
 					);
@@ -299,14 +301,14 @@ namespace Daramee.Degra
 		{
 			if ( cancellationToken.IsCancellationRequested )
 			{
-				format = DegrationFormat.Auto;
+				format = DegrationFormat.OriginalFormat;
 				return false;
 			}
 
 			var detector = DetectorService.DetectDetector ( src );
 			src.Position = 0;
 
-			if ( args.Format == DegrationFormat.Auto )
+			if ( args.Format == DegrationFormat.OriginalFormat )
 			{
 				if ( detector.Extension == "png" )
 					format = DegrationFormat.PNG;
@@ -321,7 +323,7 @@ namespace Daramee.Degra
 					format = DegrationFormat.WebP;
 				else
 				{
-					format = DegrationFormat.Auto;
+					format = DegrationFormat.OriginalFormat;
 					return false;
 				}
 			}

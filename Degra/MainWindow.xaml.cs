@@ -51,6 +51,7 @@ namespace Daramee.Degra
 		public bool ZopfliPNGOptimization { get { return saveData.ZopfliPNGOptimization; } set { saveData.ZopfliPNGOptimization = value; } }
 		public bool HistogramEqualization { get { return saveData.HistogramEqualization; } set { saveData.HistogramEqualization = value; } }
 		public bool NoConvertTransparentDetected { get { return saveData.NoConvertTransparentDetected; } set { saveData.NoConvertTransparentDetected = value; } }
+		public int ThreadCount { get { return saveData.ThreadCount; } set { saveData.ThreadCount = value; } }
 
 		public MainWindow ()
 		{
@@ -147,13 +148,13 @@ namespace Daramee.Degra
 				ZopfliPNGOptimization = ZopfliPNGOptimization,
 				HistogramEqualization = HistogramEqualization,
 				NoConvertTransparentDetected = NoConvertTransparentDetected,
+				ThreadCount = ThreadCount
 			};
 
 			cancelToken = new CancellationTokenSource ();
 
 			await Task.Run ( () =>
 			{
-				Daramee.Winston.File.Operation.Begin ();
 				foreach ( var fileInfo in files )
 				{
 					if ( !fileInfo.Queued )
@@ -162,9 +163,10 @@ namespace Daramee.Degra
 					status.ProceedFile = fileInfo.OriginalFilename;
 					status.Progress = 0;
 
+					Daramee.Winston.File.Operation.Begin ();
 					Degrator.Degration ( fileInfo, ConversionPath, FileOverwrite, status, args, cancelToken.Token );
+					Daramee.Winston.File.Operation.End ();
 				}
-				Daramee.Winston.File.Operation.End ();
 
 				Degrator.CleanupMemory ();
 			}, cancelToken.Token );
@@ -177,6 +179,24 @@ namespace Daramee.Degra
 		{
 			cancelToken.Cancel ();
 			ButtonCancel.IsEnabled = false;
+		}
+
+		private void ListViewFiles_Drop ( object sender, DragEventArgs e )
+		{
+			if ( e.Data.GetDataPresent ( DataFormats.FileDrop ) )
+			{
+				var temp = e.Data.GetData ( DataFormats.FileDrop ) as string [];
+				foreach ( string s in from b in temp orderby b select b )
+				{
+					AddItem ( s );
+				}
+			}
+		}
+
+		private void ListViewFiles_DragEnter ( object sender, DragEventArgs e )
+		{
+			if ( e.Data.GetDataPresent ( DataFormats.FileDrop ) )
+				e.Effects = DragDropEffects.None;
 		}
 	}
 }

@@ -117,11 +117,16 @@
 						<CheckBox x:Name="ToggleNoConvertTransparentDetect" IsChecked="{Binding Source={x:Static local:MainWindow.SharedWindow}, Path=NoConvertTransparentDetected}" />
 					</StackPanel>
 
+					<StackPanel Margin="0,0,0,8">
+						<TextBlock x:Uid="TextBlockThreadCount" Text="Thread Count (0 to All Core, Max 96)" FontSize="12" Margin="0,0,0,4" />
+						<xctk:IntegerUpDown x:Name="TextBoxThreadCount" HorizontalAlignment="Stretch" Text="{Binding Source={x:Static local:MainWindow.SharedWindow}, Path=ThreadCount}" InputScope="Number" Minimum="0" Maximum="96" />
+					</StackPanel>
+
 					<Button x:Uid="ButtonLicenses" Content="Licenses" HorizontalAlignment="Stretch" Height="24" />
 				</StackPanel>
 			</ScrollViewer>
 
-			<ListView Name="ListViewFiles" Grid.Column="1">
+			<ListView Name="ListViewFiles" Grid.Column="1" AllowDrop="True" Drop="ListViewFiles_Drop" DragEnter="ListViewFiles_DragEnter">
 				<ListView.View>
 					<GridView>
 						<GridView.ColumnHeaderTemplate>

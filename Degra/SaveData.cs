@@ -12,7 +12,7 @@ namespace Daramee.Degra
 	{
 		string convPathText = System.Environment.GetFolderPath ( Environment.SpecialFolder.MyPictures );
 		bool fileOverwrite = false;
-		DegrationFormat imageFormat = DegrationFormat.Auto;
+		DegrationFormat imageFormat = DegrationFormat.OriginalFormat;
 		uint maxHeight = 8192;
 		ResizeFilter resizeFilter = ResizeFilter.Lanczos;
 		ushort quality = 90;
@@ -21,6 +21,7 @@ namespace Daramee.Degra
 		bool zopfliOpt = true;
 		bool histogramEqualization = false;
 		bool noConvTransparentDetect = true;
+		int threadCount = 0;
 
 		public event PropertyChangedEventHandler PropertyChanged;
 		private void PC ( string name ) { PropertyChanged?.Invoke ( this, new PropertyChangedEventArgs ( name ) ); }
@@ -132,6 +133,16 @@ namespace Daramee.Degra
 			{
 				noConvTransparentDetect = value;
 				PC ( nameof ( NoConvertTransparentDetected ) );
+			}
+		}
+
+		public int ThreadCount
+		{
+			get { return threadCount; }
+			set
+			{
+				threadCount = value;
+				PC ( nameof ( ThreadCount ) );
 			}
 		}
 	}

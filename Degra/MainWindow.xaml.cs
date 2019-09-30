@@ -48,6 +48,7 @@ namespace Daramee.Degra
 		public ushort ImageQuality { get { return saveData.ImageQuality; } set { saveData.ImageQuality = value; } }
 		public bool Lossless { get { return saveData.Lossless; } set { saveData.Lossless = value; } }
 		public bool IndexedPixelFormat { get { return saveData.IndexedPixelFormat; } set { saveData.IndexedPixelFormat = value; } }
+		public bool GrayscalePixelFormat { get { return saveData.GrayscalePixelFormat; } set { saveData.GrayscalePixelFormat = value; } }
 		public bool ZopfliPNGOptimization { get { return saveData.ZopfliPNGOptimization; } set { saveData.ZopfliPNGOptimization = value; } }
 		public bool HistogramEqualization { get { return saveData.HistogramEqualization; } set { saveData.HistogramEqualization = value; } }
 		public bool NoConvertTransparentDetected { get { return saveData.NoConvertTransparentDetected; } set { saveData.NoConvertTransparentDetected = value; } }
@@ -93,6 +94,8 @@ namespace Daramee.Degra
 				{
 					using ( Stream stream = new FileStream ( filename, FileMode.Open, FileAccess.Read, FileShare.Read ) )
 					{
+						if ( stream.Length == 0 )
+							return;
 						var detector = DetectorService.DetectDetector ( stream );
 						if ( detector == null )
 							return;
@@ -145,6 +148,7 @@ namespace Daramee.Degra
 				ResizeFilter = ResizeFilter,
 				LosslessCompression = Lossless,
 				PNGPixelFormatTo8BitQuantization = IndexedPixelFormat,
+				GrayscalePixelFormat = GrayscalePixelFormat,
 				ZopfliPNGOptimization = ZopfliPNGOptimization,
 				HistogramEqualization = HistogramEqualization,
 				NoConvertTransparentDetected = NoConvertTransparentDetected,
@@ -153,23 +157,33 @@ namespace Daramee.Degra
 
 			cancelToken = new CancellationTokenSource ();
 
-			await Task.Run ( () =>
+			if ( IndexedPixelFormat && GrayscalePixelFormat )
 			{
-				foreach ( var fileInfo in files )
+				cancelToken.Cancel ();
+				TaskDialog.Show ( "Settings Error.", "8-bit Indexed Pixel Format and Grayscale Pixel Format is checked both. You can turn on only one.", "Please check those settings.", TaskDialogCommonButtonFlags.OK, TaskDialogIcon.Error );
+			}
+
+			try
+			{
+				await Task.Run ( () =>
 				{
-					if ( !fileInfo.Queued )
-						continue;
+					foreach ( var fileInfo in files )
+					{
+						if ( !fileInfo.Queued )
+							continue;
 
-					status.ProceedFile = fileInfo.OriginalFilename;
-					status.Progress = 0;
+						status.ProceedFile = fileInfo.OriginalFilename;
+						status.Progress = 0;
 
-					Daramee.Winston.File.Operation.Begin ();
-					Degrator.Degration ( fileInfo, ConversionPath, FileOverwrite, status, args, cancelToken.Token );
-					Daramee.Winston.File.Operation.End ();
-				}
+						Daramee.Winston.File.Operation.Begin ();
+						Degrator.Degration ( fileInfo, ConversionPath, FileOverwrite, status, args, cancelToken.Token );
+						Daramee.Winston.File.Operation.End ();
+					}
 
-				Degrator.CleanupMemory ();
-			}, cancelToken.Token );
+					Degrator.CleanupMemory ();
+				}, cancelToken.Token );
+			}
+			catch { }
 
 			ButtonCancel.IsEnabled = false;
 			ButtonApply.IsEnabled = ButtonClear.IsEnabled = ScrollViewerSettings.IsEnabled = true;

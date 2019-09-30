@@ -61,6 +61,7 @@ namespace Daramee.Degra
 		public bool LosslessCompression;
 		public bool ZopfliPNGOptimization;
 		public bool PNGPixelFormatTo8BitQuantization;
+		public bool GrayscalePixelFormat;
 		public bool HistogramEqualization;
 		public bool NoConvertTransparentDetected;
 		public int ThreadCount;
@@ -74,6 +75,19 @@ namespace Daramee.Degra
 
 			status.ProceedFile = fileInfo.OriginalFilename;
 			status.Progress = 0;
+
+			if ( cancellationToken.IsCancellationRequested )
+			{
+				status.Progress = 1;
+				fileInfo.Status = DegraStatus.Cancelled;
+				return false;
+			}
+			if ( !File.Exists ( fileInfo.OriginalFilename ) )
+			{
+				status.Progress = 1;
+				fileInfo.Status = DegraStatus.Failed;
+				return false;
+			}
 
 			using ( Stream sourceStream = new FileStream ( fileInfo.OriginalFilename, FileMode.Open, FileAccess.Read ) )
 			{
@@ -342,6 +356,9 @@ namespace Daramee.Degra
 
 			if ( args.HistogramEqualization )
 				bitmap.HistogramEqualization ();
+
+			if ( args.GrayscalePixelFormat )
+				bitmap.To8BitGrayscaleColorFormat ();
 
 			switch ( format )
 			{

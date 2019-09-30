@@ -35,6 +35,8 @@ namespace Daramee.Degra.Native
 			using ( DegraStream degraStream = new DegraStream ( stream ) )
 			{
 				nativeBitmap = NativeBridge.Degra_LoadImageFromStream ( degraStream );
+				if ( nativeBitmap == null )
+					throw new IOException ();
 			}
 		}
 
@@ -68,6 +70,17 @@ namespace Daramee.Degra.Native
 		public void To8BitIndexedColorFormat ()
 		{
 			var newBitmap = NativeBridge.Degra_ImagePixelFormatToPalette8Bit ( nativeBitmap );
+			if ( newBitmap != IntPtr.Zero )
+			{
+				NativeBridge.Degra_DestroyImage ( nativeBitmap );
+				nativeBitmap = newBitmap;
+			}
+			else throw new Exception ();
+		}
+
+		public void To8BitGrayscaleColorFormat ()
+		{
+			var newBitmap = NativeBridge.Degra_ImagePixelFormatToGrayscale ( nativeBitmap );
 			if ( newBitmap != IntPtr.Zero )
 			{
 				NativeBridge.Degra_DestroyImage ( nativeBitmap );

@@ -60,6 +60,8 @@ namespace Daramee.Degra.Native
 		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
 		public static extern IntPtr Degra_ImagePixelFormatToPalette8Bit ( /*[MarshalAs ( UnmanagedType.Interface )]*/ IntPtr image );
 		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
+		public static extern IntPtr Degra_ImagePixelFormatToGrayscale ( /*[MarshalAs ( UnmanagedType.Interface )]*/ IntPtr image );
+		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
 		public static extern IntPtr Degra_ImageResize ( /*[MarshalAs ( UnmanagedType.Interface )]*/ IntPtr image, DegraImageResizeFilter filter, int height );
 		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
 		public static extern IntPtr Degra_ImageHistogramEqualization ( /*[MarshalAs ( UnmanagedType.Interface )]*/ IntPtr image );

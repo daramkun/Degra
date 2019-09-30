@@ -18,6 +18,7 @@ namespace Daramee.Degra
 		ushort quality = 90;
 		bool lossless = false;
 		bool indexedPixelFormat = true;
+		bool grayscalePixelFormat = false;
 		bool zopfliOpt = true;
 		bool histogramEqualization = false;
 		bool noConvTransparentDetect = true;
@@ -103,6 +104,16 @@ namespace Daramee.Degra
 			{
 				indexedPixelFormat = value;
 				PC ( nameof ( IndexedPixelFormat ) );
+			}
+		}
+
+		public bool GrayscalePixelFormat
+		{
+			get { return grayscalePixelFormat; }
+			set
+			{
+				grayscalePixelFormat = value;
+				PC ( nameof ( GrayscalePixelFormat ) );
 			}
 		}
 

@@ -45,8 +45,10 @@ extern "C"
 	__declspec(dllexport) void __stdcall Degra_GetImageSize (DegraImage image, UINT* width, UINT* height);
 
 	__declspec(dllexport) DegraImage __stdcall Degra_ImagePixelFormatToPalette8Bit (DegraImage image);
+	__declspec(dllexport) DegraImage __stdcall Degra_ImagePixelFormatToGrayscale (DegraImage image);
 	__declspec(dllexport) DegraImage __stdcall Degra_ImageResize (DegraImage image, DegraImage_ResizeFilter filter, int height);
 	__declspec(dllexport) DegraImage __stdcall Degra_ImageHistogramEqualization (DegraImage image);
+	
 	__declspec(dllexport) BOOL __stdcall Degra_DetectTransparent (DegraImage image);
 
 	struct JPEGOptions

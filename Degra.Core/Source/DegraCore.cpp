@@ -129,6 +129,13 @@ DegraImage __stdcall Degra_ImagePixelFormatToPalette8Bit (DegraImage image)
 		return nullptr;
 	return bitmap.detach ();
 }
+DegraImage __stdcall Degra_ImagePixelFormatToGrayscale (DegraImage image)
+{
+	dseed::auto_object<dseed::bitmap> bitmap;
+	if (dseed::failed (dseed::reformat_bitmap (image, dseed::pixelformat_grayscale8, &bitmap)))
+		return nullptr;
+	return bitmap.detach ();
+}
 DegraImage __stdcall Degra_ImageResize (DegraImage image, DegraImage_ResizeFilter filter, int height)
 {
 	dseed::resize_t resize_method;

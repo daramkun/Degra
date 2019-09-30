@@ -154,6 +154,8 @@ namespace Daramee.Degra
 				NoConvertTransparentDetected = NoConvertTransparentDetected,
 				ThreadCount = ThreadCount
 			};
+			if ( ThreadCount == 0 )
+				args.ThreadCount = Math.Max ( Environment.ProcessorCount - 1, 1 );
 
 			cancelToken = new CancellationTokenSource ();
 

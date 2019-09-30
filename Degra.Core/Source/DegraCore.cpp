@@ -2,6 +2,7 @@
 
 BOOL __stdcall Degra_Initialize ()
 {
+	/*dseed::add_bitmap_decoder (dseed::create_windows_imaging_codec_bitmap_decoder);
 	dseed::add_bitmap_decoder (dseed::create_webp_bitmap_decoder);
 	dseed::add_bitmap_decoder (dseed::create_jpeg_bitmap_decoder);
 	dseed::add_bitmap_decoder (dseed::create_jpeg2000_bitmap_decoder);
@@ -9,7 +10,7 @@ BOOL __stdcall Degra_Initialize ()
 	dseed::add_bitmap_decoder (dseed::create_gif_bitmap_decoder);
 	dseed::add_bitmap_decoder (dseed::create_tga_bitmap_decoder);
 	dseed::add_bitmap_decoder (dseed::create_tiff_bitmap_decoder);
-	dseed::add_bitmap_decoder (dseed::create_dib_bitmap_decoder);
+	dseed::add_bitmap_decoder (dseed::create_dib_bitmap_decoder);*/
 
 	return TRUE;
 }

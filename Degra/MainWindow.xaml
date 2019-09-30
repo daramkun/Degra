@@ -53,7 +53,7 @@
 
 				<Separator />
 
-				<ProgressBar Name="ProgressBarLog" Minimum="0" Maximum="1" Value="{Binding Progress}" Width="64" Height="16" VerticalAlignment="Center" />
+				<ProgressBar Name="ProgressBarLog" Minimum="0" Maximum="1" Value="{Binding Progress}" Width="64" Height="16" VerticalAlignment="Center" Margin="0,0,4,0" />
 				<TextBlock Name="TextBlockLog" Text="{Binding ProceedFile}" VerticalAlignment="Center" />
 			</ToolBar>
 		</ToolBarTray>

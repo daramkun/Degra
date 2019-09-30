@@ -357,8 +357,10 @@ namespace Daramee.Degra
 			if ( args.HistogramEqualization )
 				bitmap.HistogramEqualization ();
 
-			if ( args.GrayscalePixelFormat )
+			if ( args.GrayscalePixelFormat && format != DegrationFormat.WebP )
 				bitmap.To8BitGrayscaleColorFormat ();
+			else if ( args.PNGPixelFormatTo8BitQuantization && format == DegrationFormat.PNG )
+				bitmap.To8BitIndexedColorFormat ();
 
 			switch ( format )
 			{
@@ -376,8 +378,6 @@ namespace Daramee.Degra
 
 				case DegrationFormat.PNG:
 					{
-						if ( args.PNGPixelFormatTo8BitQuantization )
-							bitmap.To8BitIndexedColorFormat ();
 						bitmap.SaveToPNG ( dest, args.ZopfliPNGOptimization );
 					}
 					break;

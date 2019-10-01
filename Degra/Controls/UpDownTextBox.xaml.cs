@@ -95,7 +95,7 @@ namespace Daramee.Degra.Controls
 		static readonly Regex NumericRegex = new Regex ( "^-?[0-9]+$" );
 		private void TextBox_PreviewTextInput ( object sender, TextCompositionEventArgs e )
 		{
-			e.Handled = NumericRegex.IsMatch ( e.Text );
+			e.Handled = !NumericRegex.IsMatch ( e.Text );
 		}
 
 		private void TextBoxNumeric_TextChanged ( object sender, TextChangedEventArgs e )
@@ -103,6 +103,8 @@ namespace Daramee.Degra.Controls
 			if ( !NumericRegex.IsMatch ( ( sender as TextBox ).Text ) )
 			{
 				( sender as TextBox ).Text = new Regex ( "[^0-9\\-]+" ).Replace ( ( sender as TextBox ).Text, "" );
+				if ( string.IsNullOrEmpty ( ( sender as TextBox ).Text ) )
+					( sender as TextBox ).Text = "0";
 				if ( ( sender as TextBox ).Text.IndexOf ( '-', 1 ) > 0 )
 				{
 					bool signed = ( sender as TextBox ).Text.IndexOf ( '-' ) == 0;
@@ -112,7 +114,11 @@ namespace Daramee.Degra.Controls
 				return;
 			}
 			if ( e.Changes.Count != 0 )
-				Value = int.Parse ( ( sender as TextBox ).Text );
+			{
+				int value = int.Parse ( ( sender as TextBox ).Text );
+				Value = value;
+				( sender as TextBox ).Text = Value.ToString ();
+			}
 		}
 	}
 }

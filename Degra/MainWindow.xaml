@@ -89,7 +89,7 @@
 
 					<StackPanel Margin="0,0,0,8">
 						<TextBlock x:Uid="TextBlockMaximumHeight" Text="Maximum Image Height" FontSize="12" Margin="0,0,0,4" />
-						<ctrl:UpDownTextBox x:Name="TextBoxMaximumHeight" HorizontalAlignment="Stretch" Value="{Binding Source={x:Static local:MainWindow.SharedWindow}, Path=MaximumImageHeight}" Minimum="1" Maximum="99999999" />
+						<ctrl:UpDownTextBox x:Name="TextBoxMaximumHeight" HorizontalAlignment="Stretch" Value="{Binding Source={x:Static local:MainWindow.SharedWindow}, Path=MaximumImageHeight, Mode=TwoWay}" Minimum="1" Maximum="99999999" />
 					</StackPanel>
 
 					<StackPanel Margin="0,0,0,8">
@@ -104,7 +104,7 @@
 
 					<StackPanel Margin="0,0,0,8">
 						<TextBlock x:Uid="TextBlockQuality" Text="Image Quality(WebP, JPEG)" FontSize="12" Margin="0,0,0,4" />
-						<ctrl:UpDownTextBox x:Name="TextBoxQuality" HorizontalAlignment="Stretch" Value="{Binding Source={x:Static local:MainWindow.SharedWindow}, Path=ImageQuality}" Minimum="1" Maximum="100" />
+						<ctrl:UpDownTextBox x:Name="TextBoxQuality" HorizontalAlignment="Stretch" Value="{Binding Source={x:Static local:MainWindow.SharedWindow}, Path=ImageQuality, Mode=TwoWay}" Minimum="1" Maximum="100" />
 					</StackPanel>
 
 					<StackPanel Margin="0,0,0,8">
@@ -139,7 +139,7 @@
 
 					<StackPanel Margin="0,0,0,8">
 						<TextBlock x:Uid="TextBlockThreadCount" Text="Thread Count (0 to All Core, Max 96)" FontSize="12" Margin="0,0,0,4" />
-						<ctrl:UpDownTextBox x:Name="TextBoxThreadCount" HorizontalAlignment="Stretch" Value="{Binding Source={x:Static local:MainWindow.SharedWindow}, Path=ThreadCount}" Minimum="0" Maximum="96" />
+						<ctrl:UpDownTextBox x:Name="TextBoxThreadCount" HorizontalAlignment="Stretch" Value="{Binding Source={x:Static local:MainWindow.SharedWindow}, Path=ThreadCount, Mode=TwoWay}" Minimum="0" Maximum="96" />
 					</StackPanel>
 
 					<Button x:Uid="ButtonLicenses" Content="Licenses" HorizontalAlignment="Stretch" Height="24" />

@@ -4,13 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Daramee.Degra.Controls"
-             mc:Ignorable="d" Height="22" d:DesignWidth="400">
+			 x:Name="upDownTextBox"
+             mc:Ignorable="d" Height="22" d:DesignWidth="160">
     <Grid>
 		<TextBox Name="TextBoxNumeric" InputScope="Number" PreviewTextInput="TextBox_PreviewTextInput" TextChanged="TextBoxNumeric_TextChanged" />
 		<Grid Margin="2">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition />
-				<ColumnDefinition Width="28" />
+				<ColumnDefinition Width="18" />
 			</Grid.ColumnDefinitions>
 			<Grid.RowDefinitions>
 				<RowDefinition />

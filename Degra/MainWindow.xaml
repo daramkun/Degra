@@ -9,7 +9,7 @@
 		xmlns:ctrl="clr-namespace:Daramee.Degra.Controls"
         mc:Ignorable="d"
         Icon="Resources/MainIcon.ico" Title="Degra" WindowStartupLocation="CenterScreen"
-		Height="480" Width="800" Closing="Window_Closing">
+		Height="600" Width="800" Closing="Window_Closing">
 	<Window.Resources>
 		<conv:DegrationFormatConverter x:Key="degrationFormatConverter" />
 		<conv:ResizeFilterConverter x:Key="resizeFilterConverter" />

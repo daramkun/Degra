@@ -71,7 +71,7 @@
     <Compile Include="Converters\ListViewItemColorConverter.cs" />
     <Compile Include="Converters\ResizeFilterConverter.cs" />
     <Compile Include="Optionizer.cs" />
-    <Compile Include="SaveData.cs" />
+    <Compile Include="Settings.cs" />
     <Page Include="Controls\UpDownTextBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -35,30 +35,30 @@ namespace Daramee.Degra
 
 		ObservableCollection<FileInfo> files = new ObservableCollection<FileInfo> ();
 		
-		SaveData saveData = new SaveData ();
-		Optionizer<SaveData> optionizer = new Optionizer<SaveData> ();
+		Settings settings = new Settings ();
+		Optionizer<Settings> optionizer = new Optionizer<Settings> ();
 
 		ProgressStatus status = new ProgressStatus ();
 
-		public string ConversionPath { get { return saveData.ConversionPath; } set { saveData.ConversionPath = value; PC ( nameof ( ConversionPath ) ); } }
-		public bool FileOverwrite { get { return saveData.FileOverwrite; } set { saveData.FileOverwrite = value; } }
-		public DegrationFormat ImageFormat { get { return saveData.ImageFormat; } set { saveData.ImageFormat = value; } }
-		public uint MaximumImageHeight { get { return saveData.MaximumImageHeight; } set { saveData.MaximumImageHeight = value; } }
-		public ResizeFilter ResizeFilter { get { return saveData.ResizeFilter; } set { saveData.ResizeFilter = value; } }
-		public ushort ImageQuality { get { return saveData.ImageQuality; } set { saveData.ImageQuality = value; } }
-		public bool Lossless { get { return saveData.Lossless; } set { saveData.Lossless = value; } }
-		public bool IndexedPixelFormat { get { return saveData.IndexedPixelFormat; } set { saveData.IndexedPixelFormat = value; } }
-		public bool GrayscalePixelFormat { get { return saveData.GrayscalePixelFormat; } set { saveData.GrayscalePixelFormat = value; } }
-		public bool ZopfliPNGOptimization { get { return saveData.ZopfliPNGOptimization; } set { saveData.ZopfliPNGOptimization = value; } }
-		public bool HistogramEqualization { get { return saveData.HistogramEqualization; } set { saveData.HistogramEqualization = value; } }
-		public bool NoConvertTransparentDetected { get { return saveData.NoConvertTransparentDetected; } set { saveData.NoConvertTransparentDetected = value; } }
-		public int ThreadCount { get { return saveData.ThreadCount; } set { saveData.ThreadCount = value; } }
+		public string ConversionPath { get { return settings.ConversionPath; } set { settings.ConversionPath = value; PC ( nameof ( ConversionPath ) ); } }
+		public bool FileOverwrite { get { return settings.FileOverwrite; } set { settings.FileOverwrite = value; } }
+		public DegrationFormat ImageFormat { get { return settings.ImageFormat; } set { settings.ImageFormat = value; } }
+		public uint MaximumImageHeight { get { return settings.MaximumImageHeight; } set { settings.MaximumImageHeight = value; } }
+		public ResizeFilter ResizeFilter { get { return settings.ResizeFilter; } set { settings.ResizeFilter = value; } }
+		public ushort ImageQuality { get { return settings.ImageQuality; } set { settings.ImageQuality = value; } }
+		public bool Lossless { get { return settings.Lossless; } set { settings.Lossless = value; } }
+		public bool IndexedPixelFormat { get { return settings.IndexedPixelFormat; } set { settings.IndexedPixelFormat = value; } }
+		public bool GrayscalePixelFormat { get { return settings.GrayscalePixelFormat; } set { settings.GrayscalePixelFormat = value; } }
+		public bool ZopfliPNGOptimization { get { return settings.ZopfliPNGOptimization; } set { settings.ZopfliPNGOptimization = value; } }
+		public bool HistogramEqualization { get { return settings.HistogramEqualization; } set { settings.HistogramEqualization = value; } }
+		public bool NoConvertTransparentDetected { get { return settings.NoConvertTransparentDetected; } set { settings.NoConvertTransparentDetected = value; } }
+		public int ThreadCount { get { return settings.ThreadCount; } set { settings.ThreadCount = value; } }
 
 		public MainWindow ()
 		{
 			SharedWindow = this;
 
-			saveData = optionizer.Options;
+			settings = optionizer.Options;
 
 			InitializeComponent ();
 
@@ -70,7 +70,7 @@ namespace Daramee.Degra
 
 		private void Window_Closing ( object sender, CancelEventArgs e )
 		{
-			optionizer.Options = saveData;
+			optionizer.Options = settings;
 			optionizer.Save ();
 		}
 
@@ -140,23 +140,6 @@ namespace Daramee.Degra
 			foreach ( var fileInfo in files )
 				fileInfo.Status = DegraStatus.Waiting;
 
-			DegrationArguments args = new DegrationArguments
-			{
-				Format = ImageFormat,
-				ImageQuality = ImageQuality,
-				MaximumImageHeight = ( int ) MaximumImageHeight,
-				ResizeFilter = ResizeFilter,
-				LosslessCompression = Lossless,
-				PNGPixelFormatTo8BitQuantization = IndexedPixelFormat,
-				GrayscalePixelFormat = GrayscalePixelFormat,
-				ZopfliPNGOptimization = ZopfliPNGOptimization,
-				HistogramEqualization = HistogramEqualization,
-				NoConvertTransparentDetected = NoConvertTransparentDetected,
-				ThreadCount = ThreadCount
-			};
-			if ( ThreadCount == 0 )
-				args.ThreadCount = Math.Max ( Environment.ProcessorCount - 1, 1 );
-
 			cancelToken = new CancellationTokenSource ();
 
 			if ( IndexedPixelFormat && GrayscalePixelFormat )
@@ -178,7 +161,7 @@ namespace Daramee.Degra
 						status.Progress = 0;
 
 						Daramee.Winston.File.Operation.Begin ();
-						Degrator.Degration ( fileInfo, ConversionPath, FileOverwrite, status, args, cancelToken.Token );
+						Degrator.Degration ( fileInfo, status, settings, cancelToken.Token );
 						Daramee.Winston.File.Operation.End ();
 					}
 

@@ -52,24 +52,9 @@ namespace Daramee.Degra
 		PNG,
 	}
 
-	public struct DegrationArguments
-	{
-		public DegrationFormat Format;
-		public ResizeFilter ResizeFilter;
-		public int MaximumImageHeight;
-		public int ImageQuality;
-		public bool LosslessCompression;
-		public bool ZopfliPNGOptimization;
-		public bool PNGPixelFormatTo8BitQuantization;
-		public bool GrayscalePixelFormat;
-		public bool HistogramEqualization;
-		public bool NoConvertTransparentDetected;
-		public int ThreadCount;
-	}
-
 	public static class Degrator
 	{
-		public static bool Degration ( FileInfo fileInfo, string destination, bool overwrite, ProgressStatus status, DegrationArguments args, CancellationToken cancellationToken )
+		public static bool Degration ( FileInfo fileInfo, ProgressStatus status, in Settings args, CancellationToken cancellationToken )
 		{
 			fileInfo.Status = DegraStatus.Processing;
 
@@ -91,7 +76,7 @@ namespace Daramee.Degra
 
 			using ( Stream sourceStream = new FileStream ( fileInfo.OriginalFilename, FileMode.Open, FileAccess.Read ) )
 			{
-				string tempFileName = Path.Combine ( destination, Path.GetFileName ( Path.GetTempFileName () ) );
+				string tempFileName = Path.Combine ( args.ConversionPath, Path.GetFileName ( Path.GetTempFileName () ) );
 				string newFileName = null;
 				bool ret = false;
 				try
@@ -104,7 +89,7 @@ namespace Daramee.Degra
 						{
 							ret = Degration_Zip ( destinationStream, sourceStream, status, args, cancellationToken );
 							if ( ret )
-								newFileName = Path.Combine ( destination, Path.GetFileNameWithoutExtension ( fileInfo.OriginalFilename ) + ".zip" );
+								newFileName = Path.Combine ( args.ConversionPath, Path.GetFileNameWithoutExtension ( fileInfo.OriginalFilename ) + ".zip" );
 						}
 						else
 						{
@@ -112,11 +97,11 @@ namespace Daramee.Degra
 							ret = Degration_SingleFile ( destinationStream, sourceStream, out format, args, cancellationToken );
 
 							if ( ret )
-								newFileName = Path.Combine ( destination, GetFileName ( Path.GetFileNameWithoutExtension ( fileInfo.OriginalFilename ), format ) );
+								newFileName = Path.Combine ( args.ConversionPath, GetFileName ( Path.GetFileNameWithoutExtension ( fileInfo.OriginalFilename ), format ) );
 						}
 					}
 					if ( newFileName != null )
-						Daramee.Winston.File.Operation.Move ( newFileName, tempFileName, overwrite );
+						Daramee.Winston.File.Operation.Move ( newFileName, tempFileName, args.FileOverwrite );
 				}
 				catch
 				{
@@ -214,7 +199,7 @@ namespace Daramee.Degra
 			GC.Collect ();
 		}
 
-		private static bool Degration_Zip ( Stream dest, Stream src, ProgressStatus status, DegrationArguments args, CancellationToken cancellationToken )
+		private static bool Degration_Zip ( Stream dest, Stream src, ProgressStatus status, in Settings args, CancellationToken cancellationToken )
 		{
 			using ( IArchive srcArchive = ArchiveFactory.Open ( src, new ReaderOptions () { LeaveStreamOpen = true } ) )
 			{
@@ -224,13 +209,15 @@ namespace Daramee.Degra
 					int proceed = 0;
 					ConcurrentQueue<KeyValuePair<string, MemoryStream>> cache = new ConcurrentQueue<KeyValuePair<string, MemoryStream>> ();
 
+					Settings dupArgs = args.Clone () as Settings;
+
 					Task.Run (
 						() =>
 						{
 							try
 							{
 								Parallel.ForEach ( srcArchive.Entries,
-									new ParallelOptions () { CancellationToken = cancellationToken, MaxDegreeOfParallelism = args.ThreadCount },
+									new ParallelOptions () { CancellationToken = cancellationToken, MaxDegreeOfParallelism = dupArgs.ThreadCount == 0 ? Math.Max ( Environment.ProcessorCount - 1, 1 ) : dupArgs.ThreadCount },
 									( entry ) =>
 									{
 										if ( entry.IsDirectory || cancellationToken.IsCancellationRequested )
@@ -254,10 +241,10 @@ namespace Daramee.Degra
 										{
 											readStream.Position = 0;
 											DegrationFormat format2;
-											bool ret = Degration_SingleFile ( convStream, readStream, out format2, args, cancellationToken );
+											bool ret = Degration_SingleFile ( convStream, readStream, out format2, dupArgs, cancellationToken );
 											convStream.Position = 0;
 
-											if ( !ret || ( ( GetExtension ( format2 ) == detector.Extension ) && ( readStream.Length <= convStream.Length ) && !args.HistogramEqualization ) )
+											if ( !ret || ( ( GetExtension ( format2 ) == detector.Extension ) && ( readStream.Length <= convStream.Length ) && !dupArgs.HistogramEqualization ) )
 												cache.Enqueue ( new KeyValuePair<string, MemoryStream> ( entry.Key, readStream ) );
 											else
 												cache.Enqueue ( new KeyValuePair<string, MemoryStream> ( GetFileName ( entry.Key, format2 ), convStream ) );
@@ -311,7 +298,7 @@ namespace Daramee.Degra
 			return cancellationToken.IsCancellationRequested ? false : true;
 		}
 
-		private static bool Degration_SingleFile ( Stream dest, Stream src, out DegrationFormat format, DegrationArguments args, CancellationToken cancellationToken )
+		private static bool Degration_SingleFile ( Stream dest, Stream src, out DegrationFormat format, in Settings args, CancellationToken cancellationToken )
 		{
 			if ( cancellationToken.IsCancellationRequested )
 			{
@@ -322,7 +309,7 @@ namespace Daramee.Degra
 			var detector = DetectorService.DetectDetector ( src );
 			src.Position = 0;
 
-			if ( args.Format == DegrationFormat.OriginalFormat )
+			if ( args.ImageFormat == DegrationFormat.OriginalFormat )
 			{
 				if ( detector.Extension == "png" )
 					format = DegrationFormat.PNG;
@@ -342,7 +329,7 @@ namespace Daramee.Degra
 				}
 			}
 			else
-				format = args.Format;
+				format = args.ImageFormat;
 
 			DegraBitmap bitmap = new DegraBitmap ( src );
 			dest.Position = 0;
@@ -352,21 +339,21 @@ namespace Daramee.Degra
 					return false;
 
 			if ( bitmap.Size.Height > args.MaximumImageHeight )
-				bitmap.Resize ( args.MaximumImageHeight, args.ResizeFilter );
+				bitmap.Resize ( ( int ) args.MaximumImageHeight, args.ResizeFilter );
 
 			if ( args.HistogramEqualization )
 				bitmap.HistogramEqualization ();
 
 			if ( args.GrayscalePixelFormat && format != DegrationFormat.WebP )
 				bitmap.To8BitGrayscaleColorFormat ();
-			else if ( args.PNGPixelFormatTo8BitQuantization && format == DegrationFormat.PNG )
+			else if ( args.IndexedPixelFormat && format == DegrationFormat.PNG )
 				bitmap.To8BitIndexedColorFormat ();
 
 			switch ( format )
 			{
 				case DegrationFormat.WebP:
 					{
-						bitmap.SaveToWebP ( dest, args.ImageQuality, args.LosslessCompression );
+						bitmap.SaveToWebP ( dest, args.ImageQuality, args.Lossless );
 					}
 					break;
 

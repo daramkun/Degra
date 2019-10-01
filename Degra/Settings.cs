@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Daramee.Degra
 {
-	public class SaveData : INotifyPropertyChanged
+	public class Settings : INotifyPropertyChanged, ICloneable
 	{
 		string convPathText = System.Environment.GetFolderPath ( Environment.SpecialFolder.MyPictures );
 		bool fileOverwrite = false;
@@ -26,6 +26,26 @@ namespace Daramee.Degra
 
 		public event PropertyChangedEventHandler PropertyChanged;
 		private void PC ( string name ) { PropertyChanged?.Invoke ( this, new PropertyChangedEventArgs ( name ) ); }
+
+		public object Clone ()
+		{
+			Settings n = new Settings ()
+			{
+				ConversionPath = ConversionPath,
+				FileOverwrite = FileOverwrite,
+				ImageFormat = ImageFormat,
+				MaximumImageHeight = MaximumImageHeight,
+				ResizeFilter = ResizeFilter,
+				ImageQuality = ImageQuality,
+				Lossless = Lossless,
+				IndexedPixelFormat = IndexedPixelFormat,
+				GrayscalePixelFormat = GrayscalePixelFormat,
+				ZopfliPNGOptimization = ZopfliPNGOptimization,
+				HistogramEqualization = HistogramEqualization,
+				NoConvertTransparentDetected = NoConvertTransparentDetected,
+			};
+			return n;
+		}
 
 		public string ConversionPath
 		{

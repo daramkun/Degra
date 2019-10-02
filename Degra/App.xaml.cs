@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 
 namespace Daramee.Degra
 {
@@ -21,6 +22,8 @@ namespace Daramee.Degra
 			DetectorService.AddDetectors ( Assembly.GetEntryAssembly (), FormatCategories.Archive );
 			DetectorService.AddDetectors ( Assembly.GetEntryAssembly (), FormatCategories.Image );
 			NativeBridge.Degra_Initialize ();
+
+			RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
 		}
 	}
 }

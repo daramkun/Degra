@@ -35,30 +35,13 @@ namespace Daramee.Degra
 
 		ObservableCollection<FileInfo> files = new ObservableCollection<FileInfo> ();
 		
-		Settings settings = new Settings ();
 		Optionizer<Settings> optionizer = new Optionizer<Settings> ();
 
 		ProgressStatus status = new ProgressStatus ();
 
-		public string ConversionPath { get { return settings.ConversionPath; } set { settings.ConversionPath = value; PC ( nameof ( ConversionPath ) ); } }
-		public bool FileOverwrite { get { return settings.FileOverwrite; } set { settings.FileOverwrite = value; } }
-		public DegrationFormat ImageFormat { get { return settings.ImageFormat; } set { settings.ImageFormat = value; } }
-		public uint MaximumImageHeight { get { return settings.MaximumImageHeight; } set { settings.MaximumImageHeight = value; } }
-		public ResizeFilter ResizeFilter { get { return settings.ResizeFilter; } set { settings.ResizeFilter = value; } }
-		public ushort ImageQuality { get { return settings.ImageQuality; } set { settings.ImageQuality = value; } }
-		public bool Lossless { get { return settings.Lossless; } set { settings.Lossless = value; } }
-		public bool IndexedPixelFormat { get { return settings.IndexedPixelFormat; } set { settings.IndexedPixelFormat = value; } }
-		public bool GrayscalePixelFormat { get { return settings.GrayscalePixelFormat; } set { settings.GrayscalePixelFormat = value; } }
-		public bool ZopfliPNGOptimization { get { return settings.ZopfliPNGOptimization; } set { settings.ZopfliPNGOptimization = value; } }
-		public bool HistogramEqualization { get { return settings.HistogramEqualization; } set { settings.HistogramEqualization = value; } }
-		public bool NoConvertTransparentDetected { get { return settings.NoConvertTransparentDetected; } set { settings.NoConvertTransparentDetected = value; } }
-		public int ThreadCount { get { return settings.ThreadCount; } set { settings.ThreadCount = value; } }
-
 		public MainWindow ()
 		{
 			SharedWindow = this;
-
-			settings = optionizer.Options;
 
 			InitializeComponent ();
 
@@ -70,19 +53,7 @@ namespace Daramee.Degra
 
 		private void Window_Closing ( object sender, CancelEventArgs e )
 		{
-			optionizer.Options = settings;
 			optionizer.Save ();
-		}
-
-		private void ButtonBrowseConversionPath_Click ( object sender, RoutedEventArgs e )
-		{
-			Winston.Dialogs.OpenFolderDialog ofd = new Winston.Dialogs.OpenFolderDialog
-			{
-				InitialDirectory = ConversionPath
-			};
-			if ( ofd.ShowDialog ( this ) == false )
-				return;
-			ConversionPath = ofd.FileName;
 		}
 
 		private void AddItem ( string filename )
@@ -142,7 +113,7 @@ namespace Daramee.Degra
 
 			cancelToken = new CancellationTokenSource ();
 
-			if ( IndexedPixelFormat && GrayscalePixelFormat )
+			if ( Settings.SharedSettings.IndexedPixelFormat && Settings.SharedSettings.GrayscalePixelFormat )
 			{
 				cancelToken.Cancel ();
 				TaskDialog.Show ( "Settings Error.", "8-bit Indexed Pixel Format and Grayscale Pixel Format is checked both. You can turn on only one.", "Please check those settings.", TaskDialogCommonButtonFlags.OK, TaskDialogIcon.Error );
@@ -161,7 +132,7 @@ namespace Daramee.Degra
 						status.Progress = 0;
 
 						Daramee.Winston.File.Operation.Begin ();
-						Degrator.Degration ( fileInfo, status, settings, cancelToken.Token );
+						Degrator.Degration ( fileInfo, status, cancelToken.Token );
 						Daramee.Winston.File.Operation.End ();
 					}
 
@@ -196,6 +167,13 @@ namespace Daramee.Degra
 		{
 			if ( e.Data.GetDataPresent ( DataFormats.FileDrop ) )
 				e.Effects = DragDropEffects.None;
+		}
+
+		private void ButtonLicense_Click ( object sender, RoutedEventArgs e )
+		{
+			var licenseWindow = new LicenseWindow ();
+			licenseWindow.Owner = this;
+			licenseWindow.ShowDialog ();
 		}
 	}
 }

@@ -203,6 +203,11 @@ namespace dseed
 		histogram_color_fourth,
 	};
 
+#	if COMPILER_MSVC
+#		pragma pack (push, 1)
+#	else
+#		pragma pack (1)
+#	endif
 	struct histogram
 	{
 		int histogram[256];
@@ -211,6 +216,11 @@ namespace dseed
 		bool calced_table;
 		int histogram_table[256];
 	};
+#	if COMPILER_MSVC
+#		pragma pack (pop)
+#	else
+#		pragma pack ()
+#	endif
 
 	// Generate Histogram from Bitmap
 	DSEEDEXP error_t bitmap_generate_histogram (dseed::bitmap* original, histogram_color_t color, uint32_t depth, histogram* histogram);
@@ -228,8 +238,41 @@ namespace dseed
 	//  : RGBA, RGB, BGRA, BGR, Grayscale, YCbCr(YUV, 4:4:4) only support.
 	DSEEDEXP error_t bitmap_unary_operation (dseed::bitmap* b, dseed::unary_operator_t op, dseed::bitmap** bitmap);
 
+	enum colorcount_t : uint32_t
+	{
+		colorcount_unknown = 0,
+		colorcount_1bpp_palettable = 2,
+		colorcount_2bpp_palettable = 4,
+		colorcount_4bpp_palettable = 16,
+		colorcount_8bpp_palettable = 256,
+		colorcount_cannot_palettable = 0xffffffff
+	};
+
+#	if COMPILER_MSVC
+#		pragma pack (push, 1)
+#	else
+#		pragma pack (1)
+#	endif
+	struct bitmap_properties
+	{
+		bool transparent;
+		bool grayscale;
+		colorcount_t colours;
+	};
+#	if COMPILER_MSVC
+#		pragma pack (pop)
+#	else
+#		pragma pack ()
+#	endif
+
+	DSEEDEXP error_t bitmap_determine_bitmap_properties (dseed::bitmap* bitmap, dseed::bitmap_properties* prop, int threshold = 10);
+
 	// Detect Transparented Alpha Value from Bitmap
 	DSEEDEXP error_t bitmap_detect_transparent (dseed::bitmap* bitmap, bool* transparent);
+	// Check Is Bitmap Grayscale?
+	DSEEDEXP error_t bitmap_detect_grayscale_bitmap (dseed::bitmap* bitmap, bool* grayscale, int threshold = 10);
+	// Get Total Colours Count
+	DSEEDEXP error_t bitmap_get_total_colours (dseed::bitmap* bitmap, colorcount_t* colours);
 }
 
 #include <dseed/bitmap/bitmap.decoders.h>

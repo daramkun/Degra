@@ -146,6 +146,7 @@ DegraImage __stdcall Degra_ImageResize (DegraImage image, DegraImage_ResizeFilte
 	case DegraImage_ResizeFilter_Linear: resize_method = dseed::resize_bilinear; break;
 	case DegraImage_ResizeFilter_Bicubic: resize_method = dseed::resize_bicubic; break;
 	case DegraImage_ResizeFilter_Ranczos: resize_method = dseed::resize_lanczos; break;
+	case DegraImage_ResizeFilter_RanczosX5: resize_method = dseed::resize_lanczos5; break;
 	default: return nullptr;
 	}
 
@@ -173,11 +174,43 @@ DegraImage __stdcall Degra_ImageHistogramEqualization (DegraImage image)
 
 	return temp3.detach ();
 }
+
+void __stdcall Degra_DetectBitmapProperties (DegraImage image, BOOL* transparent, BOOL* grayscale, BOOL* palettable)
+{
+	dseed::bitmap_properties prop;
+	if (dseed::succeeded (dseed::bitmap_determine_bitmap_properties (image, &prop)))
+	{
+		*transparent = prop.transparent;
+		*grayscale = prop.grayscale;
+		*palettable = prop.colours != dseed::colorcount_cannot_palettable;
+	}
+	else
+	{
+		*transparent = true;
+		*grayscale = false;
+		*palettable = false;
+	}
+}
 BOOL __stdcall Degra_DetectTransparent (DegraImage image)
 {
 	bool transparent;
-	dseed::bitmap_detect_transparent (image, &transparent);
+	if (dseed::failed (dseed::bitmap_detect_transparent (image, &transparent)))
+		return true;
 	return transparent;
+}
+BOOL __stdcall Degra_DetectGrayscale (DegraImage image)
+{
+	bool grayscale;
+	if (dseed::failed (dseed::bitmap_detect_grayscale_bitmap (image, &grayscale)))
+		return false;
+	return grayscale;
+}
+BOOL __stdcall Degra_DetectLesserOrEquals256Color (DegraImage image)
+{
+	dseed::colorcount_t cc;
+	if (dseed::failed (dseed::bitmap_get_total_colours (image, &cc)))
+		return false;
+	return cc != dseed::colorcount_cannot_palettable;
 }
 
 BOOL __stdcall Degra_SaveImageToStreamJPEG (DegraImage image, const JPEGOptions* options, DegraStream stream)

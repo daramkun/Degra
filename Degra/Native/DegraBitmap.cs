@@ -14,6 +14,7 @@ namespace Daramee.Degra.Native
 		Bilinear,
 		Bicubic,
 		Lanczos,
+		LanczosX5,
 	}
 
 	public sealed class DegraBitmap : IDisposable

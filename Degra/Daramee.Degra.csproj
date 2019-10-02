@@ -64,15 +64,37 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\FileSelection.xaml.cs">
+      <DependentUpon>FileSelection.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PercentageProgressBar.xaml.cs">
+      <DependentUpon>PercentageProgressBar.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\UpDownTextBox.xaml.cs">
       <DependentUpon>UpDownTextBox.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\DegrationFormatConverter.cs" />
     <Compile Include="Converters\ListViewItemColorConverter.cs" />
     <Compile Include="Converters\ResizeFilterConverter.cs" />
+    <Compile Include="Converters\StatusTextConverter.cs" />
+    <Compile Include="LicenseWindow.xaml.cs">
+      <DependentUpon>LicenseWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Optionizer.cs" />
     <Compile Include="Settings.cs" />
+    <Page Include="Controls\FileSelection.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\PercentageProgressBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\UpDownTextBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="LicenseWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

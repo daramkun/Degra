@@ -35,6 +35,8 @@ namespace dseed
 		int24_t (int32_t v) noexcept;
 		operator int32_t () const noexcept;
 	};
+	inline bool operator== (const int24_t& a, const int24_t& b) noexcept { return memcmp (&a, &b, sizeof (int24_t)) == 0; }
+	inline bool operator!= (const int24_t& a, const int24_t& b) noexcept { return memcmp (&a, &b, sizeof (int24_t)) != 0; }
 	struct DSEEDEXP uint24_t
 	{
 		uint8_t value[3];
@@ -42,6 +44,8 @@ namespace dseed
 		uint24_t (uint32_t v) noexcept;
 		operator uint32_t () const noexcept;
 	};
+	inline bool operator== (const uint24_t& a, const uint24_t& b) noexcept { return memcmp (&a, &b, sizeof (uint24_t)) == 0; }
+	inline bool operator!= (const uint24_t& a, const uint24_t& b) noexcept { return memcmp (&a, &b, sizeof (uint24_t)) != 0; }
 #if COMPILER_MSVC
 #	pragma pack (pop)
 #else
@@ -88,6 +92,8 @@ namespace dseed
 		half (float v);
 		operator float () const;
 	};
+	inline bool operator== (const half& a, const half& b) noexcept { return a.word == b.word; }
+	inline bool operator!= (const half& a, const half& b) noexcept { return a.word != b.word; }
 #	if COMPILER_MSVC
 #		pragma pack (pop)
 #	else

@@ -54,7 +54,7 @@ namespace Daramee.Degra
 
 	public static class Degrator
 	{
-		public static bool Degration ( FileInfo fileInfo, ProgressStatus status, in Settings args, CancellationToken cancellationToken )
+		public static bool Degration ( FileInfo fileInfo, ProgressStatus status, CancellationToken cancellationToken )
 		{
 			fileInfo.Status = DegraStatus.Processing;
 
@@ -76,7 +76,7 @@ namespace Daramee.Degra
 
 			using ( Stream sourceStream = new FileStream ( fileInfo.OriginalFilename, FileMode.Open, FileAccess.Read ) )
 			{
-				string tempFileName = Path.Combine ( args.ConversionPath, Path.GetFileName ( Path.GetTempFileName () ) );
+				string tempFileName = Path.Combine ( Settings.SharedSettings.ConversionPath, Path.GetFileName ( Path.GetTempFileName () ) );
 				string newFileName = null;
 				bool ret = false;
 				try
@@ -87,21 +87,21 @@ namespace Daramee.Degra
 						sourceStream.Position = 0;
 						if ( detector.Extension == "zip" || detector.Extension == "rar" || detector.Extension == "7z" || detector.Extension == "tar" )
 						{
-							ret = Degration_Zip ( destinationStream, sourceStream, status, args, cancellationToken );
+							ret = Degration_Zip ( destinationStream, sourceStream, status, cancellationToken );
 							if ( ret )
-								newFileName = Path.Combine ( args.ConversionPath, Path.GetFileNameWithoutExtension ( fileInfo.OriginalFilename ) + ".zip" );
+								newFileName = Path.Combine ( Settings.SharedSettings.ConversionPath, Path.GetFileNameWithoutExtension ( fileInfo.OriginalFilename ) + ".zip" );
 						}
 						else
 						{
 							DegrationFormat format;
-							ret = Degration_SingleFile ( destinationStream, sourceStream, out format, args, cancellationToken );
+							ret = Degration_SingleFile ( destinationStream, sourceStream, out format, cancellationToken );
 
 							if ( ret )
-								newFileName = Path.Combine ( args.ConversionPath, GetFileName ( Path.GetFileNameWithoutExtension ( fileInfo.OriginalFilename ), format ) );
+								newFileName = Path.Combine ( Settings.SharedSettings.ConversionPath, GetFileName ( Path.GetFileNameWithoutExtension ( fileInfo.OriginalFilename ), format ) );
 						}
 					}
 					if ( newFileName != null )
-						Daramee.Winston.File.Operation.Move ( newFileName, tempFileName, args.FileOverwrite );
+						Daramee.Winston.File.Operation.Move ( newFileName, tempFileName, Settings.SharedSettings.FileOverwrite );
 				}
 				catch
 				{
@@ -199,7 +199,7 @@ namespace Daramee.Degra
 			GC.Collect ();
 		}
 
-		private static bool Degration_Zip ( Stream dest, Stream src, ProgressStatus status, in Settings args, CancellationToken cancellationToken )
+		private static bool Degration_Zip ( Stream dest, Stream src, ProgressStatus status, CancellationToken cancellationToken )
 		{
 			using ( IArchive srcArchive = ArchiveFactory.Open ( src, new ReaderOptions () { LeaveStreamOpen = true } ) )
 			{
@@ -209,15 +209,13 @@ namespace Daramee.Degra
 					int proceed = 0;
 					ConcurrentQueue<KeyValuePair<string, MemoryStream>> cache = new ConcurrentQueue<KeyValuePair<string, MemoryStream>> ();
 
-					Settings dupArgs = args.Clone () as Settings;
-
 					Task.Run (
 						() =>
 						{
 							try
 							{
 								Parallel.ForEach ( srcArchive.Entries,
-									new ParallelOptions () { CancellationToken = cancellationToken, MaxDegreeOfParallelism = dupArgs.ThreadCount == 0 ? Math.Max ( Environment.ProcessorCount - 1, 1 ) : dupArgs.ThreadCount },
+									new ParallelOptions () { CancellationToken = cancellationToken, MaxDegreeOfParallelism = Settings.SharedSettings.LogicalThreadCount },
 									( entry ) =>
 									{
 										if ( entry.IsDirectory || cancellationToken.IsCancellationRequested )
@@ -241,10 +239,10 @@ namespace Daramee.Degra
 										{
 											readStream.Position = 0;
 											DegrationFormat format2;
-											bool ret = Degration_SingleFile ( convStream, readStream, out format2, dupArgs, cancellationToken );
+											bool ret = Degration_SingleFile ( convStream, readStream, out format2, cancellationToken );
 											convStream.Position = 0;
 
-											if ( !ret || ( ( GetExtension ( format2 ) == detector.Extension ) && ( readStream.Length <= convStream.Length ) && !dupArgs.HistogramEqualization ) )
+											if ( !ret || ( ( GetExtension ( format2 ) == detector.Extension ) && ( readStream.Length <= convStream.Length ) && !Settings.SharedSettings.HistogramEqualization ) )
 												cache.Enqueue ( new KeyValuePair<string, MemoryStream> ( entry.Key, readStream ) );
 											else
 												cache.Enqueue ( new KeyValuePair<string, MemoryStream> ( GetFileName ( entry.Key, format2 ), convStream ) );
@@ -298,7 +296,7 @@ namespace Daramee.Degra
 			return cancellationToken.IsCancellationRequested ? false : true;
 		}
 
-		private static bool Degration_SingleFile ( Stream dest, Stream src, out DegrationFormat format, in Settings args, CancellationToken cancellationToken )
+		private static bool Degration_SingleFile ( Stream dest, Stream src, out DegrationFormat format, CancellationToken cancellationToken )
 		{
 			if ( cancellationToken.IsCancellationRequested )
 			{
@@ -309,7 +307,7 @@ namespace Daramee.Degra
 			var detector = DetectorService.DetectDetector ( src );
 			src.Position = 0;
 
-			if ( args.ImageFormat == DegrationFormat.OriginalFormat )
+			if ( Settings.SharedSettings.ImageFormat == DegrationFormat.OriginalFormat )
 			{
 				if ( detector.Extension == "png" )
 					format = DegrationFormat.PNG;
@@ -329,43 +327,43 @@ namespace Daramee.Degra
 				}
 			}
 			else
-				format = args.ImageFormat;
+				format = Settings.SharedSettings.ImageFormat;
 
 			DegraBitmap bitmap = new DegraBitmap ( src );
 			dest.Position = 0;
 
-			if ( format == DegrationFormat.JPEG && args.NoConvertTransparentDetected )
+			if ( format == DegrationFormat.JPEG && Settings.SharedSettings.NoConvertTransparentDetected )
 				if ( bitmap.DetectTransparent () )
 					return false;
 
-			if ( bitmap.Size.Height > args.MaximumImageHeight )
-				bitmap.Resize ( ( int ) args.MaximumImageHeight, args.ResizeFilter );
+			if ( bitmap.Size.Height > Settings.SharedSettings.MaximumImageHeight )
+				bitmap.Resize ( ( int ) Settings.SharedSettings.MaximumImageHeight, Settings.SharedSettings.ResizeFilter );
 
-			if ( args.HistogramEqualization )
+			if ( Settings.SharedSettings.HistogramEqualization )
 				bitmap.HistogramEqualization ();
 
-			if ( args.GrayscalePixelFormat && format != DegrationFormat.WebP )
+			if ( Settings.SharedSettings.GrayscalePixelFormat && format != DegrationFormat.WebP )
 				bitmap.To8BitGrayscaleColorFormat ();
-			else if ( args.IndexedPixelFormat && format == DegrationFormat.PNG )
+			else if ( Settings.SharedSettings.IndexedPixelFormat && format == DegrationFormat.PNG )
 				bitmap.To8BitIndexedColorFormat ();
 
 			switch ( format )
 			{
 				case DegrationFormat.WebP:
 					{
-						bitmap.SaveToWebP ( dest, args.ImageQuality, args.Lossless );
+						bitmap.SaveToWebP ( dest, Settings.SharedSettings.ImageQuality, Settings.SharedSettings.Lossless );
 					}
 					break;
 
 				case DegrationFormat.JPEG:
 					{
-						bitmap.SaveToJPEG ( dest, args.ImageQuality );
+						bitmap.SaveToJPEG ( dest, Settings.SharedSettings.ImageQuality );
 					}
 					break;
 
 				case DegrationFormat.PNG:
 					{
-						bitmap.SaveToPNG ( dest, args.ZopfliPNGOptimization );
+						bitmap.SaveToPNG ( dest, Settings.SharedSettings.ZopfliPNGOptimization );
 					}
 					break;
 

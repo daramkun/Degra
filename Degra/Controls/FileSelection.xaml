@@ -1,0 +1,23 @@
+﻿<UserControl x:Class="Daramee.Degra.Controls.FileSelection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Daramee.Degra.Controls"
+             mc:Ignorable="d" x:Name="self"
+             Height="22" MaxHeight="22" MinHeight="22" d:DesignWidth="240">
+    <Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition />
+			<ColumnDefinition Width="84" />
+		</Grid.ColumnDefinitions>
+
+		<TextBlock Grid.Column="0" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,4,0">
+			<Hyperlink NavigateUri="#" RequestNavigate="Hyperlink_RequestNavigate">
+				<TextBlock Text="{Binding Path=Path, ElementName=self}" />	
+			</Hyperlink>
+		</TextBlock>
+
+		<Button Grid.Column="1" Content="찾아보기(_B)" Click="ButtonBrowse_Click" />
+	</Grid>
+</UserControl>

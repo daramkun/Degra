@@ -247,6 +247,21 @@ namespace dseed
 	template<> constexpr pixelformat_t type2indexedformat<bgra> () noexcept { return pixelformat_bgra8888_indexed8; }
 	template<> constexpr pixelformat_t type2indexedformat<bgr> () noexcept { return pixelformat_bgr888_indexed8; }
 
+	template<class color_t> constexpr bool hasalpha () noexcept { return false; }
+	template<> constexpr bool hasalpha<rgba> () noexcept { return true; }
+	template<> constexpr bool hasalpha<rgb> () noexcept { return false; }
+	template<> constexpr bool hasalpha<rgbaf> () noexcept { return true; }
+	template<> constexpr bool hasalpha<bgra> () noexcept { return true; }
+	template<> constexpr bool hasalpha<bgr> () noexcept { return false; }
+	template<> constexpr bool hasalpha<bgra4> () noexcept { return true; }
+	template<> constexpr bool hasalpha<bgr565> () noexcept { return false; }
+	template<> constexpr bool hasalpha<grayscale> () noexcept { return false; }
+	template<> constexpr bool hasalpha<grayscalef> () noexcept { return false; }
+	template<> constexpr bool hasalpha<yuva> () noexcept { return true; }
+	template<> constexpr bool hasalpha<yuv> () noexcept { return false; }
+	template<> constexpr bool hasalpha<hsva> () noexcept { return true; }
+	template<> constexpr bool hasalpha<hsv> () noexcept { return false; }
+
 	////////////////////////////////////////////////////////////////////////////////////////
 	//
 	// Red/Green/Blue Color Types
@@ -313,6 +328,7 @@ namespace dseed
 	inline rgba operator| (const rgba& c1, const rgba& c2) noexcept { return rgba (c1.r | c2.r, c1.g | c2.g, c1.b | c2.b, c1.a | c2.a); }
 	inline rgba operator^ (const rgba& c1, const rgba& c2) noexcept { return rgba (c1.r ^ c2.r, c1.g ^ c2.g, c1.b ^ c2.b, c1.a ^ c2.a); }
 	inline rgba operator~ (const rgba& c) noexcept { return rgba (~c.r, ~c.g, ~c.b, ~c.a); }
+	inline bool operator== (const rgba& c1, const rgba& c2) noexcept { return c1.color == c2.color; }
 
 	struct rgb
 	{
@@ -368,6 +384,7 @@ namespace dseed
 	inline rgb operator| (const rgb& c1, const rgb& c2) noexcept { return rgb (c1.r | c2.r, c1.g | c2.g, c1.b | c2.b); }
 	inline rgb operator^ (const rgb& c1, const rgb& c2) noexcept { return rgb (c1.r ^ c2.r, c1.g ^ c2.g, c1.b ^ c2.b); }
 	inline rgb operator~ (const rgb& c) noexcept { return rgb (~c.r, ~c.g, ~c.b); }
+	inline bool operator== (const rgb& c1, const rgb& c2) noexcept { return c1.color == c2.color; }
 
 	struct rgbaf
 	{
@@ -421,6 +438,11 @@ namespace dseed
 	inline rgbaf operator/ (const rgbaf& c1, const rgbaf& c2) noexcept { return rgbaf (c1.r / c2.r, c1.g / c2.g, c1.b / c2.b, c1.a / c2.a); }
 	inline rgbaf operator* (const rgbaf& c1, double factor) noexcept { return rgbaf ((float)(c1.r * factor), (float)(c1.g * factor), (float)(c1.b * factor), (float)(c1.a * factor)); }
 	inline rgbaf operator/ (const rgbaf& c1, double factor) noexcept { return rgbaf ((float)(c1.r / factor), (float)(c1.g / factor), (float)(c1.b / factor), (float)(c1.a / factor)); }
+	inline bool operator== (const rgbaf& c1, const rgbaf& c2) noexcept
+	{
+		vectorf a = c1.color, b = c2.color;
+		return a == b;
+	}
 	
 	struct bgra
 	{
@@ -476,6 +498,7 @@ namespace dseed
 	inline bgra operator| (const bgra& c1, const bgra& c2) noexcept { return bgra (c1.r | c2.r, c1.g | c2.g, c1.b | c2.b, c1.a | c2.a); }
 	inline bgra operator^ (const bgra& c1, const bgra& c2) noexcept { return bgra (c1.r ^ c2.r, c1.g ^ c2.g, c1.b ^ c2.b, c1.a ^ c2.a); }
 	inline bgra operator~ (const bgra& c) noexcept { return bgra (~c.r, ~c.g, ~c.b, ~c.a); }
+	inline bool operator== (const bgra& c1, const bgra& c2) noexcept { return c1.color == c2.color; }
 
 	struct bgr
 	{
@@ -531,6 +554,7 @@ namespace dseed
 	inline bgr operator| (const bgr& c1, const bgr& c2) noexcept { return bgr (c1.r | c2.r, c1.g | c2.g, c1.b | c2.b); }
 	inline bgr operator^ (const bgr& c1, const bgr& c2) noexcept { return bgr (c1.r ^ c2.r, c1.g ^ c2.g, c1.b ^ c2.b); }
 	inline bgr operator~ (const bgr& c) noexcept { return bgr (~c.r, ~c.g, ~c.b); }
+	inline bool operator== (const bgr& c1, const bgr& c2) noexcept { return c1.color == c2.color; }
 
 	struct bgra4
 	{
@@ -595,6 +619,7 @@ namespace dseed
 	inline bgra4 operator| (const bgra4& c1, const bgra4& c2) noexcept { return bgra4 (c1.r | c2.r, c1.g | c2.g, c1.b | c2.b, c1.a | c2.a); }
 	inline bgra4 operator^ (const bgra4& c1, const bgra4& c2) noexcept { return bgra4 ((c1.r ^ c2.r) & 0xf, (c1.g ^ c2.g) & 0xf, (c1.b ^ c2.b) & 0xf, (c1.a ^ c2.a) & 0xf); }
 	inline bgra4 operator~ (const bgra4& c) noexcept { return bgra4 ((~c.r) & 0xf, (~c.g) & 0xf, (~c.b) & 0xf, (~c.a) & 0xf); }
+	inline bool operator== (const bgra4& c1, const bgra4& c2) noexcept { return c1.color == c2.color; }
 
 	struct bgr565
 	{
@@ -658,6 +683,7 @@ namespace dseed
 	inline bgr565 operator| (const bgr565& c1, const bgr565& c2) noexcept { return bgr565 (c1.r | c2.r, c1.g | c2.g, c1.b | c2.b); }
 	inline bgr565 operator^ (const bgr565& c1, const bgr565& c2) noexcept { return bgr565 ((c1.r ^ c2.r) & 0x1f, (c1.g ^ c2.g) & 0x3f, (c1.b ^ c2.b) & 0x1f); }
 	inline bgr565 operator~ (const bgr565& c) noexcept { return bgr565 ((~c.r) & 0x1f, (~c.g) & 0x3f, (~c.b) & 0x1f); }
+	inline bool operator== (const bgr565& c1, const bgr565& c2) noexcept { return c1.color == c2.color; }
 
 #	if COMPILER_MSVC
 #		pragma pack (pop)
@@ -725,6 +751,7 @@ namespace dseed
 	inline grayscale operator| (const grayscale& c1, const grayscale& c2) noexcept { return grayscale (c1.color | c2.color); }
 	inline grayscale operator^ (const grayscale& c1, const grayscale& c2) noexcept { return grayscale (c1.color ^ c2.color); }
 	inline grayscale operator~ (const grayscale& c) noexcept { return grayscale (~c.color); }
+	inline bool operator== (const grayscale& c1, const grayscale& c2) noexcept { return c1.color == c2.color; }
 
 	struct grayscalef
 	{
@@ -771,6 +798,7 @@ namespace dseed
 	inline grayscalef operator/ (const grayscalef& c1, const grayscalef& c2) noexcept { return grayscalef (c1.color / c2.color); }
 	inline grayscalef operator* (const grayscalef& c1, double factor) noexcept { return grayscalef ((float)(c1.color * factor)); }
 	inline grayscalef operator/ (const grayscalef& c1, double factor) noexcept { return grayscalef ((float)(c1.color / factor)); }
+	inline bool operator== (const grayscalef& c1, const grayscalef& c2) noexcept { return c1.color == c2.color; }
 
 #	if COMPILER_MSVC
 #		pragma pack (pop)
@@ -844,6 +872,7 @@ namespace dseed
 	inline yuva operator| (const yuva& c1, const yuva& c2) noexcept { return yuva (c1.y | c2.y, c1.u | c2.u, c1.v | c2.v, c1.a | c2.a); }
 	inline yuva operator^ (const yuva& c1, const yuva& c2) noexcept { return yuva (c1.y ^ c2.y, c1.u ^ c2.u, c1.v ^ c2.v, c1.a ^ c2.a); }
 	inline yuva operator~ (const yuva& c) noexcept { return yuva (~c.y, ~c.u, ~c.v, ~c.a); }
+	inline bool operator== (const yuva& c1, const yuva& c2) noexcept { return c1.color == c2.color; }
 
 	struct yuv
 	{
@@ -899,6 +928,7 @@ namespace dseed
 	inline yuv operator| (const yuv& c1, const yuv& c2) noexcept { return yuv (c1.y | c2.y, c1.u | c2.u, c1.v | c2.v); }
 	inline yuv operator^ (const yuv& c1, const yuv& c2) noexcept { return yuv (c1.y ^ c2.y, c1.u ^ c2.u, c1.v ^ c2.v); }
 	inline yuv operator~ (const yuv& c) noexcept { return yuv (~c.y, ~c.u, ~c.v); }
+	inline bool operator== (const yuv& c1, const yuv& c2) noexcept { return c1.color == c2.color; }
 
 #	if COMPILER_MSVC
 #		pragma pack (pop)
@@ -972,6 +1002,7 @@ namespace dseed
 	inline hsva operator| (const hsva& c1, const hsva& c2) noexcept { return hsva (c1.h | c2.h, c1.s | c2.s, c1.v | c2.v, c1.a | c2.a); }
 	inline hsva operator^ (const hsva& c1, const hsva& c2) noexcept { return hsva (c1.h ^ c2.h, c1.s ^ c2.s, c1.v ^ c2.v, c1.a ^ c2.a); }
 	inline hsva operator~ (const hsva& c) noexcept { return hsva (~c.h, ~c.s, ~c.v, ~c.a); }
+	inline bool operator== (const hsva& c1, const hsva& c2) noexcept { return c1.color == c2.color; }
 
 	struct hsv
 	{
@@ -1027,6 +1058,7 @@ namespace dseed
 	inline hsv operator| (const hsv& c1, const hsv& c2) noexcept { return hsv (c1.h | c2.h, c1.s | c2.s, c1.v | c2.v); }
 	inline hsv operator^ (const hsv& c1, const hsv& c2) noexcept { return hsv (c1.h ^ c2.h, c1.s ^ c2.s, c1.v ^ c2.v); }
 	inline hsv operator~ (const hsv& c) noexcept { return hsv (~c.h, ~c.s, ~c.v); }
+	inline bool operator== (const hsv& c1, const hsv& c2) noexcept { return c1.color == c2.color; }
 
 #	if COMPILER_MSVC
 #		pragma pack (pop)
@@ -1094,6 +1126,11 @@ namespace dseed
 	inline color_processor operator/ (const color_processor& c1, const color_processor& c2) noexcept { return color_processor (c1.a / c2.a, c1.b / c2.b, c1.c / c2.c, c1.d / c2.d); }
 	inline color_processor operator* (const color_processor& c1, double factor) noexcept { return color_processor ((float)(c1.a * factor), (float)(c1.b * factor), (float)(c1.c * factor), (float)(c1.d * factor)); }
 	inline color_processor operator/ (const color_processor& c1, double factor) noexcept { float rf = 1 / (float)factor; return color_processor ((float)(c1.a * rf), (float)(c1.b * rf), (float)(c1.c * rf), (float)(c1.d * rf)); }
+	inline bool operator== (const color_processor& c1, const color_processor& c2) noexcept
+	{
+		vectorf a ((float*)&c1), b ((float*)&c2);
+		return a == b;
+	}
 
 	////////////////////////////////////////////////////////////////////////////////////////
 	//

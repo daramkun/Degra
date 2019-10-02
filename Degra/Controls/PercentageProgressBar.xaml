@@ -1,0 +1,13 @@
+﻿<UserControl x:Class="Daramee.Degra.Controls.PercentageProgressBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Daramee.Degra.Controls"
+             mc:Ignorable="d" x:Name="self"
+             d:DesignHeight="32" d:DesignWidth="200">
+    <Grid>
+		<ProgressBar x:Name="ProgressBarPercentage" Maximum="{Binding Path=Maximum, ElementName=self}" Minimum="{Binding Path=Minimum, ElementName=self}" Value="{Binding Path=Value, ElementName=self}" />
+		<TextBlock x:Name="TextBlockPercentage" Text="0%" VerticalAlignment="Center" HorizontalAlignment="Center" />
+	</Grid>
+</UserControl>

@@ -35,6 +35,7 @@ namespace Daramee.Degra.Native
 			Linear,
 			Bicubic,
 			Ranczos,
+			RanczosX5,
 		};
 
 		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
@@ -47,26 +48,33 @@ namespace Daramee.Degra.Native
 		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
 		public static extern IntPtr Degra_CreateStream ( ref DegraStreamInitializer initializer );
 		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
-		public static extern void Degra_DestroyStream ( /*[MarshalAs ( UnmanagedType.Interface )]*/ IntPtr stream );
+		public static extern void Degra_DestroyStream ( IntPtr stream );
 
 		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
-		public static extern IntPtr Degra_LoadImageFromStream ( /*[MarshalAs ( UnmanagedType.Interface )]*/ IntPtr stream );
+		public static extern IntPtr Degra_LoadImageFromStream ( IntPtr stream );
 		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
-		public static extern void Degra_DestroyImage ( /*[MarshalAs ( UnmanagedType.Interface )]*/ IntPtr image );
+		public static extern void Degra_DestroyImage ( IntPtr image );
 
 		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
-		public static extern void Degra_GetImageSize ( /*[MarshalAs ( UnmanagedType.Interface )]*/ IntPtr image, out uint width, out uint height );
+		public static extern void Degra_GetImageSize ( IntPtr image, out uint width, out uint height );
 
 		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
-		public static extern IntPtr Degra_ImagePixelFormatToPalette8Bit ( /*[MarshalAs ( UnmanagedType.Interface )]*/ IntPtr image );
+		public static extern IntPtr Degra_ImagePixelFormatToPalette8Bit ( IntPtr image );
 		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
-		public static extern IntPtr Degra_ImagePixelFormatToGrayscale ( /*[MarshalAs ( UnmanagedType.Interface )]*/ IntPtr image );
+		public static extern IntPtr Degra_ImagePixelFormatToGrayscale ( IntPtr image );
 		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
-		public static extern IntPtr Degra_ImageResize ( /*[MarshalAs ( UnmanagedType.Interface )]*/ IntPtr image, DegraImageResizeFilter filter, int height );
+		public static extern IntPtr Degra_ImageResize ( IntPtr image, DegraImageResizeFilter filter, int height );
 		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
-		public static extern IntPtr Degra_ImageHistogramEqualization ( /*[MarshalAs ( UnmanagedType.Interface )]*/ IntPtr image );
+		public static extern IntPtr Degra_ImageHistogramEqualization ( IntPtr image );
+
 		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
-		public static extern bool Degra_DetectTransparent ( /*[MarshalAs ( UnmanagedType.Interface )]*/ IntPtr image );
+		public static extern void Degra_DetectBitmapProperties ( IntPtr image, out bool transparent, out bool grayscale, out bool palettable );
+		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
+		public static extern bool Degra_DetectTransparent ( IntPtr image );
+		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
+		public static extern bool Degra_DetectGrayscale ( IntPtr image );
+		[DllImport ( "DegraCore", CallingConvention = CallingConvention.StdCall )]
+		public static extern bool Degra_DetectLesserOrEquals256Color ( IntPtr image );
 
 		[StructLayout ( LayoutKind.Sequential )]
 		public struct JPEGOptions

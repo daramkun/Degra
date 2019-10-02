@@ -31,6 +31,7 @@ extern "C"
 		DegraImage_ResizeFilter_Linear,
 		DegraImage_ResizeFilter_Bicubic,
 		DegraImage_ResizeFilter_Ranczos,
+		DegraImage_ResizeFilter_RanczosX5,
 	};
 
 	__declspec(dllexport) BOOL __stdcall Degra_Initialize ();
@@ -48,8 +49,11 @@ extern "C"
 	__declspec(dllexport) DegraImage __stdcall Degra_ImagePixelFormatToGrayscale (DegraImage image);
 	__declspec(dllexport) DegraImage __stdcall Degra_ImageResize (DegraImage image, DegraImage_ResizeFilter filter, int height);
 	__declspec(dllexport) DegraImage __stdcall Degra_ImageHistogramEqualization (DegraImage image);
-	
+
+	__declspec(dllexport) void __stdcall Degra_DetectBitmapProperties (DegraImage image, BOOL* transparent, BOOL* grayscale, BOOL* palettable);
 	__declspec(dllexport) BOOL __stdcall Degra_DetectTransparent (DegraImage image);
+	__declspec(dllexport) BOOL __stdcall Degra_DetectGrayscale (DegraImage image);
+	__declspec(dllexport) BOOL __stdcall Degra_DetectLesserOrEquals256Color (DegraImage image);
 
 	struct JPEGOptions
 	{

@@ -111,9 +111,22 @@ namespace Daramee.Degra.Native
 			}
 			else throw new Exception ();
 		}
+
+		public void DetectBitmapProperties ( out bool transparent, out bool grayscale, out bool palettable )
+		{
+			NativeBridge.Degra_DetectBitmapProperties ( nativeBitmap, out transparent, out grayscale, out palettable );
+		}
 		public bool DetectTransparent ()
 		{
 			return NativeBridge.Degra_DetectTransparent ( nativeBitmap );
+		}
+		public bool DetectGrayscale ()
+		{
+			return NativeBridge.Degra_DetectGrayscale ( nativeBitmap );
+		}
+		public bool DetectPalettable ()
+		{
+			return NativeBridge.Degra_DetectLesserOrEquals256Color ( nativeBitmap );
 		}
 
 		public void SaveToJPEG ( Stream stream, int quality )

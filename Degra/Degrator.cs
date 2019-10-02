@@ -332,9 +332,15 @@ namespace Daramee.Degra
 			DegraBitmap bitmap = new DegraBitmap ( src );
 			dest.Position = 0;
 
-			if ( format == DegrationFormat.JPEG && Settings.SharedSettings.NoConvertTransparentDetected )
-				if ( bitmap.DetectTransparent () )
+			bool containsTransparent = false, grayscaleOnly = false, palettable = false;
+			if ( ( format == DegrationFormat.JPEG && Settings.SharedSettings.OnlyConvertNoTransparentDetected )
+				|| Settings.SharedSettings.LogicalOnlyIndexedPixelFormat
+				|| Settings.SharedSettings.LogicalOnlyGrayscalePixelFormat )
+			{
+				bitmap.DetectBitmapProperties ( out containsTransparent, out grayscaleOnly, out palettable );
+				if ( format == DegrationFormat.JPEG && Settings.SharedSettings.OnlyConvertNoTransparentDetected && containsTransparent )
 					return false;
+			}
 
 			if ( bitmap.Size.Height > Settings.SharedSettings.MaximumImageHeight )
 				bitmap.Resize ( ( int ) Settings.SharedSettings.MaximumImageHeight, Settings.SharedSettings.ResizeFilter );
@@ -343,28 +349,24 @@ namespace Daramee.Degra
 				bitmap.HistogramEqualization ();
 
 			if ( Settings.SharedSettings.GrayscalePixelFormat && format != DegrationFormat.WebP )
-				bitmap.To8BitGrayscaleColorFormat ();
-			else if ( Settings.SharedSettings.IndexedPixelFormat && format == DegrationFormat.PNG )
-				bitmap.To8BitIndexedColorFormat ();
+				if ( Settings.SharedSettings.LogicalOnlyGrayscalePixelFormat && grayscaleOnly )
+					bitmap.To8BitGrayscaleColorFormat ();
+			if ( Settings.SharedSettings.IndexedPixelFormat && format == DegrationFormat.PNG )
+				if ( Settings.SharedSettings.LogicalOnlyIndexedPixelFormat && palettable )
+					bitmap.To8BitIndexedColorFormat ();
 
 			switch ( format )
 			{
 				case DegrationFormat.WebP:
-					{
-						bitmap.SaveToWebP ( dest, Settings.SharedSettings.ImageQuality, Settings.SharedSettings.Lossless );
-					}
+					bitmap.SaveToWebP ( dest, Settings.SharedSettings.ImageQuality, Settings.SharedSettings.LosslessCompression );
 					break;
 
 				case DegrationFormat.JPEG:
-					{
-						bitmap.SaveToJPEG ( dest, Settings.SharedSettings.ImageQuality );
-					}
+					bitmap.SaveToJPEG ( dest, Settings.SharedSettings.ImageQuality );
 					break;
 
 				case DegrationFormat.PNG:
-					{
-						bitmap.SaveToPNG ( dest, Settings.SharedSettings.ZopfliPNGOptimization );
-					}
+					bitmap.SaveToPNG ( dest, Settings.SharedSettings.ZopfliPNGOptimization );
 					break;
 
 				default: return false;

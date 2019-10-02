@@ -15,6 +15,7 @@
 		<conv:ResizeFilterConverter x:Key="resizeFilterConverter" />
 		<conv:ListViewItemColorConverter x:Key="listViewItemColorConverter" />
 		<conv:StatusTextConverter x:Key="statusTextConverter" />
+		<conv:BooleanNotConverter x:Key="booleanNotConverter" />
 
 		<Path x:Key="iconOpenButton" Data="M7.5160018,7.0210069L32,7.0210069 26.112001,21.280001 2.2460016,21.280001z M0,0L9.2969996,0 11.158,4.0930236 26.091997,4.0930236 26.087999,5.3469933 6.3500015,5.3469933 0.46300124,21.280001 0,21.280001z" Stretch="Uniform" Fill="#FF000000" Width="14" Height="14" RenderTransformOrigin="0.5,0.5" />
 		<Path x:Key="iconDeleteButton" Data="M2.2927691,29.869995L29.987991,29.869995C30.572986,29.869995 31.051994,30.350006 31.051994,30.93399 31.051994,31.522003 30.572986,32 29.987991,32L2.2927691,32C1.7077578,32 1.2287654,31.522003 1.2287652,30.93399 1.2287654,30.350006 1.7077578,29.869995 2.2927691,29.869995z M9.8858304,11.558014L2.1267674,19.368011 7.0638022,24.429993C7.4928064,24.862,8.5888075,25.610016,9.1948151,25.610016L12.466844,25.610016C13.073843,25.610016,13.934858,24.862,14.364853,24.429993L18.478898,20.153992z M19.202903,0C19.747905,0,20.292909,0.24398804,20.707904,0.65899658L29.412975,9.3980103C30.240983,10.225006,30.240983,11.653992,29.412975,12.483002L16.103881,25.936005C15.274865,26.766998,13.640849,27.73999,12.466844,27.73999L9.1948151,27.73999C8.0238165,27.73999,6.3878021,26.766998,5.5577931,25.936005L0.62175103,20.708008C-0.20725034,19.880005,-0.20725034,18.52301,0.62175103,17.697998L17.69688,0.6210022C18.108886,0.20599365,18.656894,0,19.202903,0z" Stretch="Uniform" Fill="#FF000000" Width="14" Height="14" RenderTransformOrigin="0.5,0.5" />
@@ -61,7 +62,7 @@
 		
 		<Grid Grid.Row="1">
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="256" />
+				<ColumnDefinition Width="280" />
 				<ColumnDefinition />
 			</Grid.ColumnDefinitions>
 
@@ -121,12 +122,14 @@
 
 					<GroupBox Header="세부 설정" Margin="0,0,0,8">
 						<StackPanel Margin="4">
-							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=Lossless}" Content="비손실 압축 사용(WebP)" />
+							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=LosslessCompression}" Content="비손실 압축 사용(WebP)" />
 							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=IndexedPixelFormat}" Content="8비트 팔레트 픽셀 형식(PNG)" />
+							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=OnlyIndexedPixelFormat}" Content="256색 이상은 팔레트로 변환않기" IsEnabled="{Binding Source={x:Static local:Settings.SharedSettings}, Path=IndexedPixelFormat}" />
 							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=GrayscalePixelFormat}" Content="회색조 픽셀 형식(JPEG, PNG)" />
+							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=OnlyGrayscalePixelFormat}" Content="회색조인 이미지만 변환하기" IsEnabled="{Binding Source={x:Static local:Settings.SharedSettings}, Path=GrayscalePixelFormat}" />
+							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=OnlyConvertNoTransparentDetected}" Content="투명색 확인 시 JPEG로 변환하지 않음" />
 							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=ZopfliPNGOptimization}" Content="Zopfli를 이용해 PNG 재압축(PNG)" />
 							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=HistogramEqualization}" Content="히스토그램 평활화" />
-							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=NoConvertTransparentDetected}" Content="투명색 확인 시 JPEG로 변환하지 않음" />
 						</StackPanel>
 					</GroupBox>
 

@@ -73,6 +73,7 @@
     <Compile Include="Controls\UpDownTextBox.xaml.cs">
       <DependentUpon>UpDownTextBox.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\BooleanNotConverter.cs" />
     <Compile Include="Converters\DegrationFormatConverter.cs" />
     <Compile Include="Converters\ListViewItemColorConverter.cs" />
     <Compile Include="Converters\ResizeFilterConverter.cs" />

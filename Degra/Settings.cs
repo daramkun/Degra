@@ -18,12 +18,14 @@ namespace Daramee.Degra
 		uint maxHeight = 8192;
 		ResizeFilter resizeFilter = ResizeFilter.Lanczos;
 		ushort quality = 90;
-		bool lossless = false;
+		bool losslessCompression = false;
+		bool onlyConvertNoTransparentDetected = true;
 		bool indexedPixelFormat = true;
+		bool onlyIndexedPixelFormat = true;
 		bool grayscalePixelFormat = false;
+		bool onlyGrayscalePixelFormat = true;
 		bool zopfliOpt = true;
 		bool histogramEqualization = false;
-		bool noConvTransparentDetect = true;
 		int threadCount = 0;
 
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -65,6 +67,27 @@ namespace Daramee.Degra
 			}
 		}
 
+		public ushort ImageQuality
+		{
+			get { return quality; }
+			set
+			{
+				quality = value;
+				PC ( nameof ( ImageQuality ) );
+			}
+		}
+
+		public int ThreadCount
+		{
+			get { return threadCount; }
+			set
+			{
+				threadCount = value;
+				PC ( nameof ( ThreadCount ) );
+			}
+		}
+		public int LogicalThreadCount => ThreadCount != 0 ? ThreadCount : Environment.ProcessorCount;
+
 		public uint MaximumImageHeight
 		{
 			get { return maxHeight; }
@@ -85,23 +108,23 @@ namespace Daramee.Degra
 			}
 		}
 
-		public ushort ImageQuality
+		public bool LosslessCompression
 		{
-			get { return quality; }
+			get { return losslessCompression; }
 			set
 			{
-				quality = value;
-				PC ( nameof ( ImageQuality ) );
+				losslessCompression = value;
+				PC ( nameof ( LosslessCompression ) );
 			}
 		}
 
-		public bool Lossless
+		public bool OnlyConvertNoTransparentDetected
 		{
-			get { return lossless; }
+			get { return onlyConvertNoTransparentDetected; }
 			set
 			{
-				lossless = value;
-				PC ( nameof ( Lossless ) );
+				onlyConvertNoTransparentDetected = value;
+				PC ( nameof ( OnlyConvertNoTransparentDetected ) );
 			}
 		}
 
@@ -115,6 +138,17 @@ namespace Daramee.Degra
 			}
 		}
 
+		public bool OnlyIndexedPixelFormat
+		{
+			get { return onlyIndexedPixelFormat; }
+			set
+			{
+				onlyIndexedPixelFormat = value;
+				PC ( nameof ( OnlyIndexedPixelFormat ) );
+			}
+		}
+		public bool LogicalOnlyIndexedPixelFormat => IndexedPixelFormat && OnlyIndexedPixelFormat;
+
 		public bool GrayscalePixelFormat
 		{
 			get { return grayscalePixelFormat; }
@@ -124,6 +158,17 @@ namespace Daramee.Degra
 				PC ( nameof ( GrayscalePixelFormat ) );
 			}
 		}
+
+		public bool OnlyGrayscalePixelFormat
+		{
+			get { return onlyGrayscalePixelFormat; }
+			set
+			{
+				onlyGrayscalePixelFormat = value;
+				PC ( nameof ( OnlyGrayscalePixelFormat ) );
+			}
+		}
+		public bool LogicalOnlyGrayscalePixelFormat => GrayscalePixelFormat && OnlyGrayscalePixelFormat;
 
 		public bool ZopfliPNGOptimization
 		{
@@ -144,26 +189,5 @@ namespace Daramee.Degra
 				PC ( nameof ( HistogramEqualization ) );
 			}
 		}
-
-		public bool NoConvertTransparentDetected
-		{
-			get { return noConvTransparentDetect; }
-			set
-			{
-				noConvTransparentDetect = value;
-				PC ( nameof ( NoConvertTransparentDetected ) );
-			}
-		}
-
-		public int ThreadCount
-		{
-			get { return threadCount; }
-			set
-			{
-				threadCount = value;
-				PC ( nameof ( ThreadCount ) );
-			}
-		}
-		public int LogicalThreadCount => ThreadCount != 0 ? ThreadCount : Environment.ProcessorCount;
 	}
 }

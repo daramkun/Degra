@@ -46,7 +46,7 @@
 				</ToolBar.Resources>
 
 				<Button Name="ButtonOpen" Content="{StaticResource iconOpenButton}" ToolTip="열기" Style="{StaticResource ToolBarButtonStyle}" Click="MenuItem_Open_Click" />
-				<Button Name="ButtonClear" Content="{StaticResource iconDeleteButton}" ToolTip="초기화" Style="{StaticResource ToolBarButtonStyle}" Click="MenuItem_Clear_Click" />
+				<Button Name="ButtonClear" Content="{StaticResource iconDeleteButton}" ToolTip="목록 초기화" Style="{StaticResource ToolBarButtonStyle}" Click="MenuItem_Clear_Click" />
 
 				<Separator />
 
@@ -55,6 +55,7 @@
 
 				<Separator />
 
+				<TextBlock Text="진행도: " VerticalAlignment="Center" />
 				<ctrl:PercentageProgressBar x:Name="ProgressBarLog" Minimum="0" Maximum="1" Value="{Binding Progress}" Width="96" Height="16" FontSize="9.2" VerticalAlignment="Center" Margin="0,0,4,0" />
 				<TextBlock Name="TextBlockLog" Text="{Binding ProceedFile}" VerticalAlignment="Center" />
 			</ToolBar>
@@ -71,8 +72,8 @@
 					<GroupBox Header="파일 설정" Margin="0,0,0,8">
 						<StackPanel Margin="4">
 							<TextBlock x:Uid="TextBlockConvPath" Text="변환 후 위치" FontSize="10" Margin="0,0,0,4" />
-							<ctrl:FileSelection x:Name="FileSelectionPath" Path="{Binding Source={x:Static local:Settings.SharedSettings}, Path=ConversionPath, Mode=TwoWay}" Margin="0,0,0,4" />
-							<CheckBox x:Name="ToggleFileOverwrite" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=FileOverwrite}" Content="파일 덮어쓰기" />
+							<ctrl:FileSelection x:Name="FileSelectionPath" Path="{Binding Source={x:Static local:Settings.SharedSettings}, Path=ConversionPath, Mode=TwoWay}" Margin="0,0,0,4" ToolTip="파일이 변환된 후 저장될 위치입니다." />
+							<CheckBox x:Name="ToggleFileOverwrite" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=FileOverwrite}" Content="파일 덮어쓰기" ToolTip="같은 이름의 파일이 이미 있는 경우 덮어씁니다. 덮어쓰지 않는 경우 파일 이름 뒤에 숫자가 붙습니다." />
 						</StackPanel>
 					</GroupBox>
 
@@ -80,22 +81,24 @@
 						<StackPanel Margin="4">
 							<StackPanel Margin="0,0,0,4">
 								<TextBlock x:Uid="TextBlockImageFormat" Text="이미지 파일 형식" FontSize="10" Margin="0,0,0,4" />
-								<ComboBox x:Name="ComboBoxImageFormat" HorizontalAlignment="Stretch" SelectedIndex="{Binding Source={x:Static local:Settings.SharedSettings}, Path=ImageFormat, Converter={StaticResource degrationFormatConverter}}">
-									<ComboBoxItem Content="원본 형식" />
-									<ComboBoxItem Content="WebP" />
-									<ComboBoxItem Content="JPEG" />
-									<ComboBoxItem Content="PNG" />
+								<ComboBox x:Name="ComboBoxImageFormat" HorizontalAlignment="Stretch" SelectedIndex="{Binding Source={x:Static local:Settings.SharedSettings}, Path=ImageFormat, Converter={StaticResource degrationFormatConverter}}" ToolTip="저장할 이미지의 형식입니다.">
+									<ComboBoxItem Content="원본 형식" ToolTip="원본 이미지의 형식을 따라갑니다." />
+									<ComboBoxItem Content="WebP" ToolTip="변환된 이미지를 WebP 형식으로 저장합니다. 세부 설정을 건드리지 않으면 손실 압축 방식으로 저장합니다." />
+									<ComboBoxItem Content="JPEG" ToolTip="변환된 이미지를 JPEG 형식으로 저장합니다. Mozjpeg으로 압축하여 대부분의 경우 일반 JPEG보다 압축률이 높습니다." />
+									<ComboBoxItem Content="PNG" ToolTip="변환된 이미지를 PNG 형식으로 저장합니다. 픽셀 데이터 손상을 최소로 하려면 이 형식으로 저장하세요." />
 								</ComboBox>
 							</StackPanel>
 							
 							<StackPanel Margin="0,0,0,4">
 								<TextBlock x:Uid="TextBlockThreadCount" Text="쓰레드 사용 수 (0은 CPU 코어 수, 최대값 96)" FontSize="10" Margin="0,0,0,4" />
-								<ctrl:UpDownTextBox x:Name="TextBoxThreadCount" HorizontalAlignment="Stretch" Value="{Binding Source={x:Static local:Settings.SharedSettings}, Path=ThreadCount, Mode=TwoWay}" Minimum="0" Maximum="96" />
+								<ctrl:UpDownTextBox x:Name="TextBoxThreadCount" HorizontalAlignment="Stretch" Value="{Binding Source={x:Static local:Settings.SharedSettings}, Path=ThreadCount, Mode=TwoWay}"
+													Minimum="0" Maximum="96" ToolTip="이미지 파일 변환에 사용할 쓰레드의 개수를 지정합니다. ZIP 파일 내 이미지 변환에만 사용합니다.&#x0a;이 외에 변환된 이미지를 ZIP으로 다시 저장하는 데 사용하는 쓰레드가 포함되므로 4개를 지정했다면 5개의 쓰레드가 동작합니다." />
 							</StackPanel>
 
 							<StackPanel>
 								<TextBlock x:Uid="TextBlockQuality" Text="이미지 품질(WebP, JPEG, 범위 1~100)" FontSize="10" Margin="0,0,0,4" />
-								<ctrl:UpDownTextBox x:Name="TextBoxQuality" HorizontalAlignment="Stretch" Value="{Binding Source={x:Static local:MainWindow.SharedWindow}, Path=ImageQuality, Mode=TwoWay}" Minimum="1" Maximum="100" />
+								<ctrl:UpDownTextBox x:Name="TextBoxQuality" HorizontalAlignment="Stretch" Value="{Binding Source={x:Static local:Settings.SharedSettings}, Path=ImageQuality, Mode=TwoWay}" Minimum="1" Maximum="100"
+													ToolTip="손실 압축 품질을 지정합니다. 권장 값은 80~90 사이이며, 복잡한 문양이 있는 이미지는 최소 85 이상으로 지정하시는 것을 추천합니다."/>
 							</StackPanel>
 						</StackPanel>
 					</GroupBox>
@@ -104,17 +107,19 @@
 						<StackPanel Margin="4">
 							<StackPanel Margin="0,0,0,4">
 								<TextBlock x:Uid="TextBlockMaximumHeight" Text="최대 이미지 세로 크기" FontSize="10" Margin="0,0,0,4" />
-								<ctrl:UpDownTextBox x:Name="TextBoxMaximumHeight" HorizontalAlignment="Stretch" Value="{Binding Source={x:Static local:Settings.SharedSettings}, Path=MaximumImageHeight, Mode=TwoWay}" Minimum="1" Maximum="99999999" />
+								<ctrl:UpDownTextBox x:Name="TextBoxMaximumHeight" HorizontalAlignment="Stretch" Value="{Binding Source={x:Static local:Settings.SharedSettings}, Path=MaximumImageHeight, Mode=TwoWay}"
+													Minimum="1" Maximum="99999999" ToolTip="최대 이미지 세로 크기를 지정합니다. 이보다 높은 세로 크기를 가진다면 이 크기에 맞춰 이미지 크기가 비율에 맞게 줄어듭니다." />
 							</StackPanel>
 
 							<StackPanel>
 								<TextBlock x:Uid="TextBlockResizeFilter" Text="크기 조절 필터" FontSize="10" Margin="0,0,0,4" />
-								<ComboBox x:Name="ComboBoxResizeFilter" HorizontalAlignment="Stretch" SelectedIndex="{Binding Source={x:Static local:Settings.SharedSettings}, Path=ResizeFilter, Converter={StaticResource resizeFilterConverter}}">
-									<ComboBoxItem Content="가장 가까운 이웃" />
-									<ComboBoxItem Content="쌍선형 보간" />
-									<ComboBoxItem Content="쌍입방 보간" />
-									<ComboBoxItem Content="란초스 보간" />
-									<ComboBoxItem Content="란초스 보간(x5)" />
+								<ComboBox x:Name="ComboBoxResizeFilter" HorizontalAlignment="Stretch" SelectedIndex="{Binding Source={x:Static local:Settings.SharedSettings}, Path=ResizeFilter, Converter={StaticResource resizeFilterConverter}}"
+										  ToolTip="이미지 크기를 조절하는 데 사용되는 필터를 선택합니다.">
+									<ComboBoxItem Content="가장 가까운 이웃" ToolTip="가장 가까운 이웃 필터를 이용하면 이미지가 가장 선명하지만 손실되는 픽셀의 개수도 늘어납니다." />
+									<ComboBoxItem Content="쌍선형 보간" ToolTip="쌍선형 보간 필터를 이용하면 빠른 속도로 색상이 자연스럽게 섞여 크기가 조절되는 장점이 있지만 이미지가 많이 흐릿해집니다." />
+									<ComboBoxItem Content="쌍입방 보간" ToolTip="쌍입방 보간 필터를 이용하면 조금 느리지만 쌍선형 보간보다 좀 더 나은 품질을 제공합니다. 하지만 여젼히 많이 흐릿합니다." />
+									<ComboBoxItem Content="란초스 보간" ToolTip="란초스 보간 필터를 이용하면 많이 느리지만 가장 나은 품질을 제공합니다." />
+									<ComboBoxItem Content="란초스 보간(x5)" ToolTip="란초스 보간 필터의 다섯 배 버전을 이용합니다." />
 								</ComboBox>
 							</StackPanel>
 						</StackPanel>
@@ -122,18 +127,28 @@
 
 					<GroupBox Header="세부 설정" Margin="0,0,0,8">
 						<StackPanel Margin="4">
-							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=LosslessCompression}" Content="비손실 압축 사용(WebP)" />
-							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=IndexedPixelFormat}" Content="8비트 팔레트 픽셀 형식(PNG)" />
-							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=OnlyIndexedPixelFormat}" Content="256색 이상은 팔레트로 변환않기" IsEnabled="{Binding Source={x:Static local:Settings.SharedSettings}, Path=IndexedPixelFormat}" />
-							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=GrayscalePixelFormat}" Content="회색조 픽셀 형식(JPEG, PNG)" />
-							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=OnlyGrayscalePixelFormat}" Content="회색조인 이미지만 변환하기" IsEnabled="{Binding Source={x:Static local:Settings.SharedSettings}, Path=GrayscalePixelFormat}" />
-							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=OnlyConvertNoTransparentDetected}" Content="투명색 확인 시 JPEG로 변환하지 않음" />
-							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=ZopfliPNGOptimization}" Content="Zopfli를 이용해 PNG 재압축(PNG)" />
-							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=HistogramEqualization}" Content="히스토그램 평활화" />
+							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=LosslessCompression}"
+									  Content="비손실 압축 사용(WebP)" ToolTip="WebP 압축에 비손실 방식을 사용합니다." />
+							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=IndexedPixelFormat}"
+									  Content="8비트 팔레트 픽셀 형식(PNG)" ToolTip="PNG 압축 시 픽셀 색상 수를 최대 256개로 제한하여 압축률을 높입니다." />
+							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=OnlyIndexedPixelFormat}"
+									  Content="256색 이상은 팔레트로 변환않기" ToolTip="이미지의 픽셀 색상 수가 256색을 넘는다면 팔레트 형식으로 변환하지 않습니다."
+									  IsEnabled="{Binding Source={x:Static local:Settings.SharedSettings}, Path=IndexedPixelFormat}" />
+							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=GrayscalePixelFormat}"
+									  Content="회색조 픽셀 형식(JPEG, PNG)" ToolTip="이미지의 픽셀 형식을 8비트 회색조로 변경하여 압축률을 높입니다. " />
+							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=OnlyGrayscalePixelFormat}"
+									  Content="회색조인 이미지만 변환하기" ToolTip="이미지의 RGB 픽셀이 회색조로 변환했을 때 손상이 발생한다면, 즉 회색조 이미지가 아니라면 회색조로 변환하지 않습니다."
+									  IsEnabled="{Binding Source={x:Static local:Settings.SharedSettings}, Path=GrayscalePixelFormat}" />
+							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=OnlyConvertNoTransparentDetected}"
+									  Content="투명색 확인 시 JPEG로 변환하지 않음" ToolTip="투명색(알파값)이 포함된 이미지인 경우 투명색을 보존하기 위해 JPEG 변환을 사용하지 않습니다." />
+							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=ZopfliPNGOptimization}"
+									  Content="Zopfli를 이용해 PNG 재압축(PNG)" ToolTip="Zopfli를 이용하여 PNG의 압축률을 최대로 높입니다. 연산력이 많이 필요합니다." />
+							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=HistogramEqualization}"
+									  Content="히스토그램 평활화" ToolTip="픽셀의 히스토그램을 분석한 후 평활화하여 명암 대비를 높입니다. 사진 이미지에만 권장합니다." />
 						</StackPanel>
 					</GroupBox>
 
-					<Button x:Uid="ButtonLicenses" Content="라이선스(_L)" HorizontalAlignment="Stretch" Height="24" Click="ButtonLicense_Click" />
+					<Button x:Uid="ButtonLicenses" Content="라이선스(_L)" HorizontalAlignment="Stretch" Height="24" Click="ButtonLicense_Click" ToolTip="이 프로그램의 개발에 사용된 소프트웨어의 사용권 조약을 확인합니다." />
 				</StackPanel>
 			</ScrollViewer>
 

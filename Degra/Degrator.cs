@@ -1,4 +1,5 @@
 ﻿using Daramee.Degra.Native;
+using Daramee.Degra.Utilities;
 using Daramee.FileTypeDetector;
 using SharpCompress.Archives;
 using SharpCompress.Archives.Zip;
@@ -83,7 +84,7 @@ namespace Daramee.Degra
 				{
 					using ( Stream destinationStream = new FileStream ( tempFileName, FileMode.Create, FileAccess.ReadWrite ) )
 					{
-						if ( fileInfo.Extension == "zip" || fileInfo.Extension == "rar" || fileInfo.Extension == "7z" || fileInfo.Extension == "tar" )
+						if ( ProcessingFormat.IsSupportContainerFormat( fileInfo.Extension ) )
 						{
 							ret = Degration_Zip ( destinationStream, sourceStream, status, cancellationToken );
 							if ( ret )
@@ -233,7 +234,7 @@ namespace Daramee.Degra
 
 										status.ProceedFile = entry.Key;
 										var detector = DetectorService.DetectDetector ( readStream );
-										if ( detector != null && ( detector.Extension == "bmp" || detector.Extension == "jpg" || detector.Extension == "jp2" || detector.Extension == "webp" || detector.Extension == "png" ) )
+										if ( detector != null && ProcessingFormat.IsSupportImageFormat ( detector.Extension ) )
 										{
 											readStream.Position = 0;
 											DegrationFormat format2;
@@ -310,10 +311,7 @@ namespace Daramee.Degra
 					format = DegrationFormat.WebP;
 				else if ( ext == "jpg" )
 					format = DegrationFormat.JPEG;
-				else if ( ext == "jp2"
-					|| ext == "tif"
-					|| ext == "tga"
-					|| ext == "bmp" )
+				else if ( ProcessingFormat.IsSupportImageFormat ( ext ) )
 					format = DegrationFormat.WebP;
 				else
 				{

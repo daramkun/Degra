@@ -84,6 +84,7 @@
     <Compile Include="Optionizer.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Utilities\ForEachSafeEnumerable.cs" />
+    <Compile Include="Utilities\ProcessingFormat.cs" />
     <Page Include="Controls\FileSelection.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -83,9 +83,7 @@ namespace Daramee.Degra
 				{
 					using ( Stream destinationStream = new FileStream ( tempFileName, FileMode.Create, FileAccess.ReadWrite ) )
 					{
-						var detector = DetectorService.DetectDetector ( sourceStream );
-						sourceStream.Position = 0;
-						if ( detector.Extension == "zip" || detector.Extension == "rar" || detector.Extension == "7z" || detector.Extension == "tar" )
+						if ( fileInfo.Extension == "zip" || fileInfo.Extension == "rar" || fileInfo.Extension == "7z" || fileInfo.Extension == "tar" )
 						{
 							ret = Degration_Zip ( destinationStream, sourceStream, status, cancellationToken );
 							if ( ret )
@@ -94,7 +92,7 @@ namespace Daramee.Degra
 						else
 						{
 							DegrationFormat format;
-							ret = Degration_SingleFile ( destinationStream, sourceStream, out format, cancellationToken );
+							ret = Degration_SingleFile ( destinationStream, sourceStream, fileInfo.Extension, out format, cancellationToken );
 
 							if ( ret )
 								newFileName = Path.Combine ( Settings.SharedSettings.ConversionPath, GetFileName ( Path.GetFileNameWithoutExtension ( fileInfo.OriginalFilename ), format ) );
@@ -239,7 +237,7 @@ namespace Daramee.Degra
 										{
 											readStream.Position = 0;
 											DegrationFormat format2;
-											bool ret = Degration_SingleFile ( convStream, readStream, out format2, cancellationToken );
+											bool ret = Degration_SingleFile ( convStream, readStream, detector.Extension, out format2, cancellationToken );
 											convStream.Position = 0;
 
 											if ( !ret || ( ( GetExtension ( format2 ) == detector.Extension ) && ( readStream.Length <= convStream.Length ) && !Settings.SharedSettings.HistogramEqualization ) )
@@ -296,7 +294,7 @@ namespace Daramee.Degra
 			return cancellationToken.IsCancellationRequested ? false : true;
 		}
 
-		private static bool Degration_SingleFile ( Stream dest, Stream src, out DegrationFormat format, CancellationToken cancellationToken )
+		private static bool Degration_SingleFile ( Stream dest, Stream src, string ext, out DegrationFormat format, CancellationToken cancellationToken )
 		{
 			if ( cancellationToken.IsCancellationRequested )
 			{
@@ -304,21 +302,18 @@ namespace Daramee.Degra
 				return false;
 			}
 
-			var detector = DetectorService.DetectDetector ( src );
-			src.Position = 0;
-
 			if ( Settings.SharedSettings.ImageFormat == DegrationFormat.OriginalFormat )
 			{
-				if ( detector.Extension == "png" )
+				if ( ext == "png" )
 					format = DegrationFormat.PNG;
-				else if ( detector.Extension == "webp" )
+				else if ( ext == "webp" )
 					format = DegrationFormat.WebP;
-				else if ( detector.Extension == "jpg" )
+				else if ( ext == "jpg" )
 					format = DegrationFormat.JPEG;
-				else if ( detector.Extension == "jp2"
-					|| detector.Extension == "tif"
-					|| detector.Extension == "tga"
-					|| detector.Extension == "bmp" )
+				else if ( ext == "jp2"
+					|| ext == "tif"
+					|| ext == "tga"
+					|| ext == "bmp" )
 					format = DegrationFormat.WebP;
 				else
 				{

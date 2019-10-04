@@ -74,7 +74,8 @@ namespace Daramee.Degra
 					if ( detector == null || !( detector.Extension == "jpg" || detector.Extension == "png"
 						|| detector.Extension == "jp2" || detector.Extension == "bmp"
 						|| detector.Extension == "webp"
-						|| detector.Extension == "zip" || detector.Extension == "rar" ) )
+						|| detector.Extension == "zip" || detector.Extension == "rar"
+						|| detector.Extension == "7z" || detector.Extension == "tar" ) )
 						Extension = null;
 					else
 						Extension = detector.Extension;

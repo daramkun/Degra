@@ -1,4 +1,5 @@
 ﻿using Daramee.Degra.Native;
+using Daramee.Degra.Utilities;
 using Daramee.FileTypeDetector;
 using Daramee.Winston.Dialogs;
 using Daramee.Winston.File;
@@ -56,26 +57,19 @@ namespace Daramee.Degra
 			optionizer.Save ();
 		}
 
-		private void AddItem ( string filename )
+		public void AddItem ( string filename )
 		{
 			if ( System.IO.File.Exists ( filename ) )
 			{
 				var fileInfo = new FileInfo ( filename );
+
 				if ( !files.Contains ( fileInfo ) )
 				{
-					using ( Stream stream = new FileStream ( filename, FileMode.Open, FileAccess.Read, FileShare.Read ) )
-					{
-						if ( stream.Length == 0 )
-							return;
-						var detector = DetectorService.DetectDetector ( stream );
-						if ( detector == null )
-							return;
-						if ( !( detector.Extension == "jpg" || detector.Extension == "png"
-							|| detector.Extension == "jp2" || detector.Extension == "bmp"
-							|| detector.Extension == "webp" || detector.Extension == "zip" ) )
-							return;
-					}
-					files.Add ( fileInfo );
+					fileInfo.CheckExtension ();
+					if ( fileInfo.Extension == null )
+						return;
+
+					Dispatcher.Invoke ( () => files.Add ( fileInfo ) );
 				}
 			}
 			else
@@ -85,15 +79,18 @@ namespace Daramee.Degra
 			}
 		}
 
-		private void MenuItem_Open_Click ( object sender, RoutedEventArgs e )
+		private async void MenuItem_Open_Click ( object sender, RoutedEventArgs e )
 		{
 			OpenFileDialog ofd = new OpenFileDialog ();
 			ofd.AllowMultiSelection = true;
 			if ( ofd.ShowDialog ( this ) == false )
 				return;
 
-			foreach ( var filename in ofd.FileNames )
-				AddItem ( filename );
+			await Task.Run ( () =>
+			{
+				foreach ( var filename in ofd.FileNames )
+					AddItem ( filename );
+			} );
 		}
 
 		private void MenuItem_Clear_Click ( object sender, RoutedEventArgs e )
@@ -116,14 +113,14 @@ namespace Daramee.Degra
 			if ( Settings.SharedSettings.IndexedPixelFormat && Settings.SharedSettings.GrayscalePixelFormat )
 			{
 				cancelToken.Cancel ();
-				TaskDialog.Show ( "Settings Error.", "8-bit Indexed Pixel Format and Grayscale Pixel Format is checked both. You can turn on only one.", "Please check those settings.", TaskDialogCommonButtonFlags.OK, TaskDialogIcon.Error );
+				TaskDialog.Show ( "설정 오류.", "8비트 팔레트 픽셀 형식과 회색조 픽셀 형식을 동시에 켜둘 수 없습니다.", "위 설정을 다시 한번 확인해주세요.", TaskDialogCommonButtonFlags.OK, TaskDialogIcon.Error );
 			}
 
 			try
 			{
 				await Task.Run ( () =>
 				{
-					foreach ( var fileInfo in files )
+					foreach ( var fileInfo in new ForEachSafeEnumerable<FileInfo> ( files ) )
 					{
 						if ( !fileInfo.Queued )
 							continue;
@@ -151,15 +148,17 @@ namespace Daramee.Degra
 			ButtonCancel.IsEnabled = false;
 		}
 
-		private void ListViewFiles_Drop ( object sender, DragEventArgs e )
+		private async void ListViewFiles_Drop ( object sender, DragEventArgs e )
 		{
 			if ( e.Data.GetDataPresent ( DataFormats.FileDrop ) )
 			{
 				var temp = e.Data.GetData ( DataFormats.FileDrop ) as string [];
-				foreach ( string s in from b in temp orderby b select b )
+
+				await Task.Run ( () =>
 				{
-					AddItem ( s );
-				}
+					foreach ( string s in from b in temp orderby b select b )
+						AddItem ( s );
+				} );
 			}
 		}
 
@@ -167,6 +166,39 @@ namespace Daramee.Degra
 		{
 			if ( e.Data.GetDataPresent ( DataFormats.FileDrop ) )
 				e.Effects = DragDropEffects.None;
+		}
+
+		private void ListViewFiles_KeyUp ( object sender, KeyEventArgs e )
+		{
+			if ( e.Key == Key.Delete )
+			{
+				bool foundProcessing = false;
+				foreach ( var fileInfo in files )
+					if ( fileInfo.Status == DegraStatus.Processing )
+					{
+						foundProcessing = true;
+						break;
+					}
+
+				List<FileInfo> selected = new List<FileInfo> ();
+				foreach ( FileInfo fi in ListViewFiles.SelectedItems )
+					selected.Add ( fi );
+
+				if ( !foundProcessing )
+				{
+					foreach ( var fileInfo in selected )
+						files.Remove ( fileInfo );
+				}
+				else
+				{
+					foreach ( var fileInfo in selected )
+					{
+						if ( fileInfo.Status == DegraStatus.Processing || fileInfo.Status == DegraStatus.Waiting )
+							continue;
+						files.Remove ( fileInfo );
+					}
+				}
+			}
 		}
 
 		private void ButtonLicense_Click ( object sender, RoutedEventArgs e )

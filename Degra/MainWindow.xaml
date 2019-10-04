@@ -152,7 +152,7 @@
 				</StackPanel>
 			</ScrollViewer>
 
-			<ListView Name="ListViewFiles" Grid.Column="1" AllowDrop="True" Drop="ListViewFiles_Drop" DragEnter="ListViewFiles_DragEnter">
+			<ListView Name="ListViewFiles" Grid.Column="1" AllowDrop="True" Drop="ListViewFiles_Drop" DragEnter="ListViewFiles_DragEnter" KeyUp="ListViewFiles_KeyUp">
 				<ListView.ItemContainerStyle>
 					<Style TargetType="{x:Type ListViewItem}">
 						<Setter Property="Background" Value="{Binding Path=Status, Converter={StaticResource listViewItemColorConverter}}" />

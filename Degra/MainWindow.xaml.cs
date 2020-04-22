@@ -102,7 +102,7 @@ namespace Daramee.Degra
 
 		private async void MenuItem_Apply_Click ( object sender, RoutedEventArgs e )
 		{
-			ButtonApply.IsEnabled = ButtonClear.IsEnabled = ScrollViewerSettings.IsEnabled = false;
+			ButtonApply.IsEnabled = ButtonClear.IsEnabled = StackPanelSettings.IsEnabled = false;
 			ButtonCancel.IsEnabled = true;
 
 			foreach ( var fileInfo in files )
@@ -139,7 +139,7 @@ namespace Daramee.Degra
 			catch { }
 
 			ButtonCancel.IsEnabled = false;
-			ButtonApply.IsEnabled = ButtonClear.IsEnabled = ScrollViewerSettings.IsEnabled = true;
+			ButtonApply.IsEnabled = ButtonClear.IsEnabled = StackPanelSettings.IsEnabled = true;
 		}
 
 		private void MenuItem_Cancel_Click ( object sender, RoutedEventArgs e )

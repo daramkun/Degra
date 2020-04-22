@@ -86,14 +86,13 @@ namespace Daramee.Degra
 					{
 						if ( ProcessingFormat.IsSupportContainerFormat( fileInfo.Extension ) )
 						{
-							ret = Degration_Zip ( destinationStream, sourceStream, status, cancellationToken );
+							ret = Degration_Zip ( destinationStream, sourceStream, Path.GetFileName ( fileInfo.OriginalFilename ), status, cancellationToken );
 							if ( ret )
 								newFileName = Path.Combine ( Settings.SharedSettings.ConversionPath, Path.GetFileNameWithoutExtension ( fileInfo.OriginalFilename ) + ".zip" );
 						}
 						else
 						{
-							DegrationFormat format;
-							ret = Degration_SingleFile ( destinationStream, sourceStream, fileInfo.Extension, out format, cancellationToken );
+							ret = Degration_SingleFile ( destinationStream, sourceStream, fileInfo.Extension, out DegrationFormat format, cancellationToken );
 
 							if ( ret )
 								newFileName = Path.Combine ( Settings.SharedSettings.ConversionPath, GetFileName ( Path.GetFileNameWithoutExtension ( fileInfo.OriginalFilename ), format ) );
@@ -159,28 +158,25 @@ namespace Daramee.Degra
 				return $"{filename.Substring ( 0, extensionPosition )}.{GetExtension ( format )}";
 		}
 
-		private static DegrationFormat GetFormat (IDetector detector, DegrationFormat format)
+		private static DegrationFormat GetFormat (string extension, DegrationFormat format)
 		{
 			if ( format == DegrationFormat.OriginalFormat )
 			{
-				if ( detector.Extension == "png" )
+				if ( extension == "png" )
 					return DegrationFormat.PNG;
-				else if ( detector.Extension == "webp" )
+				else if ( extension == "webp" )
 					return DegrationFormat.WebP;
-				else if ( detector.Extension == "jpg" )
+				else if ( extension == "jpg" )
 					return DegrationFormat.JPEG;
-				else if ( detector.Extension == "jp2"
-					|| detector.Extension == "tif"
-					|| detector.Extension == "tga"
-					|| detector.Extension == "bmp" )
+				else if ( ProcessingFormat.IsSupportImageFormat ( extension ) )
 					return DegrationFormat.WebP;
 				else
-					throw new ArgumentException ();
+					return DegrationFormat.OriginalFormat;
 			}
 			return format;
 		}
 
-		static ConcurrentQueue<MemoryStream> StreamBag = new ConcurrentQueue<MemoryStream> ();
+		readonly static ConcurrentQueue<MemoryStream> StreamBag = new ConcurrentQueue<MemoryStream> ();
 		static MemoryStream GetMemoryStream()
 		{
 			if ( StreamBag.TryDequeue ( out MemoryStream ret ) )
@@ -198,7 +194,7 @@ namespace Daramee.Degra
 			GC.Collect ();
 		}
 
-		private static bool Degration_Zip ( Stream dest, Stream src, ProgressStatus status, CancellationToken cancellationToken )
+		private static bool Degration_Zip ( Stream dest, Stream src, string containerName, ProgressStatus status, CancellationToken cancellationToken )
 		{
 			using ( IArchive srcArchive = ArchiveFactory.Open ( src, new ReaderOptions () { LeaveStreamOpen = true } ) )
 			{
@@ -232,13 +228,12 @@ namespace Daramee.Degra
 												StreamCopy ( readStream, entryStream );
 										}
 
-										status.ProceedFile = entry.Key;
+										status.ProceedFile = $"{containerName} - {entry.Key}";
 										var detector = DetectorService.DetectDetector ( readStream );
 										if ( detector != null && ProcessingFormat.IsSupportImageFormat ( detector.Extension ) )
 										{
 											readStream.Position = 0;
-											DegrationFormat format2;
-											bool ret = Degration_SingleFile ( convStream, readStream, detector.Extension, out format2, cancellationToken );
+											bool ret = Degration_SingleFile ( convStream, readStream, detector.Extension, out DegrationFormat format2, cancellationToken );
 											convStream.Position = 0;
 
 											if ( !ret || ( ( GetExtension ( format2 ) == detector.Extension ) && ( readStream.Length <= convStream.Length ) && !Settings.SharedSettings.HistogramEqualization ) )
@@ -303,66 +298,53 @@ namespace Daramee.Degra
 				return false;
 			}
 
-			if ( Settings.SharedSettings.ImageFormat == DegrationFormat.OriginalFormat )
+			format = GetFormat ( ext, Settings.SharedSettings.ImageFormat );
+			if ( format == DegrationFormat.OriginalFormat )
+				return false;
+
+			using ( DegraBitmap bitmap = new DegraBitmap ( src ) )
 			{
-				if ( ext == "png" )
-					format = DegrationFormat.PNG;
-				else if ( ext == "webp" )
-					format = DegrationFormat.WebP;
-				else if ( ext == "jpg" )
-					format = DegrationFormat.JPEG;
-				else if ( ProcessingFormat.IsSupportImageFormat ( ext ) )
-					format = DegrationFormat.WebP;
-				else
+				dest.Position = 0;
+
+				bool grayscaleOnly = false, palettable = false;
+				if ( ( format == DegrationFormat.JPEG && Settings.SharedSettings.OnlyConvertNoTransparentDetected )
+					|| Settings.SharedSettings.LogicalOnlyIndexedPixelFormat
+					|| Settings.SharedSettings.LogicalOnlyGrayscalePixelFormat )
 				{
-					format = DegrationFormat.OriginalFormat;
-					return false;
+					bitmap.DetectBitmapProperties ( out bool containsTransparent, out grayscaleOnly, out palettable );
+					if ( format == DegrationFormat.JPEG && Settings.SharedSettings.OnlyConvertNoTransparentDetected && containsTransparent )
+						return false;
 				}
-			}
-			else
-				format = Settings.SharedSettings.ImageFormat;
 
-			DegraBitmap bitmap = new DegraBitmap ( src );
-			dest.Position = 0;
+				if ( bitmap.Size.Height > Settings.SharedSettings.MaximumImageHeight )
+					bitmap.Resize ( ( int ) Settings.SharedSettings.MaximumImageHeight, Settings.SharedSettings.ResizeFilter );
 
-			bool containsTransparent = false, grayscaleOnly = false, palettable = false;
-			if ( ( format == DegrationFormat.JPEG && Settings.SharedSettings.OnlyConvertNoTransparentDetected )
-				|| Settings.SharedSettings.LogicalOnlyIndexedPixelFormat
-				|| Settings.SharedSettings.LogicalOnlyGrayscalePixelFormat )
-			{
-				bitmap.DetectBitmapProperties ( out containsTransparent, out grayscaleOnly, out palettable );
-				if ( format == DegrationFormat.JPEG && Settings.SharedSettings.OnlyConvertNoTransparentDetected && containsTransparent )
-					return false;
-			}
+				if ( Settings.SharedSettings.HistogramEqualization )
+					bitmap.HistogramEqualization ();
 
-			if ( bitmap.Size.Height > Settings.SharedSettings.MaximumImageHeight )
-				bitmap.Resize ( ( int ) Settings.SharedSettings.MaximumImageHeight, Settings.SharedSettings.ResizeFilter );
+				if ( Settings.SharedSettings.GrayscalePixelFormat && format != DegrationFormat.WebP )
+					if ( Settings.SharedSettings.LogicalOnlyGrayscalePixelFormat && grayscaleOnly )
+						bitmap.To8BitGrayscaleColorFormat ();
+				if ( Settings.SharedSettings.IndexedPixelFormat && format == DegrationFormat.PNG )
+					if ( Settings.SharedSettings.LogicalOnlyIndexedPixelFormat && palettable )
+						bitmap.To8BitIndexedColorFormat ();
 
-			if ( Settings.SharedSettings.HistogramEqualization )
-				bitmap.HistogramEqualization ();
+				switch ( format )
+				{
+					case DegrationFormat.WebP:
+						bitmap.SaveToWebP ( dest, Settings.SharedSettings.ImageQuality, Settings.SharedSettings.LosslessCompression );
+						break;
 
-			if ( Settings.SharedSettings.GrayscalePixelFormat && format != DegrationFormat.WebP )
-				if ( Settings.SharedSettings.LogicalOnlyGrayscalePixelFormat && grayscaleOnly )
-					bitmap.To8BitGrayscaleColorFormat ();
-			if ( Settings.SharedSettings.IndexedPixelFormat && format == DegrationFormat.PNG )
-				if ( Settings.SharedSettings.LogicalOnlyIndexedPixelFormat && palettable )
-					bitmap.To8BitIndexedColorFormat ();
+					case DegrationFormat.JPEG:
+						bitmap.SaveToJPEG ( dest, Settings.SharedSettings.ImageQuality );
+						break;
 
-			switch ( format )
-			{
-				case DegrationFormat.WebP:
-					bitmap.SaveToWebP ( dest, Settings.SharedSettings.ImageQuality, Settings.SharedSettings.LosslessCompression );
-					break;
+					case DegrationFormat.PNG:
+						bitmap.SaveToPNG ( dest, Settings.SharedSettings.ZopfliPNGOptimization );
+						break;
 
-				case DegrationFormat.JPEG:
-					bitmap.SaveToJPEG ( dest, Settings.SharedSettings.ImageQuality );
-					break;
-
-				case DegrationFormat.PNG:
-					bitmap.SaveToPNG ( dest, Settings.SharedSettings.ZopfliPNGOptimization );
-					break;
-
-				default: return false;
+					default: return false;
+				}
 			}
 
 			return true;

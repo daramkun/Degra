@@ -154,7 +154,7 @@
   <ItemGroup>
     <Resource Include="Resources\MainIcon.ico" />
   </ItemGroup>
-  <Import Project="..\..\..\GitHub\FileTypeDetector\Daramee.FileTypeDetector.Shared\Daramee.FileTypeDetector.Shared.projitems" Label="Shared" />
-  <Import Project="..\..\..\GitHub\Winston\Daramee.Winston.Shared\Daramee.Winston.Shared.projitems" Label="Shared" />
+  <Import Project="..\Libs\FileTypeDetector\Daramee.FileTypeDetector.Shared\Daramee.FileTypeDetector.Shared.projitems" Label="Shared" />
+  <Import Project="..\Libs\Winston\Daramee.Winston.Shared\Daramee.Winston.Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

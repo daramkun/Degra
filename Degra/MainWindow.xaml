@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
 		xmlns:local="clr-namespace:Daramee.Degra"
 		xmlns:conv="clr-namespace:Daramee.Degra.Converters"
 		xmlns:ctrl="clr-namespace:Daramee.Degra.Controls"
@@ -67,8 +66,8 @@
 				<ColumnDefinition />
 			</Grid.ColumnDefinitions>
 
-			<ScrollViewer Name="ScrollViewerSettings">
-				<StackPanel Grid.Column="0" Orientation="Vertical" Margin="8">
+			<ScrollViewer>
+				<StackPanel Name="StackPanelSettings" Grid.Column="0" Orientation="Vertical" Margin="8">
 					<GroupBox Header="파일 설정" Margin="0,0,0,8">
 						<StackPanel Margin="4">
 							<TextBlock x:Uid="TextBlockConvPath" Text="변환 후 위치" FontSize="10" Margin="0,0,0,4" />
@@ -86,6 +85,7 @@
 									<ComboBoxItem Content="WebP" ToolTip="변환된 이미지를 WebP 형식으로 저장합니다. 세부 설정을 건드리지 않으면 손실 압축 방식으로 저장합니다." />
 									<ComboBoxItem Content="JPEG" ToolTip="변환된 이미지를 JPEG 형식으로 저장합니다. Mozjpeg으로 압축하여 대부분의 경우 일반 JPEG보다 압축률이 높습니다." />
 									<ComboBoxItem Content="PNG" ToolTip="변환된 이미지를 PNG 형식으로 저장합니다. 픽셀 데이터 손상을 최소로 하려면 이 형식으로 저장하세요." />
+									<ComboBoxItem Content="DDS" ToolTip="변환된 이미지를 DDS 형식으로 저장합니다. 스토리지에 저장할 때보다 메모리에 로드했을 때의 이미지 할당 크기가 중요한 경우에만 선택하세요." />
 								</ComboBox>
 							</StackPanel>
 							

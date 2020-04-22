@@ -14,16 +14,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Degra", "Degra", "{00B26799
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External", "External", "{905FAFFA-990D-4CF0-B794-B5551407B96A}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Daramee.FileTypeDetector.Shared", "..\..\GitHub\FileTypeDetector\Daramee.FileTypeDetector.Shared\Daramee.FileTypeDetector.Shared.shproj", "{5E1C88AE-6CCA-430C-8ADB-DE4DE4CE2174}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Daramee.FileTypeDetector.Shared", "Libs\FileTypeDetector\Daramee.FileTypeDetector.Shared\Daramee.FileTypeDetector.Shared.shproj", "{5E1C88AE-6CCA-430C-8ADB-DE4DE4CE2174}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Daramee.Winston.Shared", "..\..\GitHub\Winston\Daramee.Winston.Shared\Daramee.Winston.Shared.shproj", "{07D3172F-FF1F-4E6F-AEBE-3E725904B2A7}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Daramee.Winston.Shared", "Libs\Winston\Daramee.Winston.Shared\Daramee.Winston.Shared.shproj", "{07D3172F-FF1F-4E6F-AEBE-3E725904B2A7}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		..\..\GitHub\Winston\Daramee.Winston.Shared\Daramee.Winston.Shared.projitems*{07d3172f-ff1f-4e6f-aebe-3e725904b2a7}*SharedItemsImports = 13
-		..\..\GitHub\FileTypeDetector\Daramee.FileTypeDetector.Shared\Daramee.FileTypeDetector.Shared.projitems*{5e1c88ae-6cca-430c-8adb-de4de4ce2174}*SharedItemsImports = 13
-		..\..\GitHub\FileTypeDetector\Daramee.FileTypeDetector.Shared\Daramee.FileTypeDetector.Shared.projitems*{97358a57-00a9-4fb4-9dca-f52503a7006e}*SharedItemsImports = 4
-		..\..\GitHub\Winston\Daramee.Winston.Shared\Daramee.Winston.Shared.projitems*{97358a57-00a9-4fb4-9dca-f52503a7006e}*SharedItemsImports = 4
+		Libs\Winston\Daramee.Winston.Shared\Daramee.Winston.Shared.projitems*{07d3172f-ff1f-4e6f-aebe-3e725904b2a7}*SharedItemsImports = 13
+		Libs\FileTypeDetector\Daramee.FileTypeDetector.Shared\Daramee.FileTypeDetector.Shared.projitems*{5e1c88ae-6cca-430c-8adb-de4de4ce2174}*SharedItemsImports = 13
+		Libs\FileTypeDetector\Daramee.FileTypeDetector.Shared\Daramee.FileTypeDetector.Shared.projitems*{97358a57-00a9-4fb4-9dca-f52503a7006e}*SharedItemsImports = 4
+		Libs\Winston\Daramee.Winston.Shared\Daramee.Winston.Shared.projitems*{97358a57-00a9-4fb4-9dca-f52503a7006e}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

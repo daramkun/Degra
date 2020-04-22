@@ -1,0 +1,6 @@
+[submodule "Libs/FileTypeDetector"]
+	path = Libs/FileTypeDetector
+	url = https://github.com/daramkun/FileTypeDetector
+[submodule "Libs/Winston"]
+	path = Libs/Winston
+	url = https://github.com/daramkun/Winston

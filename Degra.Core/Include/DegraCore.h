@@ -5,15 +5,16 @@
 
 extern "C"
 {
-	typedef dseed::stream* DegraStream;
-	typedef dseed::bitmap* DegraImage;
+	typedef dseed::io::stream* DegraStream;
+	typedef dseed::bitmaps::bitmap* DegraImage;
 
 	typedef size_t (*DegraStream_Read)(void* user_data, void* buffer, size_t length);
 	typedef size_t (*DegraStream_Write)(void* user_data, const void* buffer, size_t length);
-	typedef bool (*DegraStream_Seek)(void* user_data, dseed::seekorigin_t origin, size_t offset);
+	typedef bool (*DegraStream_Seek)(void* user_data, dseed::io::seekorigin origin, size_t offset);
 	typedef void (*DegraStream_Flush)(void* user_data);
 	typedef size_t (*DegraStream_Position)(void* user_data);
 	typedef size_t (*DegraStream_Length)(void* user_data);
+	
 	struct DegraStream_Initializer
 	{
 		void* user_data;
@@ -25,13 +26,43 @@ extern "C"
 		DegraStream_Length length;
 	};
 
-	enum DegraImage_ResizeFilter
+	enum class DegraResizeFilter : unsigned int
 	{
-		DegraImage_ResizeFilter_Nearest,
-		DegraImage_ResizeFilter_Linear,
-		DegraImage_ResizeFilter_Bicubic,
-		DegraImage_ResizeFilter_Ranczos,
-		DegraImage_ResizeFilter_RanczosX5,
+		Nearest,
+		Linear,
+		Bicubic,
+		Ranczos,
+		RanczosX5,
+	};
+
+	enum class DegraSaveFormat : unsigned int
+	{
+		SameFormat,
+		Png,
+		Jpeg,
+		WebP,
+	};
+
+	struct DegraOptions
+	{
+		DegraSaveFormat save_format;
+		UINT quality;
+		UINT max_height;
+		DegraResizeFilter resize_filter;
+		BOOL use_lossless;
+		BOOL use_8bit_palette;
+		BOOL use_8bit_palette_but_no_use_over_256_color;
+		BOOL use_grayscale;
+		BOOL use_grayscale_but_no_use_to_grayscale_image;
+		BOOL no_convert_to_png_when_detected_transparent_color;
+		BOOL use_histogram_equailization;
+	};
+
+	enum class DegraResult
+	{
+		Failed,
+		Passed,
+		Succeeded,
 	};
 
 	__declspec(dllexport) BOOL __stdcall Degra_Initialize ();
@@ -40,37 +71,7 @@ extern "C"
 	__declspec(dllexport) DegraStream __stdcall Degra_CreateStream (const DegraStream_Initializer* initializer);
 	__declspec(dllexport) void __stdcall Degra_DestroyStream (DegraStream stream);
 
-	__declspec(dllexport) DegraImage __stdcall Degra_LoadImageFromStream (DegraStream stream);
-	__declspec(dllexport) void __stdcall Degra_DestroyImage (DegraImage image);
-
-	__declspec(dllexport) void __stdcall Degra_GetImageSize (DegraImage image, UINT* width, UINT* height);
-
-	__declspec(dllexport) DegraImage __stdcall Degra_ImagePixelFormatToPalette8Bit (DegraImage image);
-	__declspec(dllexport) DegraImage __stdcall Degra_ImagePixelFormatToGrayscale (DegraImage image);
-	__declspec(dllexport) DegraImage __stdcall Degra_ImageResize (DegraImage image, DegraImage_ResizeFilter filter, int height);
-	__declspec(dllexport) DegraImage __stdcall Degra_ImageHistogramEqualization (DegraImage image);
-
-	__declspec(dllexport) void __stdcall Degra_DetectBitmapProperties (DegraImage image, BOOL* transparent, BOOL* grayscale, BOOL* palettable);
-	__declspec(dllexport) BOOL __stdcall Degra_DetectTransparent (DegraImage image);
-	__declspec(dllexport) BOOL __stdcall Degra_DetectGrayscale (DegraImage image);
-	__declspec(dllexport) BOOL __stdcall Degra_DetectLesserOrEquals256Color (DegraImage image);
-
-	struct JPEGOptions
-	{
-		UINT quality;
-	};
-	__declspec(dllexport) BOOL __stdcall Degra_SaveImageToStreamJPEG (DegraImage image, const JPEGOptions* options, DegraStream stream);
-	struct WebPOptions
-	{
-		UINT quality;
-		BOOL lossless;
-	};
-	__declspec(dllexport) BOOL __stdcall Degra_SaveImageToStreamWebP (DegraImage image, const WebPOptions* options, DegraStream stream);
-	struct PNGOptions
-	{
-		BOOL zopfli;
-	};
-	__declspec(dllexport) BOOL __stdcall Degra_SaveImageToStreamPNG (DegraImage image, const PNGOptions* options, DegraStream stream);
+	__declspec(dllexport) DegraResult __stdcall Degra_DoProcess(DegraStream inputStream, DegraStream outputStream, const DegraOptions* options, DegraSaveFormat* savedFormat);
 }
 
 #endif

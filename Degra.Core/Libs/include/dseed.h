@@ -1,4 +1,4 @@
-﻿#ifndef __DSEED_H__
+#ifndef __DSEED_H__
 #define __DSEED_H__
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -29,29 +29,25 @@
 //                                                                                        //
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <dseed/common.h>
+#include "dseed/common.h"
+#include "dseed/time.h"
+#include "dseed/strings.h"
+#include "dseed/math/mathes.h"
+#include "dseed/color.h"
 
-#include <dseed/object.h>
+#include "dseed/object.h"
 
-#include <dseed/math/math.h>
-#include <dseed/geometry.h>
-#include <dseed/color.h>
-#include <dseed/time.h>
-#include <dseed/string.h>
+#include "dseed/io/stream.h"
+#include "dseed/io/input.h"
 
-#include <dseed/io.h>
-#include <dseed/hid.h>
+#include "dseed/diagnostics/diagnostics.h"
 
-#include <dseed/diagnostics.h>
+#include "dseed/bitmap/bitmap.h"
+#include "dseed/media/media.h"
 
-#include <dseed/parallel.h>
-#include <dseed/extra.h>
+#include "dseed/platform/platform.h"
 
-#include <dseed/bitmap/bitmap.h>
-#include <dseed/media/media.h>
-
-#include <dseed/platform/platform.h>
-#include <dseed/graphics/graphics.h>
-#include <dseed/audio/audio.h>
+#include "dseed/graphics/graphics.h"
+#include "dseed/audio/audio.h"
 
 #endif

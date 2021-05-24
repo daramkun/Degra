@@ -1,37 +1,53 @@
 #include "../Include/DegraCore.h"
 
-BOOL __stdcall Degra_Initialize ()
-{
-	/*dseed::add_bitmap_decoder (dseed::create_windows_imaging_codec_bitmap_decoder);
-	dseed::add_bitmap_decoder (dseed::create_webp_bitmap_decoder);
-	dseed::add_bitmap_decoder (dseed::create_jpeg_bitmap_decoder);
-	dseed::add_bitmap_decoder (dseed::create_jpeg2000_bitmap_decoder);
-	dseed::add_bitmap_decoder (dseed::create_png_bitmap_decoder);
-	dseed::add_bitmap_decoder (dseed::create_gif_bitmap_decoder);
-	dseed::add_bitmap_decoder (dseed::create_tga_bitmap_decoder);
-	dseed::add_bitmap_decoder (dseed::create_tiff_bitmap_decoder);
-	dseed::add_bitmap_decoder (dseed::create_dib_bitmap_decoder);*/
+const int BUFFER_SIZE = 4096;
 
+dseed::bitmaps::decoder_creator_func g_imageDecoders[] = {
+	nullptr,
+
+	dseed::bitmaps::create_png_bitmap_decoder,
+	dseed::bitmaps::create_jpeg_bitmap_decoder,
+	dseed::bitmaps::create_webp_bitmap_decoder,
+
+	dseed::bitmaps::create_dib_bitmap_decoder,
+	dseed::bitmaps::create_jpeg2000_bitmap_decoder,
+	dseed::bitmaps::create_tga_bitmap_decoder,
+	dseed::bitmaps::create_tiff_bitmap_decoder,
+	dseed::bitmaps::create_cur_bitmap_decoder,
+	dseed::bitmaps::create_ico_bitmap_decoder,
+	dseed::bitmaps::create_gif_bitmap_decoder,
+};
+
+dseed::bitmaps::encoder_creator_func g_imageEncoders[] = {
+	nullptr,
+
+	dseed::bitmaps::create_png_bitmap_encoder,
+	dseed::bitmaps::create_jpeg_bitmap_encoder,
+	dseed::bitmaps::create_webp_bitmap_encoder,
+};
+
+BOOL __stdcall Degra_Initialize()
+{
 	return TRUE;
 }
 
-BOOL __stdcall Degra_Uninitialize ()
+BOOL __stdcall Degra_Uninitialize()
 {
 	return TRUE;
 }
 
-class __DegraStream : public dseed::stream
+class __DegraStream final : public dseed::io::stream
 {
 public:
-	__DegraStream (const DegraStream_Initializer* initializer)
-		: _refCount (1), _initializer (*initializer)
+	__DegraStream(const DegraStream_Initializer* initializer)
+		: _refCount(1), _initializer(*initializer)
 	{
 
 	}
 
 public:
-	virtual int32_t retain () override { return ++_refCount; }
-	virtual int32_t release () override
+	virtual int32_t retain() override { return ++_refCount; }
+	virtual int32_t release() override
 	{
 		auto ret = --_refCount;
 		if (ret == 0)
@@ -40,225 +56,290 @@ public:
 	}
 
 public:
-	virtual size_t read (void* buffer, size_t length) override
+	virtual size_t read(void* buffer, size_t length) noexcept override
 	{
-		if (readable ())
-			return _initializer.read (_initializer.user_data, buffer, length);
+		if (readable())
+			return _initializer.read(_initializer.user_data, buffer, length);
 		return 0;
 	}
 
-	virtual size_t write (const void* data, size_t length) override
+	virtual size_t write(const void* data, size_t length) noexcept override
 	{
-		if (writable ())
-			return _initializer.write (_initializer.user_data, data, length);
+		if (writable())
+			return _initializer.write(_initializer.user_data, data, length);
 		return 0;
 	}
 
-	virtual bool seek (dseed::seekorigin_t origin, size_t offset) override
+	virtual bool seek(dseed::io::seekorigin origin, size_t offset) noexcept override
 	{
-		if (seekable ())
-			return _initializer.seek (_initializer.user_data, origin, offset);
+		if (seekable())
+			return _initializer.seek(_initializer.user_data, origin, offset);
 		return false;
 	}
 
-	virtual void flush () override
+	virtual void flush() noexcept override
 	{
 		if (_initializer.flush != nullptr)
-			_initializer.flush (_initializer.user_data);
+			_initializer.flush(_initializer.user_data);
 	}
 
-	virtual dseed::error_t set_length (size_t length) override { return dseed::error_not_impl; }
+	virtual dseed::error_t set_length(size_t length) noexcept override { return dseed::error_not_impl; }
 
-	virtual size_t position () override
+	virtual size_t position() noexcept override
 	{
-		return _initializer.position (_initializer.user_data);
+		return _initializer.position(_initializer.user_data);
 	}
 
-	virtual size_t length () override
+	virtual size_t length() noexcept override
 	{
-		return _initializer.length (_initializer.user_data);
+		return _initializer.length(_initializer.user_data);
 	}
 
-	virtual bool readable () override { return _initializer.read != nullptr; }
-	virtual bool writable () override { return _initializer.write != nullptr; }
-	virtual bool seekable () override { return _initializer.seek != nullptr; }
+	virtual bool readable() noexcept override { return _initializer.read != nullptr; }
+	virtual bool writable() noexcept override { return _initializer.write != nullptr; }
+	virtual bool seekable() noexcept override { return _initializer.seek != nullptr; }
 
 private:
 	std::atomic<int32_t> _refCount;
 	DegraStream_Initializer _initializer;
 };
 
-DegraStream __stdcall Degra_CreateStream (const DegraStream_Initializer* initializer)
+DegraStream __stdcall Degra_CreateStream(const DegraStream_Initializer* initializer)
 {
 	if (initializer->position == nullptr || initializer->length == nullptr)
 		return nullptr;
-	return new __DegraStream (initializer);
+	return new __DegraStream(initializer);
 }
-void __stdcall Degra_DestroyStream (DegraStream stream)
+void __stdcall Degra_DestroyStream(DegraStream stream)
 {
-	stream->release ();
-}
-
-DegraImage __stdcall Degra_LoadImageFromStream (DegraStream stream)
-{
-	dseed::auto_object<dseed::bitmap_decoder> decoder;
-	if (dseed::failed (dseed::detect_bitmap_decoder (stream, &decoder)))
-		return nullptr;
-
-	dseed::auto_object<dseed::bitmap> bitmap;
-	if (dseed::failed (decoder->decode_frame (0, &bitmap, nullptr)))
-		return nullptr;
-
-	return bitmap.detach ();
-}
-void __stdcall Degra_DestroyImage (DegraImage image)
-{
-	image->release ();
+	stream->release();
 }
 
-void __stdcall Degra_GetImageSize (DegraImage image, UINT* width, UINT* height)
+void __copy_stream(dseed::io::stream* inputStream, dseed::io::stream* outputStream)
 {
-	auto size = image->size ();
-	*width = size.width;
-	*height = size.height;
+	size_t total_read = 0;
+	while (total_read != inputStream->length())
+	{
+		BYTE buffer[BUFFER_SIZE];
+		const auto read = inputStream->read(buffer, sizeof(buffer));
+		outputStream->write(buffer, read);
+		total_read += read;
+	}
 }
 
-DegraImage __stdcall Degra_ImagePixelFormatToPalette8Bit (DegraImage image)
+dseed::bitmaps::bitmap* __image_resize(dseed::bitmaps::bitmap* image, DegraResizeFilter filter, int height)
 {
-	dseed::auto_object<dseed::bitmap> bitmap;
-	if (dseed::failed (dseed::reformat_bitmap (image, dseed::pixelformat_bgra8888_indexed8, &bitmap)))
-		return nullptr;
-	return bitmap.detach ();
-}
-DegraImage __stdcall Degra_ImagePixelFormatToGrayscale (DegraImage image)
-{
-	dseed::auto_object<dseed::bitmap> bitmap;
-	if (dseed::failed (dseed::reformat_bitmap (image, dseed::pixelformat_grayscale8, &bitmap)))
-		return nullptr;
-	return bitmap.detach ();
-}
-DegraImage __stdcall Degra_ImageResize (DegraImage image, DegraImage_ResizeFilter filter, int height)
-{
-	dseed::resize_t resize_method;
+	dseed::bitmaps::resize resize_method;
 	switch (filter)
 	{
-	case DegraImage_ResizeFilter_Nearest: resize_method = dseed::resize_nearest; break;
-	case DegraImage_ResizeFilter_Linear: resize_method = dseed::resize_bilinear; break;
-	case DegraImage_ResizeFilter_Bicubic: resize_method = dseed::resize_bicubic; break;
-	case DegraImage_ResizeFilter_Ranczos: resize_method = dseed::resize_lanczos; break;
-	case DegraImage_ResizeFilter_RanczosX5: resize_method = dseed::resize_lanczos5; break;
+	case DegraResizeFilter::Nearest: resize_method = dseed::bitmaps::resize::nearest; break;
+	case DegraResizeFilter::Linear: resize_method = dseed::bitmaps::resize::bilinear; break;
+	case DegraResizeFilter::Bicubic: resize_method = dseed::bitmaps::resize::bicubic; break;
+	case DegraResizeFilter::Ranczos: resize_method = dseed::bitmaps::resize::lanczos; break;
+	case DegraResizeFilter::RanczosX5: resize_method = dseed::bitmaps::resize::lanczos5; break;
 	default: return nullptr;
 	}
 
-	auto size = image->size ();
+	auto size = image->size();
 
-	dseed::auto_object<dseed::bitmap> bitmap;
-	if (dseed::failed (dseed::resize_bitmap (image, resize_method, dseed::size3i ((int)(size.width * (height / (float)size.height)), height, 1), &bitmap)))
+	dseed::autoref<dseed::bitmaps::bitmap> bitmap;
+	if (dseed::failed(dseed::bitmaps::resize_bitmap(image, resize_method, dseed::size3i((int)(size.width * (height / (float)size.height)), height, 1), &bitmap)))
 		return nullptr;
 
-	return bitmap.detach ();
-}
-DegraImage __stdcall Degra_ImageHistogramEqualization (DegraImage image)
-{
-	dseed::auto_object<dseed::bitmap> temp;
-	if (dseed::failed (dseed::reformat_bitmap (image, dseed::pixelformat_hsva8888, &temp)))
-		return nullptr;
-
-	dseed::auto_object<dseed::bitmap> temp2;
-	if (dseed::failed (dseed::bitmap_auto_histogram_equalization (temp, dseed::histogram_color_third, 0, &temp2)))
-		return nullptr;
-
-	dseed::auto_object<dseed::bitmap> temp3;
-	if (dseed::failed (dseed::reformat_bitmap (temp2, dseed::pixelformat_rgba8888, &temp3)))
-		return nullptr;
-
-	return temp3.detach ();
+	return bitmap.detach();
 }
 
-void __stdcall Degra_DetectBitmapProperties (DegraImage image, BOOL* transparent, BOOL* grayscale, BOOL* palettable)
+dseed::bitmaps::bitmap* __image_pixel_format_to_palette_8bit(dseed::bitmaps::bitmap* image)
 {
-	dseed::bitmap_properties prop;
-	if (dseed::succeeded (dseed::bitmap_determine_bitmap_properties (image, &prop)))
+	dseed::autoref<dseed::bitmaps::bitmap> bitmap;
+	if (dseed::failed(dseed::bitmaps::reformat_bitmap(image, dseed::color::pixelformat::bgra8_indexed8, &bitmap)))
+		return nullptr;
+	return bitmap.detach();
+}
+
+dseed::bitmaps::bitmap* __image_pixel_format_to_grayscale(dseed::bitmaps::bitmap* image)
+{
+	dseed::autoref<dseed::bitmaps::bitmap> bitmap;
+	if (dseed::failed(dseed::bitmaps::reformat_bitmap(image, dseed::color::pixelformat::r8, &bitmap)))
+		return nullptr;
+	return bitmap.detach();
+}
+
+dseed::bitmaps::bitmap* __stdcall __image_histogram_equalization(dseed::bitmaps::bitmap* image)
+{
+	dseed::autoref<dseed::bitmaps::bitmap> temp;
+	if (dseed::failed(dseed::bitmaps::reformat_bitmap(image, dseed::color::pixelformat::hsva8, &temp)))
+		return nullptr;
+
+	dseed::autoref<dseed::bitmaps::bitmap> temp2;
+	if (dseed::failed(dseed::bitmaps::bitmap_auto_histogram_equalization(temp, dseed::bitmaps::histogram_color::third, 0, &temp2)))
+		return nullptr;
+
+	dseed::autoref<dseed::bitmaps::bitmap> temp3;
+	if (dseed::failed(dseed::bitmaps::reformat_bitmap(temp2, dseed::color::pixelformat::rgba8, &temp3)))
+		return nullptr;
+
+	return temp3.detach();
+}
+
+DegraResult __stdcall Degra_DoProcess(DegraStream inputStream, DegraStream outputStream, const DegraOptions* options, DegraSaveFormat* savedFormat)
+{
+	if (inputStream == nullptr || outputStream == nullptr || options == nullptr || savedFormat == nullptr)
+		return DegraResult::Failed;
+	
+	dseed::autoref<dseed::bitmaps::bitmap_array> bitmap_array;
+
+	auto open_format = DegraSaveFormat::SameFormat;
+	for (size_t i = 0; i < _countof(g_imageDecoders); ++i)
 	{
-		*transparent = prop.transparent;
-		*grayscale = prop.grayscale;
-		*palettable = prop.colours != dseed::colorcount_cannot_palettable;
+		const auto decoder = g_imageDecoders[i];
+		
+		if (decoder == nullptr)
+			continue;
+		
+		if (!inputStream->seek(dseed::io::seekorigin::begin, 0))
+			return DegraResult::Failed;
+		
+		if (dseed::succeeded(decoder(inputStream, &bitmap_array)))
+		{
+			open_format = static_cast<DegraSaveFormat>(i);
+			break;
+		}
+
+		if (bitmap_array)
+		{
+			bitmap_array.release();
+		}
 	}
-	else
+	
+	bool pass = bitmap_array == nullptr;
+	DegraSaveFormat save_format = options->save_format;
+	if (save_format == DegraSaveFormat::SameFormat)
 	{
-		*transparent = true;
-		*grayscale = false;
-		*palettable = false;
+		if (open_format == DegraSaveFormat::Png)
+			save_format = DegraSaveFormat::Png;
+		else if (open_format == DegraSaveFormat::Jpeg)
+			save_format = DegraSaveFormat::Jpeg;
+		else if (open_format == DegraSaveFormat::WebP)
+			save_format = DegraSaveFormat::WebP;
+		else
+			pass = true;
 	}
-}
-BOOL __stdcall Degra_DetectTransparent (DegraImage image)
-{
-	bool transparent;
-	if (dseed::failed (dseed::bitmap_detect_transparent (image, &transparent)))
-		return true;
-	return transparent;
-}
-BOOL __stdcall Degra_DetectGrayscale (DegraImage image)
-{
-	bool grayscale;
-	if (dseed::failed (dseed::bitmap_detect_grayscale_bitmap (image, &grayscale)))
-		return false;
-	return grayscale;
-}
-BOOL __stdcall Degra_DetectLesserOrEquals256Color (DegraImage image)
-{
-	dseed::colorcount_t cc;
-	if (dseed::failed (dseed::bitmap_get_total_colours (image, &cc)))
-		return false;
-	return cc != dseed::colorcount_cannot_palettable;
-}
 
-BOOL __stdcall Degra_SaveImageToStreamJPEG (DegraImage image, const JPEGOptions* options, DegraStream stream)
-{
-	dseed::jpeg_encoder_options encoderOptions;
-	encoderOptions.quality = options->quality;
+	if (pass)
+	{
+		__copy_stream(inputStream, outputStream);
+		return DegraResult::Passed;
+	}
 
-	dseed::auto_object<dseed::bitmap_encoder> encoder;
-	if (dseed::failed (dseed::create_jpeg_bitmap_encoder (stream, &encoderOptions, &encoder)))
-		return FALSE;
+	std::vector<dseed::autoref<dseed::bitmaps::bitmap>> targets;
+	for (size_t i = 0; i < bitmap_array->size(); ++i)
+	{
+		dseed::autoref<dseed::bitmaps::bitmap> bitmap;
+		if (dseed::failed(bitmap_array->at(i, &bitmap)))
+			continue;
 
-	if (dseed::failed (encoder->encode_frame (image, 0)))
-		return FALSE;
-	if (dseed::failed (encoder->commit ()))
-		return FALSE;
+		if (const auto bitmap_size = bitmap->size(); bitmap_size.height > options->max_height)
+			bitmap = __image_resize(bitmap, options->resize_filter, options->max_height);
 
-	return TRUE;
-}
-BOOL __stdcall Degra_SaveImageToStreamWebP (DegraImage image, const WebPOptions* options, DegraStream stream)
-{
-	dseed::webp_encoder_options encoderOptions;
-	encoderOptions.quality = options->quality;
-	encoderOptions.lossless = options->lossless;
+		dseed::bitmaps::bitmap_properties prop = {};
+		if (options->use_8bit_palette_but_no_use_over_256_color ||
+			options->use_grayscale_but_no_use_to_grayscale_image)
+		{
+			if (dseed::failed(dseed::bitmaps::determine_bitmap_properties(bitmap, &prop)))
+				continue;
+		}
+		
+		if (save_format == DegraSaveFormat::Png && options->use_8bit_palette)
+		{
+			if (!options->use_8bit_palette_but_no_use_over_256_color ||
+				(
+					options->use_8bit_palette_but_no_use_over_256_color &&
+					prop.colours != dseed::bitmaps::colorcount::color_cannot_palettable
+				)
+			)
+			{
+				bitmap = __image_pixel_format_to_palette_8bit(bitmap);
+			}
+		}
 
-	dseed::auto_object<dseed::bitmap_encoder> encoder;
-	if (dseed::failed (dseed::create_webp_bitmap_encoder (stream, &encoderOptions, &encoder)))
-		return FALSE;
+		if (save_format == DegraSaveFormat::Png && options->no_convert_to_png_when_detected_transparent_color && prop.transparent)
+		{
+			__copy_stream(inputStream, outputStream);
+			return DegraResult::Passed;
+		}
 
-	if (dseed::failed (encoder->encode_frame (image, 0)))
-		return FALSE;
-	if (dseed::failed (encoder->commit ()))
-		return FALSE;
+		if (options->use_grayscale)
+		{
+			if (!options->use_grayscale_but_no_use_to_grayscale_image ||
+				(
+					options->use_grayscale_but_no_use_to_grayscale_image &&
+					prop.grayscale
+				)
+			)
+			{
+				bitmap = __image_pixel_format_to_grayscale(bitmap);
+			}
+		}
 
-	return TRUE;
-}
-BOOL __stdcall Degra_SaveImageToStreamPNG (DegraImage image, const PNGOptions* options, DegraStream stream)
-{
-	dseed::png_encoder_options encoderOptions;
-	encoderOptions.use_zopfli_optimization = options->zopfli;
+		if (options->use_histogram_equailization)
+		{
+			bitmap = __image_histogram_equalization(bitmap);
+		}
+		
+		targets.push_back(bitmap);
+	}
 
-	dseed::auto_object<dseed::bitmap_encoder> encoder;
-	if (dseed::failed (dseed::create_png_bitmap_encoder (stream, &encoderOptions, &encoder)))
-		return FALSE;
+	if (targets.empty())
+		return DegraResult::Failed;
 
-	if (dseed::failed (encoder->encode_frame (image, 0)))
-		return FALSE;
-	if (dseed::failed (encoder->commit ()))
-		return FALSE;
+	dseed::autoref<dseed::bitmaps::bitmap_encoder> encoder;
+	bool is_multi_frame_format = false;
+	switch (save_format)
+	{
+	case DegraSaveFormat::Png:
+		if (dseed::failed(dseed::bitmaps::create_png_bitmap_encoder(outputStream, nullptr, &encoder)))
+			return DegraResult::Failed;
+		break;
 
-	return TRUE;
+	case DegraSaveFormat::Jpeg:
+		{
+			dseed::bitmaps::jpeg_encoder_options encoder_options = {};
+			encoder_options.quality = options->quality;
+			if (dseed::failed(dseed::bitmaps::create_jpeg_bitmap_encoder(outputStream, &encoder_options, &encoder)))
+				return DegraResult::Failed;
+			}
+		break;
+
+	case DegraSaveFormat::WebP:
+		{
+			dseed::bitmaps::webp_encoder_options encoder_options = {};
+			encoder_options.quality = options->quality;
+			encoder_options.lossless = options->use_lossless;
+			if (dseed::failed(dseed::bitmaps::create_webp_bitmap_encoder(outputStream, &encoder_options, &encoder)))
+				return DegraResult::Failed;
+			is_multi_frame_format = true;
+		}
+		break;
+		
+	default:
+		return DegraResult::Failed;
+	}
+
+	if (encoder == nullptr)
+		return DegraResult::Failed;
+
+	for (auto& target : targets)
+	{
+		encoder->encode_frame(target);
+		
+		if (!is_multi_frame_format)
+			break;
+	}
+	encoder->commit();
+
+	outputStream->flush();
+	*savedFormat = save_format;
+
+	return DegraResult::Succeeded;
 }

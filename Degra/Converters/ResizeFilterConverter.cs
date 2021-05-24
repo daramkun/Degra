@@ -11,14 +11,14 @@ namespace Daramee.Degra.Converters
 {
 	class ResizeFilterConverter : IValueConverter
 	{
-		public object Convert ( object value, Type targetType, object parameter, CultureInfo culture )
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			return ( int ) ( ResizeFilter ) value;
+			return (int)(NativeBridge.DegraResizeFilter)value;
 		}
 
-		public object ConvertBack ( object value, Type targetType, object parameter, CultureInfo culture )
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			return ( ResizeFilter ) ( int ) value;
+			return (NativeBridge.DegraResizeFilter)(int)value;
 		}
 	}
 }

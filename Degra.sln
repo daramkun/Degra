@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29306.81
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daramee.Degra", "Degra\Daramee.Degra.csproj", "{97358A57-00A9-4FB4-9DCA-F52503A7006E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Daramee.Degra", "Degra\Daramee.Degra.csproj", "{97358A57-00A9-4FB4-9DCA-F52503A7006E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B436A50B-039C-437C-BF99-AD50EC4C651B} = {B436A50B-039C-437C-BF99-AD50EC4C651B}
 	EndProjectSection
@@ -22,18 +22,18 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Libs\Winston\Daramee.Winston.Shared\Daramee.Winston.Shared.projitems*{07d3172f-ff1f-4e6f-aebe-3e725904b2a7}*SharedItemsImports = 13
 		Libs\FileTypeDetector\Daramee.FileTypeDetector.Shared\Daramee.FileTypeDetector.Shared.projitems*{5e1c88ae-6cca-430c-8adb-de4de4ce2174}*SharedItemsImports = 13
-		Libs\FileTypeDetector\Daramee.FileTypeDetector.Shared\Daramee.FileTypeDetector.Shared.projitems*{97358a57-00a9-4fb4-9dca-f52503a7006e}*SharedItemsImports = 4
-		Libs\Winston\Daramee.Winston.Shared\Daramee.Winston.Shared.projitems*{97358a57-00a9-4fb4-9dca-f52503a7006e}*SharedItemsImports = 4
+		Libs\FileTypeDetector\Daramee.FileTypeDetector.Shared\Daramee.FileTypeDetector.Shared.projitems*{97358a57-00a9-4fb4-9dca-f52503a7006e}*SharedItemsImports = 5
+		Libs\Winston\Daramee.Winston.Shared\Daramee.Winston.Shared.projitems*{97358a57-00a9-4fb4-9dca-f52503a7006e}*SharedItemsImports = 5
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{97358A57-00A9-4FB4-9DCA-F52503A7006E}.Debug|x64.ActiveCfg = Debug|x64
-		{97358A57-00A9-4FB4-9DCA-F52503A7006E}.Debug|x64.Build.0 = Debug|x64
-		{97358A57-00A9-4FB4-9DCA-F52503A7006E}.Release|x64.ActiveCfg = Release|x64
-		{97358A57-00A9-4FB4-9DCA-F52503A7006E}.Release|x64.Build.0 = Release|x64
+		{97358A57-00A9-4FB4-9DCA-F52503A7006E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{97358A57-00A9-4FB4-9DCA-F52503A7006E}.Debug|x64.Build.0 = Debug|Any CPU
+		{97358A57-00A9-4FB4-9DCA-F52503A7006E}.Release|x64.ActiveCfg = Debug|Any CPU
+		{97358A57-00A9-4FB4-9DCA-F52503A7006E}.Release|x64.Build.0 = Debug|Any CPU
 		{B436A50B-039C-437C-BF99-AD50EC4C651B}.Debug|x64.ActiveCfg = Debug|x64
 		{B436A50B-039C-437C-BF99-AD50EC4C651B}.Debug|x64.Build.0 = Debug|x64
 		{B436A50B-039C-437C-BF99-AD50EC4C651B}.Release|x64.ActiveCfg = Release|x64

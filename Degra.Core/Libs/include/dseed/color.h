@@ -1,267 +1,218 @@
 #ifndef __DSEED_COLOR_H__
 #define __DSEED_COLOR_H__
 
-namespace dseed
+namespace dseed::color
 {
 	////////////////////////////////////////////////////////////////////////////////////////
 	//
 	// Pixel Format
 	//
 	////////////////////////////////////////////////////////////////////////////////////////
-	enum pixelformat_t : int32_t
+	enum class pixelformat : unsigned int
 	{
 		// Unknown Pixel Format
-		pixelformat_unknown = 0x00000000,
+		unknown = 0x00000000,
 
-		// 8-bit Grayscale Pixel Format
-		pixelformat_grayscale8 = 0x00010001,
-		// 32-bit Floating-Point Grayscale Pixel Format
-		pixelformat_grayscalef = 0x00010004,
-		// 32-bit Integer RGBA Pixel Format
-		pixelformat_rgba8888 = 0x00010104,
-		// 128-bit Floating-Point RGBA Pixel Format
-		pixelformat_rgbaf = 0x00010110,
-		// 24-bit RGB Pixel Format
-		pixelformat_rgb888 = 0x00010103,
-		// 32-bit Integer BGRA Pixel Format
-		pixelformat_bgra8888 = 0x00010204,
-		// 32-bit Integer BGRA Pixel Format
-		pixelformat_bgr888 = 0x00010203,
-		// 16-bit Integer BGRA Pixel Format
-		pixelformat_bgra4444 = 0x00010202,
+		// RGB-type Pixel Formats
+		rgba8 = 0x01010104,
+		rgb8 = 0x01010003,
+		rgbaf = 0x01010110,
+		bgra8 = 0x01020104,
+		bgr8 = 0x01020003,
+		bgra4 = 0x01020102,
+		bgr565 = 0x01020002,
 
-		// 16-bit Integer BGR Pixel Format(Legacy)
-		pixelformat_bgr565 = 0x00010302,
+		// Grayscale Pixel Formats
+		r8 = 0x01030001,
+		rf = 0x01030004,
 
-		// 8-bit Indexed BGRA Pixel Format
-		pixelformat_bgra8888_indexed8 = 0x00020104,
-		// 8-bit Indexed BGR Pixel Format
-		pixelformat_bgr888_indexed8 = 0x00020103,
+		// YUV-type Pixel Formats
+		yuva8 = 0x02010104,
+		yuv8 = 0x02010003,
 
-		// 24-bit YCbCr:4:4:4 Pixel Format
-		pixelformat_yuv888 = 0x00030003,
-		// 32-bit YCbCr:4:4:4 and Alpha Pixel Format
-		pixelformat_yuva8888 = 0x00030004,
+		// HSV-type Pixel Foramts
+		hsva8 = 0x02020104,
+		hsv8 = 0x02020003,
 
-		// 32-bit YCbCr:4:2:2(YUYV or YUY2) Packed Pixel Format
-		pixelformat_yuyv8888 = 0x00040204,
-		// YCbCr:4:2:0(NV12) Packed Pixel Format
-		pixelformat_yyyyuv888888 = 0x00040406,
-		pixelformat_nv12 = pixelformat_yyyyuv888888,
+		// YUV Chroma Subsampled Pixel Formats
+		yuyv8 = 0x03010001,
+		nv12 = 0x03010002,
 
-		// 24-bit HSV Pixel Format
-		pixelformat_hsv888 = 0x00050103,
-		// 32-bit HSV and Alpha Pixel Format
-		pixelformat_hsva8888 = 0x00050104,
+		// Indexed Pixel Formats
+		bgra8_indexed8 = 0xfd010104,
+		bgr8_indexed8 = 0xfd010103,
 
-		// BC1(DXT1) Compressed Pixel Format
-		pixelformat_bc1 = 0x00100001, pixelformat_dxt1 = pixelformat_bc1,
-		// BC2(DXT3) Compressed Pixel Format
-		pixelformat_bc2 = 0x00100002, pixelformat_dxt3 = pixelformat_bc2,
-		// BC3(DXT5) Compressed Pixel Format
-		pixelformat_bc3 = 0x00100003, pixelformat_dxt5 = pixelformat_bc3,
-		// BC4(ATI1) Compressed Pixel Format
-		pixelformat_bc4 = 0x00100004, pixelformat_ati1 = pixelformat_bc4,
-		// BC5(ATI2) Compressed Pixel Format
-		pixelformat_bc5 = 0x00100005, pixelformat_ati2 = pixelformat_bc5,
-		// BC6 Compressed Pixel Format(Only support Signed-bit Format now)
-		pixelformat_bc6h = 0x00100006,
-		// BC7 Compressed Pixel Format
-		pixelformat_bc7 = 0x00100007,
+		// Depth-Stencil Pixel Formats
+		depth16 = 0xfe010002,
+		depth24stencil8 = 0xfe020004,
+		depth32 = 0xfe010004,
 
-		// ETC Compressed Pixel Format
-		pixelformat_etc1 = 0x00110001,
-		// ETC2 Compressed Pixel Format
-		pixelformat_etc2 = 0x00110002,
-		// ETC2 with Alpha Compressed Pixel Format
-		pixelformat_etc2a = 0x00110102,
-		// ETC2 with Dedicated Alpha Compressed Pixel Format
-		pixelformat_etc2a8 = 0x00110103,
+		// S3TC Compressed Pixel Formats
+		bc1 = 0xff010001, dxt1 = bc1,
+		bc2 = 0xff010002, dxt3 = bc2,
+		bc3 = 0xff010003, dxt5 = bc3,
+		bc4 = 0xff010004, ati1 = bc4,
+		bc5 = 0xff010005, ati2 = bc5,
+		bc6 = 0xff010006,
+		bc7 = 0xff010007,
 
-		// PVRTC Compressed Pixel Formats
-		pixelformat_pvrtc_2bpp = 0x00120001,
-		pixelformat_pvrtc_2abpp = 0x00120101,
-		pixelformat_pvrtc_4bpp = 0x00120002,
-		pixelformat_pvrtc_4abpp = 0x00120102,
-		// PVRTC2 Compressed Pixel Formats
-		pixelformat_pvrtc2_2bpp = 0x00120003,
-		pixelformat_pvrtc2_4bpp = 0x00120004,
+		// ETC Compressed Pixel Formats
+		etc1 = 0xff020001,
+		etc2 = 0xff020002,
+		etc2a = 0xff020003,
+
+		// PVRTC Compressed Pixel Formats,
+		pvrtc_2bpp = 0xff030001,
+		pvrtc_2abpp = 0xff030101,
+		pvrtc_4bpp = 0xff030002,
+		pvrtc_4abpp = 0xff030102,
+		pvrtc2_2bpp = 0xff030103,
+		pvrtc2_4bpp = 0xff030104,
 
 		// ASTC Compressed Pixel Formats
-		pixelformat_astc_4x4 = 0x00130001,
-		pixelformat_astc_5x4 = 0x00130002,
-		pixelformat_astc_5x5 = 0x00130003,
-		pixelformat_astc_6x5 = 0x00130004,
-		pixelformat_astc_6x6 = 0x00130005,
-		pixelformat_astc_8x5 = 0x00130006,
-		pixelformat_astc_8x6 = 0x00130007,
-		pixelformat_astc_8x8 = 0x00130008,
-		pixelformat_astc_10x5 = 0x00130009,
-		pixelformat_astc_10x6 = 0x0013000a,
-		pixelformat_astc_10x8 = 0x0013000b,
-		pixelformat_astc_10x10 = 0x0013000c,
-		pixelformat_astc_12x10 = 0x0013000d,
-		pixelformat_astc_12x12 = 0x0013000e,
-
-		// Depth-Stencil Pixel Formats (Not support in dseed Bitmap object, Only for Texture objects)
-		pixelformat_depth16 = 0x01000002,
-		pixelformat_depth24stencil8 = 0x01000104,
-		pixelformat_depth32 = 0x01000004,
+		astc4x4 = 0xff040001,
+		astc5x4 = 0xff040002,
+		astc5x5 = 0xff040003,
+		astc6x5 = 0xff040004,
+		astc6x6 = 0xff040005,
+		astc8x5 = 0xff040006,
+		astc8x6 = 0xff040007,
+		astc8x8 = 0xff040008,
+		astc10x5 = 0xff040009,
+		astc10x6 = 0xff04000a,
+		astc10x8 = 0xff04000b,
+		astc10x10 = 0xff04000c,
+		astc12x10 = 0xff04000d,
+		astc12x12 = 0xff04000e,
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////
 	//
-	// Types Prototypes
+	// Type Prototypes
 	//
 	////////////////////////////////////////////////////////////////////////////////////////
+	struct colorv;
 
-	struct rgba;
-	struct rgb;
+	struct rgba8;
+	struct rgb8;
 	struct rgbaf;
-	struct bgra;
-	struct bgr;
+
+	struct bgra8;
+	struct bgr8;
 	struct bgra4;
 	struct bgr565;
 
-	struct grayscale;
-	struct grayscalef;
+	struct r8;
+	struct rf;
 
-	struct yuva;
-	struct yuv;
+	struct yuva8;
+	struct yuv8;
 
-	struct hsva;
-	struct hsv;
-
-	struct color_processor;
+	struct hsva8;
+	struct hsv8;
 
 	////////////////////////////////////////////////////////////////////////////////////////
 	//
-	// Utility Procedures
+	// Utilities
 	//
 	////////////////////////////////////////////////////////////////////////////////////////
 
-	// Get Stride value
-	DSEEDEXP size_t get_bitmap_stride (pixelformat_t format, int32_t width) noexcept;
-	// Get Bitmap Plane size
-	DSEEDEXP size_t get_bitmap_plane_size (pixelformat_t format, int32_t width, int32_t height) noexcept;
-	// Get Total Bitmap Planes Buffer size
-	DSEEDEXP size_t get_bitmap_total_size (pixelformat_t format, const dseed::size3i& size) noexcept;
-	// Get Mipmap Size
-	DSEEDEXP dseed::size3i get_mipmap_size (int mipLevel, const dseed::size3i& size, bool cubemap) noexcept;
-	// Get Maximum Mip-Levels
-	DSEEDEXP size_t get_maximum_mip_levels (const dseed::size3i& size, bool cubemap) noexcept;
-	// Saturate Integer color value
-	constexpr uint8_t saturate8 (int32_t v) noexcept { return (uint8_t)maximum (0, minimum (255, v)); }
-	constexpr uint8_t saturate4 (int32_t v) noexcept { return (uint8_t)maximum (0, minimum (15, v)); }
-	constexpr uint8_t saturate5 (int32_t v) noexcept { return (uint8_t)maximum (0, minimum (31, v)); }
-	constexpr uint8_t saturate6 (int32_t v) noexcept { return (uint8_t)maximum (0, minimum (63, v)); }
-	// Saturate Floating point color value
-	constexpr float saturatef (float v) noexcept { return maximum (0.000f, minimum (1.000f, v)); }
-	// Saturate Custom color value
-	template<class T, T min, T max>
-	constexpr T saturate (T v) noexcept { return maximum<T> (min, minimum<T> (max, v)); }
+	DSEEDEXP size_t calc_bitmap_stride(pixelformat pf, size_t width) noexcept;
+	DSEEDEXP size_t calc_bitmap_plane_size(pixelformat pf, const size2i& size) noexcept;
+	DSEEDEXP size_t calc_bitmap_total_size(pixelformat pf, const size3i& size) noexcept;
+
+	DSEEDEXP size3i calc_mipmap_size(int mipLevel, const size3i& size, bool cubemap = false) noexcept;
+	DSEEDEXP size_t calc_maximum_mipmap_levels(const dseed::size3i& size, bool cubemap = false) noexcept;
+
+	constexpr uint8_t saturate8(int32_t v) noexcept { return (uint8_t)maximum(0, minimum(255, v)); }
+	constexpr uint8_t saturate6(int32_t v) noexcept { return (uint8_t)maximum(0, minimum(63, v)); }
+	constexpr uint8_t saturate5(int32_t v) noexcept { return (uint8_t)maximum(0, minimum(31, v)); }
+	constexpr uint8_t saturate4(int32_t v) noexcept { return (uint8_t)maximum(0, minimum(15, v)); }
+	constexpr float saturatef(float v) noexcept { return maximum(0.0000000000f, minimum(1.0000000000f, v)); }
 
 	// https://stackoverflow.com/questions/1737726/how-to-perform-rgb-yuv-conversion-in-c-c , Modified
 	// RGB -> YUV
-	constexpr int32_t add128shift8 (int32_t v) noexcept { return (v + 128) >> 8; }
-	constexpr uint8_t rgb2y (int32_t r, int32_t g, int32_t b) noexcept { return dseed::saturate8 (add128shift8 ((66 * r) + (129 * g) + (25 * b)) + 16); }
-	constexpr uint8_t rgb2u (int32_t r, int32_t g, int32_t b) noexcept { return dseed::saturate8 (add128shift8 ((-38 * r) - (74 * g) + (112 * b)) + 128); }
-	constexpr uint8_t rgb2v (int32_t r, int32_t g, int32_t b) noexcept { return dseed::saturate8 (add128shift8 ((112 * r) - (94 * g) - (18 * b)) + 128); }
+	constexpr int32_t __add128shift8(int32_t v) noexcept { return (v + 128) >> 8; }
+	constexpr uint8_t rgb2y(int32_t r, int32_t g, int32_t b) noexcept { return saturate8(__add128shift8((66 * r) + (129 * g) + (25 * b)) + 16); }
+	constexpr uint8_t rgb2u(int32_t r, int32_t g, int32_t b) noexcept { return saturate8(__add128shift8((-38 * r) - (74 * g) + (112 * b)) + 128); }
+	constexpr uint8_t rgb2v(int32_t r, int32_t g, int32_t b) noexcept { return saturate8(__add128shift8((112 * r) - (94 * g) - (18 * b)) + 128); }
 	// YUV -> RGB
-	constexpr int32_t __c (int32_t y) noexcept { return y - 16; }
-	constexpr int32_t __d (int32_t u) noexcept { return u - 128; }
-	constexpr int32_t __e (int32_t v) noexcept { return v - 128; }
-	constexpr uint8_t yuv2r (int32_t y, int32_t u, int32_t v) noexcept { return dseed::saturate8 (add128shift8 ((298 * __c (y)) + (409 * __e (v)))); }
-	constexpr uint8_t yuv2g (int32_t y, int32_t u, int32_t v) noexcept { return dseed::saturate8 (add128shift8 ((298 * __c (y)) - (100 * __d (u)) - (208 * __e (v)))); }
-	constexpr uint8_t yuv2b (int32_t y, int32_t u, int32_t v) noexcept { return dseed::saturate8 (add128shift8 ((298 * __c (y)) + (516 * __d (u)))); }
+	constexpr int32_t __c(int32_t y) noexcept { return y - 16; }
+	constexpr int32_t __d(int32_t u) noexcept { return u - 128; }
+	constexpr int32_t __e(int32_t v) noexcept { return v - 128; }
+	constexpr uint8_t yuv2r(int32_t y, int32_t u, int32_t v) noexcept { return saturate8(__add128shift8((298 * __c(y)) + (409 * __e(v)))); }
+	constexpr uint8_t yuv2g(int32_t y, int32_t u, int32_t v) noexcept { return saturate8(__add128shift8((298 * __c(y)) - (100 * __d(u)) - (208 * __e(v)))); }
+	constexpr uint8_t yuv2b(int32_t y, int32_t u, int32_t v) noexcept { return saturate8(__add128shift8((298 * __c(y)) + (516 * __d(u)))); }
 
 	// https://stackoverflow.com/questions/3018313/algorithm-to-convert-rgb-to-hsv-and-hsv-to-rgb-in-range-0-255-for-both
 	// RGB -> HSV
-	constexpr void rgb2hsv (int32_t r, int32_t g, int32_t b, uint8_t& h, uint8_t& s, uint8_t& v) noexcept
+	constexpr void rgb2hsv(int32_t r, int32_t g, int32_t b, uint8_t& h, uint8_t& s, uint8_t& v) noexcept
 	{
 		uint8_t rgbMin = r < g ? (r < b ? r : b) : (g < b ? g : b)
 			, rgbMax = r > g ? (r > b ? r : b) : (g > b ? g : b);
 
-		v = rgbMax;
-		if (v == 0)
-		{
+		if ((v = rgbMax) == 0)
+			h = s = 0;
+		else if ((s = 255 * long(rgbMax - rgbMin) / v) == 0)
 			h = 0;
-			s = 0;
-			return;
-		}
-
-		s = 255 * long (rgbMax - rgbMin) / v;
-		if (s == 0)
+		else
 		{
-			h = 0;
-			return;
+			if (rgbMax == r)		h = 0 + 43 * (g - b) / (rgbMax - rgbMin);
+			else if (rgbMax == g)	h = 85 + 43 * (b - r) / (rgbMax - rgbMin);
+			else					h = 171 + 43 * (r - g) / (rgbMax - rgbMin);
 		}
-
-		if (rgbMax == r)		h = 0 + 43 * (g - b) / (rgbMax - rgbMin);
-		else if (rgbMax == g)	h = 85 + 43 * (b - r) / (rgbMax - rgbMin);
-		else					h = 171 + 43 * (r - g) / (rgbMax - rgbMin);
 	}
 	// HSV -> RGB
-	constexpr void hsv2rgb (int32_t h, int32_t s, int32_t v, uint8_t& r, uint8_t& g, uint8_t& b) noexcept
+	constexpr void hsv2rgb(int32_t h, int32_t s, int32_t v, uint8_t& r, uint8_t& g, uint8_t& b) noexcept
 	{
 		if (s == 0)
-		{
 			r = g = b = v;
-			return;
-		}
-
-		uint8_t region = h / 43;
-		uint8_t remainder = (h - (region * 43)) * 6;
-
-		uint8_t p = (v * (255 - s)) >> 8;
-		uint8_t q = (v * (255 - ((s * remainder) >> 8))) >> 8;
-		uint8_t t = (v * (255 - ((s * (255 - remainder)) >> 8))) >> 8;
-
-		switch (region)
+		else
 		{
-		case 0: r = v; g = t; b = p; break;
-		case 1: r = q; g = v; b = p; break;
-		case 2: r = p; g = v; b = t; break;
-		case 3: r = p; g = q; b = v; break;
-		case 4: r = t; g = p; b = v; break;
-		default: r = v; g = p; b = q; break;
+			uint8_t region = h / 43, remainder = (h - (region * 43)) * 6;
+
+			uint8_t p = (v * (255 - s)) >> 8;
+			uint8_t q = (v * (255 - ((s * remainder) >> 8))) >> 8;
+			uint8_t t = (v * (255 - ((s * (255 - remainder)) >> 8))) >> 8;
+
+			switch (region)
+			{
+			case 0: r = v; g = t; b = p; break;
+			case 1: r = q; g = v; b = p; break;
+			case 2: r = p; g = v; b = t; break;
+			case 3: r = p; g = q; b = v; break;
+			case 4: r = t; g = p; b = v; break;
+			default: r = v; g = p; b = q; break;
+			}
 		}
 	}
 
-	template<class color_t> constexpr pixelformat_t type2format () noexcept { static_assert (true, "Not support type."); return pixelformat_unknown; }
-	template<> constexpr pixelformat_t type2format<rgba> () noexcept { return pixelformat_rgba8888; }
-	template<> constexpr pixelformat_t type2format<rgb> () noexcept { return pixelformat_rgb888; }
-	template<> constexpr pixelformat_t type2format<rgbaf> () noexcept { return pixelformat_rgbaf; }
-	template<> constexpr pixelformat_t type2format<bgra> () noexcept { return pixelformat_bgra8888; }
-	template<> constexpr pixelformat_t type2format<bgr> () noexcept { return pixelformat_bgr888; }
-	template<> constexpr pixelformat_t type2format<bgra4> () noexcept { return pixelformat_bgra4444; }
-	template<> constexpr pixelformat_t type2format<bgr565> () noexcept { return pixelformat_bgr565; }
-	template<> constexpr pixelformat_t type2format<grayscale> () noexcept { return pixelformat_grayscale8; }
-	template<> constexpr pixelformat_t type2format<grayscalef> () noexcept { return pixelformat_grayscalef; }
-	template<> constexpr pixelformat_t type2format<yuva> () noexcept { return pixelformat_yuva8888; }
-	template<> constexpr pixelformat_t type2format<yuv> () noexcept { return pixelformat_yuv888; }
-	template<> constexpr pixelformat_t type2format<hsva> () noexcept { return pixelformat_hsva8888; }
-	template<> constexpr pixelformat_t type2format<hsv> () noexcept { return pixelformat_hsv888; }
+	template<class T> constexpr pixelformat type2format() noexcept { static_assert (true, "Not support type."); return pixelformat::unknown; }
+	template<> constexpr pixelformat type2format<rgba8>() noexcept { return pixelformat::rgba8; }
+	template<> constexpr pixelformat type2format<rgb8>() noexcept { return pixelformat::rgb8; }
+	template<> constexpr pixelformat type2format<rgbaf>() noexcept { return pixelformat::rgbaf; }
+	template<> constexpr pixelformat type2format<bgra8>() noexcept { return pixelformat::bgra8; }
+	template<> constexpr pixelformat type2format<bgr8>() noexcept { return pixelformat::bgr8; }
+	template<> constexpr pixelformat type2format<bgra4>() noexcept { return pixelformat::bgra4; }
+	template<> constexpr pixelformat type2format<bgr565>() noexcept { return pixelformat::bgr565; }
+	template<> constexpr pixelformat type2format<r8>() noexcept { return pixelformat::r8; }
+	template<> constexpr pixelformat type2format<rf>() noexcept { return pixelformat::rf; }
+	template<> constexpr pixelformat type2format<yuva8>() noexcept { return pixelformat::yuva8; }
+	template<> constexpr pixelformat type2format<yuv8>() noexcept { return pixelformat::yuv8; }
+	template<> constexpr pixelformat type2format<hsva8>() noexcept { return pixelformat::hsva8; }
+	template<> constexpr pixelformat type2format<hsv8>() noexcept { return pixelformat::hsv8; }
 
-	template<class color_t> constexpr pixelformat_t type2indexedformat () noexcept { static_assert (true, "Not support type."); return pixelformat_unknown; }
-	template<> constexpr pixelformat_t type2indexedformat<bgra> () noexcept { return pixelformat_bgra8888_indexed8; }
-	template<> constexpr pixelformat_t type2indexedformat<bgr> () noexcept { return pixelformat_bgr888_indexed8; }
+	template<class T> constexpr pixelformat type2indexedformat() noexcept { static_assert (true, "Not support type."); return pixelformat::unknown; }
+	template<> constexpr pixelformat type2indexedformat<bgra8>() noexcept { return pixelformat::bgra8_indexed8; }
+	template<> constexpr pixelformat type2indexedformat<bgr8>() noexcept { return pixelformat::bgr8_indexed8; }
 
-	template<class color_t> constexpr bool hasalpha () noexcept { return false; }
-	template<> constexpr bool hasalpha<rgba> () noexcept { return true; }
-	template<> constexpr bool hasalpha<rgb> () noexcept { return false; }
-	template<> constexpr bool hasalpha<rgbaf> () noexcept { return true; }
-	template<> constexpr bool hasalpha<bgra> () noexcept { return true; }
-	template<> constexpr bool hasalpha<bgr> () noexcept { return false; }
-	template<> constexpr bool hasalpha<bgra4> () noexcept { return true; }
-	template<> constexpr bool hasalpha<bgr565> () noexcept { return false; }
-	template<> constexpr bool hasalpha<grayscale> () noexcept { return false; }
-	template<> constexpr bool hasalpha<grayscalef> () noexcept { return false; }
-	template<> constexpr bool hasalpha<yuva> () noexcept { return true; }
-	template<> constexpr bool hasalpha<yuv> () noexcept { return false; }
-	template<> constexpr bool hasalpha<hsva> () noexcept { return true; }
-	template<> constexpr bool hasalpha<hsv> () noexcept { return false; }
-
+	template<class T> constexpr bool hasalpha() noexcept { return false; }
+	template<> constexpr bool hasalpha<rgba8>() noexcept { return true; }
+	template<> constexpr bool hasalpha<rgbaf>() noexcept { return true; }
+	template<> constexpr bool hasalpha<bgra8>() noexcept { return true; }
+	template<> constexpr bool hasalpha<bgra4>() noexcept { return true; }
+	template<> constexpr bool hasalpha<yuva8>() noexcept { return true; }
+	template<> constexpr bool hasalpha<hsva8>() noexcept { return true; }
 	////////////////////////////////////////////////////////////////////////////////////////
 	//
 	// Red/Green/Blue Color Types
@@ -274,287 +225,290 @@ namespace dseed
 #		pragma pack (1)
 #	endif
 
-	struct rgba
+	struct rgba8
 	{
 		union
 		{
 			struct { uint8_t r, g, b, a; };
 			uint32_t color;
 		};
-		rgba () noexcept = default;
-		inline rgba (uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) noexcept
-			: r (r), g (g), b (b), a (a)
+		rgba8() noexcept = default;
+		inline rgba8(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) noexcept
+			: r(r), g(g), b(b), a(a)
 		{ }
-		inline rgba (uint32_t rgba) noexcept
-			: color (rgba)
+		inline rgba8(uint32_t rgba) noexcept
+			: color(rgba)
 		{ }
 
 		inline uint8_t& operator [] (int index) noexcept { return reinterpret_cast<uint8_t*>(this)[index]; }
 		inline const uint8_t& operator [] (int index) const noexcept { return reinterpret_cast<const uint8_t*>(this)[index]; }
 
-		static inline rgba max_color () noexcept { return rgba (255, 255, 255, 255); }
-		static inline rgba min_color () noexcept { return rgba (0, 0, 0, 0); }
+		static inline rgba8 max_color() noexcept { return rgba8(255, 255, 255, 255); }
+		static inline rgba8 min_color() noexcept { return rgba8(0, 0, 0, 0); }
 
-		inline operator rgb () const noexcept;
+		inline operator rgb8 () const noexcept;
 		inline operator rgbaf () const noexcept;
-		inline operator bgra () const noexcept;
-		inline operator bgr () const noexcept;
+		inline operator bgra8 () const noexcept;
+		inline operator bgr8 () const noexcept;
 		inline operator bgra4 () const noexcept;
 		inline operator bgr565 () const noexcept;
 
-		inline operator grayscale () const noexcept;
-		inline operator grayscalef () const noexcept;
+		inline operator r8 () const noexcept;
+		inline operator rf () const noexcept;
 
-		inline operator yuv () const noexcept;
-		inline operator yuva () const noexcept;
+		inline operator yuv8 () const noexcept;
+		inline operator yuva8 () const noexcept;
 
-		inline operator hsv () const noexcept;
-		inline operator hsva () const noexcept;
+		inline operator hsv8 () const noexcept;
+		inline operator hsva8 () const noexcept;
 
-		inline operator color_processor () const noexcept;
+		inline operator colorv () const noexcept;
 
-		inline rgba& operator+= (const rgba& c) noexcept { r += c.r; g += c.g; b += c.b; a += c.a; return *this; }
-		inline rgba& operator-= (const rgba& c) noexcept { r -= c.r; g -= c.g; b -= c.b; a -= c.a; return *this; }
-		inline rgba& operator*= (const rgba& c) noexcept { r *= c.r; g *= c.g; b *= c.b; a *= c.a; return *this; }
-		inline rgba& operator/= (const rgba& c) noexcept { r /= c.r; g /= c.g; b /= c.b; a /= c.a; return *this; }
+		inline rgba8& operator+= (const rgba8& c) noexcept { r += c.r; g += c.g; b += c.b; a += c.a; return *this; }
+		inline rgba8& operator-= (const rgba8& c) noexcept { r -= c.r; g -= c.g; b -= c.b; a -= c.a; return *this; }
+		inline rgba8& operator*= (const rgba8& c) noexcept { r *= c.r; g *= c.g; b *= c.b; a *= c.a; return *this; }
+		inline rgba8& operator/= (const rgba8& c) noexcept { r /= c.r; g /= c.g; b /= c.b; a /= c.a; return *this; }
 	};
-	inline rgba operator+ (const rgba& c1, const rgba& c2) noexcept { return rgba (c1.r + c2.r, c1.g + c2.g, c1.b + c2.b, c1.a + c2.a); }
-	inline rgba operator- (const rgba& c1, const rgba& c2) noexcept { return rgba (c1.r - c2.r, c1.g - c2.g, c1.b - c2.b, c1.a - c2.a); }
-	inline rgba operator* (const rgba& c1, const rgba& c2) noexcept { return rgba (c1.r * c2.r, c1.g * c2.g, c1.b * c2.b, c1.a * c2.a); }
-	inline rgba operator/ (const rgba& c1, const rgba& c2) noexcept { return rgba (c1.r / c2.r, c1.g / c2.g, c1.b / c2.b, c1.a / c2.a); }
-	inline rgba operator* (const rgba& c1, double factor) noexcept { return rgba ((uint8_t)(c1.r * factor), (uint8_t)(c1.g * factor), (uint8_t)(c1.b * factor), (uint8_t)(c1.a * factor)); }
-	inline rgba operator/ (const rgba& c1, double factor) noexcept { return rgba ((uint8_t)(c1.r / factor), (uint8_t)(c1.g / factor), (uint8_t)(c1.b / factor), (uint8_t)(c1.a / factor)); }
-	inline rgba operator& (const rgba& c1, const rgba& c2) noexcept { return rgba (c1.r & c2.r, c1.g & c2.g, c1.b & c2.b, c1.a & c2.a); }
-	inline rgba operator| (const rgba& c1, const rgba& c2) noexcept { return rgba (c1.r | c2.r, c1.g | c2.g, c1.b | c2.b, c1.a | c2.a); }
-	inline rgba operator^ (const rgba& c1, const rgba& c2) noexcept { return rgba (c1.r ^ c2.r, c1.g ^ c2.g, c1.b ^ c2.b, c1.a ^ c2.a); }
-	inline rgba operator~ (const rgba& c) noexcept { return rgba (~c.r, ~c.g, ~c.b, ~c.a); }
-	inline bool operator== (const rgba& c1, const rgba& c2) noexcept { return c1.color == c2.color; }
+	inline rgba8 operator+ (const rgba8& c1, const rgba8& c2) noexcept { return rgba8(c1.r + c2.r, c1.g + c2.g, c1.b + c2.b, c1.a + c2.a); }
+	inline rgba8 operator- (const rgba8& c1, const rgba8& c2) noexcept { return rgba8(c1.r - c2.r, c1.g - c2.g, c1.b - c2.b, c1.a - c2.a); }
+	inline rgba8 operator* (const rgba8& c1, const rgba8& c2) noexcept { return rgba8(c1.r * c2.r, c1.g * c2.g, c1.b * c2.b, c1.a * c2.a); }
+	inline rgba8 operator/ (const rgba8& c1, const rgba8& c2) noexcept { return rgba8(c1.r / c2.r, c1.g / c2.g, c1.b / c2.b, c1.a / c2.a); }
+	inline rgba8 operator* (const rgba8& c1, double factor) noexcept { return rgba8((uint8_t)(c1.r * factor), (uint8_t)(c1.g * factor), (uint8_t)(c1.b * factor), (uint8_t)(c1.a * factor)); }
+	inline rgba8 operator/ (const rgba8& c1, double factor) noexcept { return rgba8((uint8_t)(c1.r / factor), (uint8_t)(c1.g / factor), (uint8_t)(c1.b / factor), (uint8_t)(c1.a / factor)); }
+	inline rgba8 operator& (const rgba8& c1, const rgba8& c2) noexcept { return rgba8(c1.r & c2.r, c1.g & c2.g, c1.b & c2.b, c1.a & c2.a); }
+	inline rgba8 operator| (const rgba8& c1, const rgba8& c2) noexcept { return rgba8(c1.r | c2.r, c1.g | c2.g, c1.b | c2.b, c1.a | c2.a); }
+	inline rgba8 operator^ (const rgba8& c1, const rgba8& c2) noexcept { return rgba8(c1.r ^ c2.r, c1.g ^ c2.g, c1.b ^ c2.b, c1.a ^ c2.a); }
+	inline rgba8 operator~ (const rgba8& c) noexcept { return rgba8(~c.r, ~c.g, ~c.b, ~c.a); }
+	inline bool operator== (const rgba8& c1, const rgba8& c2) noexcept { return c1.color == c2.color; }
 
-	struct rgb
+	struct rgb8
 	{
 		union
 		{
 			struct { uint8_t r, g, b; };
 			uint24_t color;
 		};
-		rgb () noexcept = default;
-		inline rgb (uint8_t r, uint8_t g, uint8_t b) noexcept
-			: r (r), g (g), b (b)
+		rgb8() noexcept = default;
+		inline rgb8(uint8_t r, uint8_t g, uint8_t b) noexcept
+			: r(r), g(g), b(b)
 		{ }
-		inline rgb (uint24_t rgb) noexcept
-			: color (rgb)
+		inline rgb8(uint24_t rgb) noexcept
+			: color(rgb)
 		{ }
 
 		inline uint8_t& operator [] (int index) noexcept { return reinterpret_cast<uint8_t*>(this)[index]; }
 		inline const uint8_t& operator [] (int index) const noexcept { return reinterpret_cast<const uint8_t*>(this)[index]; }
 
-		static inline rgb max_color () noexcept { return rgb (255, 255, 255); }
-		static inline rgb min_color () noexcept { return rgb (0, 0, 0); }
+		static inline rgb8 max_color() noexcept { return rgb8(255, 255, 255); }
+		static inline rgb8 min_color() noexcept { return rgb8(0, 0, 0); }
 
-		inline operator rgba () const noexcept;
+		inline operator rgba8 () const noexcept;
 		inline operator rgbaf () const noexcept;
-		inline operator bgra () const noexcept;
-		inline operator bgr () const noexcept;
+		inline operator bgra8 () const noexcept;
+		inline operator bgr8 () const noexcept;
 		inline operator bgra4 () const noexcept;
 		inline operator bgr565 () const noexcept;
 
-		inline operator grayscale () const noexcept;
-		inline operator grayscalef () const noexcept;
+		inline operator r8 () const noexcept;
+		inline operator rf () const noexcept;
 
-		inline operator yuv () const noexcept;
-		inline operator yuva () const noexcept;
+		inline operator yuv8 () const noexcept;
+		inline operator yuva8 () const noexcept;
 
-		inline operator hsv () const noexcept;
-		inline operator hsva () const noexcept;
+		inline operator hsv8 () const noexcept;
+		inline operator hsva8 () const noexcept;
 
-		inline operator color_processor () const noexcept;
+		inline operator colorv () const noexcept;
 
-		inline rgb& operator+= (const rgb& c) noexcept { r += c.r; g += c.g; b += c.b; return *this; }
-		inline rgb& operator-= (const rgb& c) noexcept { r -= c.r; g -= c.g; b -= c.b; return *this; }
-		inline rgb& operator*= (const rgb& c) noexcept { r *= c.r; g *= c.g; b *= c.b; return *this; }
-		inline rgb& operator/= (const rgb& c) noexcept { r /= c.r; g /= c.g; b /= c.b; return *this; }
+		inline rgb8& operator+= (const rgb8& c) noexcept { r += c.r; g += c.g; b += c.b; return *this; }
+		inline rgb8& operator-= (const rgb8& c) noexcept { r -= c.r; g -= c.g; b -= c.b; return *this; }
+		inline rgb8& operator*= (const rgb8& c) noexcept { r *= c.r; g *= c.g; b *= c.b; return *this; }
+		inline rgb8& operator/= (const rgb8& c) noexcept { r /= c.r; g /= c.g; b /= c.b; return *this; }
 	};
-	inline rgb operator+ (const rgb& c1, const rgb& c2) noexcept { return rgb (c1.r + c2.r, c1.g + c2.g, c1.b + c2.b); }
-	inline rgb operator- (const rgb& c1, const rgb& c2) noexcept { return rgb (c1.r - c2.r, c1.g - c2.g, c1.b - c2.b); }
-	inline rgb operator* (const rgb& c1, const rgb& c2) noexcept { return rgb (c1.r * c2.r, c1.g * c2.g, c1.b * c2.b); }
-	inline rgb operator/ (const rgb& c1, const rgb& c2) noexcept { return rgb (c1.r / c2.r, c1.g / c2.g, c1.b / c2.b); }
-	inline rgb operator* (const rgb& c1, double factor) noexcept { return rgb ((uint8_t)(c1.r * factor), (uint8_t)(c1.g * factor), (uint8_t)(c1.b * factor)); }
-	inline rgb operator/ (const rgb& c1, double factor) noexcept { return rgb ((uint8_t)(c1.r / factor), (uint8_t)(c1.g / factor), (uint8_t)(c1.b / factor)); }
-	inline rgb operator& (const rgb& c1, const rgb& c2) noexcept { return rgb (c1.r & c2.r, c1.g & c2.g, c1.b & c2.b); }
-	inline rgb operator| (const rgb& c1, const rgb& c2) noexcept { return rgb (c1.r | c2.r, c1.g | c2.g, c1.b | c2.b); }
-	inline rgb operator^ (const rgb& c1, const rgb& c2) noexcept { return rgb (c1.r ^ c2.r, c1.g ^ c2.g, c1.b ^ c2.b); }
-	inline rgb operator~ (const rgb& c) noexcept { return rgb (~c.r, ~c.g, ~c.b); }
-	inline bool operator== (const rgb& c1, const rgb& c2) noexcept { return c1.color == c2.color; }
+	inline rgb8 operator+ (const rgb8& c1, const rgb8& c2) noexcept { return rgb8(c1.r + c2.r, c1.g + c2.g, c1.b + c2.b); }
+	inline rgb8 operator- (const rgb8& c1, const rgb8& c2) noexcept { return rgb8(c1.r - c2.r, c1.g - c2.g, c1.b - c2.b); }
+	inline rgb8 operator* (const rgb8& c1, const rgb8& c2) noexcept { return rgb8(c1.r * c2.r, c1.g * c2.g, c1.b * c2.b); }
+	inline rgb8 operator/ (const rgb8& c1, const rgb8& c2) noexcept { return rgb8(c1.r / c2.r, c1.g / c2.g, c1.b / c2.b); }
+	inline rgb8 operator* (const rgb8& c1, double factor) noexcept { return rgb8((uint8_t)(c1.r * factor), (uint8_t)(c1.g * factor), (uint8_t)(c1.b * factor)); }
+	inline rgb8 operator/ (const rgb8& c1, double factor) noexcept { return rgb8((uint8_t)(c1.r / factor), (uint8_t)(c1.g / factor), (uint8_t)(c1.b / factor)); }
+	inline rgb8 operator& (const rgb8& c1, const rgb8& c2) noexcept { return rgb8(c1.r & c2.r, c1.g & c2.g, c1.b & c2.b); }
+	inline rgb8 operator| (const rgb8& c1, const rgb8& c2) noexcept { return rgb8(c1.r | c2.r, c1.g | c2.g, c1.b | c2.b); }
+	inline rgb8 operator^ (const rgb8& c1, const rgb8& c2) noexcept { return rgb8(c1.r ^ c2.r, c1.g ^ c2.g, c1.b ^ c2.b); }
+	inline rgb8 operator~ (const rgb8& c) noexcept { return rgb8(~c.r, ~c.g, ~c.b); }
+	inline bool operator== (const rgb8& c1, const rgb8& c2) noexcept { return static_cast<int>(c1.color) == static_cast<int>(c2.color); }
 
 	struct rgbaf
 	{
 		union
 		{
 			struct { float r, g, b, a; };
-			float4 color;
+			f32x4_t color;
 		};
-		rgbaf () noexcept = default;
-		inline rgbaf (float r, float g, float b, float a = 1.00000000f) noexcept
-			: r (r), g (g), b (b), a (a)
+		rgbaf() noexcept { };
+		inline rgbaf(float r, float g, float b, float a = 1.00000000f) noexcept
+			: r(r), g(g), b(b), a(a)
 		{ }
-		inline rgbaf (const float4& rgba) noexcept
-			: color (rgba)
+		inline rgbaf(const rgbaf& rgba) noexcept
+			: color(rgba.color)
+		{ }
+		inline rgbaf(const f32x4_t& rgba) noexcept
+			: color(rgba)
 		{ }
 
 		inline float& operator [] (int index) noexcept { return reinterpret_cast<float*>(this)[index]; }
 		inline const float& operator [] (int index) const noexcept { return reinterpret_cast<const float*>(this)[index]; }
 
-		static inline rgbaf max_color () noexcept { return rgbaf (1, 1, 1, 1); }
-		static inline rgbaf min_color () noexcept { return rgbaf (0, 0, 0, 0); }
+		static inline rgbaf max_color() noexcept { return rgbaf(1, 1, 1, 1); }
+		static inline rgbaf min_color() noexcept { return rgbaf(0, 0, 0, 0); }
 
-		inline operator rgba () const noexcept;
-		inline operator rgb () const noexcept;
-		inline operator bgra () const noexcept;
-		inline operator bgr () const noexcept;
+		inline operator rgba8 () const noexcept;
+		inline operator rgb8 () const noexcept;
+		inline operator bgra8 () const noexcept;
+		inline operator bgr8 () const noexcept;
 		inline operator bgra4 () const noexcept;
 		inline operator bgr565 () const noexcept;
-		inline operator float4 () const noexcept { return color; }
+		inline operator f32x4_t () const noexcept { return color; }
 
-		inline operator grayscale () const noexcept;
-		inline operator grayscalef () const noexcept;
+		inline operator r8 () const noexcept;
+		inline operator rf () const noexcept;
 
-		inline operator yuv () const noexcept;
-		inline operator yuva () const noexcept;
+		inline operator yuv8 () const noexcept;
+		inline operator yuva8 () const noexcept;
 
-		inline operator hsv () const noexcept;
-		inline operator hsva () const noexcept;
+		inline operator hsv8 () const noexcept;
+		inline operator hsva8 () const noexcept;
 
-		inline operator color_processor () const noexcept;
+		inline operator colorv () const noexcept;
 
 		inline rgbaf& operator+= (const rgbaf& c) noexcept { r += c.r; g += c.g; b += c.b; a += c.a; return *this; }
 		inline rgbaf& operator-= (const rgbaf& c) noexcept { r -= c.r; g -= c.g; b -= c.b; a -= c.a; return *this; }
 		inline rgbaf& operator*= (const rgbaf& c) noexcept { r *= c.r; g *= c.g; b *= c.b; a *= c.a; return *this; }
 		inline rgbaf& operator/= (const rgbaf& c) noexcept { r /= c.r; g /= c.g; b /= c.b; a /= c.a; return *this; }
 	};
-	inline rgbaf operator+ (const rgbaf& c1, const rgbaf& c2) noexcept { return rgbaf (c1.r + c2.r, c1.g + c2.g, c1.b + c2.b, c1.a + c2.a); }
-	inline rgbaf operator- (const rgbaf& c1, const rgbaf& c2) noexcept { return rgbaf (c1.r - c2.r, c1.g - c2.g, c1.b - c2.b, c1.a - c2.a); }
-	inline rgbaf operator- (const rgbaf& c) noexcept { return rgbaf (-c.r, -c.g, -c.b, -c.a); }
-	inline rgbaf operator* (const rgbaf& c1, const rgbaf& c2) noexcept { return rgbaf (c1.r * c2.r, c1.g * c2.g, c1.b * c2.b, c1.a * c2.a); }
-	inline rgbaf operator/ (const rgbaf& c1, const rgbaf& c2) noexcept { return rgbaf (c1.r / c2.r, c1.g / c2.g, c1.b / c2.b, c1.a / c2.a); }
-	inline rgbaf operator* (const rgbaf& c1, double factor) noexcept { return rgbaf ((float)(c1.r * factor), (float)(c1.g * factor), (float)(c1.b * factor), (float)(c1.a * factor)); }
-	inline rgbaf operator/ (const rgbaf& c1, double factor) noexcept { return rgbaf ((float)(c1.r / factor), (float)(c1.g / factor), (float)(c1.b / factor), (float)(c1.a / factor)); }
+	inline rgbaf operator+ (const rgbaf& c1, const rgbaf& c2) noexcept { return rgbaf(c1.r + c2.r, c1.g + c2.g, c1.b + c2.b, c1.a + c2.a); }
+	inline rgbaf operator- (const rgbaf& c1, const rgbaf& c2) noexcept { return rgbaf(c1.r - c2.r, c1.g - c2.g, c1.b - c2.b, c1.a - c2.a); }
+	inline rgbaf operator- (const rgbaf& c) noexcept { return rgbaf(-c.r, -c.g, -c.b, -c.a); }
+	inline rgbaf operator* (const rgbaf& c1, const rgbaf& c2) noexcept { return rgbaf(c1.r * c2.r, c1.g * c2.g, c1.b * c2.b, c1.a * c2.a); }
+	inline rgbaf operator/ (const rgbaf& c1, const rgbaf& c2) noexcept { return rgbaf(c1.r / c2.r, c1.g / c2.g, c1.b / c2.b, c1.a / c2.a); }
+	inline rgbaf operator* (const rgbaf& c1, double factor) noexcept { return rgbaf((float)(c1.r * factor), (float)(c1.g * factor), (float)(c1.b * factor), (float)(c1.a * factor)); }
+	inline rgbaf operator/ (const rgbaf& c1, double factor) noexcept { return rgbaf((float)(c1.r / factor), (float)(c1.g / factor), (float)(c1.b / factor), (float)(c1.a / factor)); }
 	inline bool operator== (const rgbaf& c1, const rgbaf& c2) noexcept
 	{
-		vectorf a = c1.color, b = c2.color;
-		return a == b;
+		f32x4_t a = c1.color, b = c2.color;
+		return equalsb(a, b);
 	}
-	
-	struct bgra
+
+	struct bgra8
 	{
 		union
 		{
 			struct { uint8_t b, g, r, a; };
 			uint32_t color;
 		};
-		bgra () noexcept = default;
-		inline bgra (uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) noexcept
-			: r (r), g (g), b (b), a (a)
+		bgra8() noexcept = default;
+		inline bgra8(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) noexcept
+			: r(r), g(g), b(b), a(a)
 		{ }
-		inline bgra (uint32_t bgra) noexcept
-			: color (bgra)
+		inline bgra8(uint32_t bgra) noexcept
+			: color(bgra)
 		{ }
 
 		inline uint8_t& operator [] (int index) noexcept { return reinterpret_cast<uint8_t*>(this)[index]; }
 		inline const uint8_t& operator [] (int index) const noexcept { return reinterpret_cast<const uint8_t*>(this)[index]; }
 
-		static inline bgra max_color () noexcept { return bgra (255, 255, 255, 255); }
-		static inline bgra min_color () noexcept { return bgra (0, 0, 0, 0); }
+		static inline bgra8 max_color() noexcept { return bgra8(255, 255, 255, 255); }
+		static inline bgra8 min_color() noexcept { return bgra8(0, 0, 0, 0); }
 
-		inline operator rgba () const noexcept;
-		inline operator rgb () const noexcept;
+		inline operator rgba8 () const noexcept;
+		inline operator rgb8 () const noexcept;
 		inline operator rgbaf () const noexcept;
-		inline operator bgr () const noexcept;
+		inline operator bgr8 () const noexcept;
 		inline operator bgra4 () const noexcept;
 		inline operator bgr565 () const noexcept;
 
-		inline operator grayscale () const noexcept;
-		inline operator grayscalef () const noexcept;
+		inline operator r8 () const noexcept;
+		inline operator rf () const noexcept;
 
-		inline operator yuv () const noexcept;
-		inline operator yuva () const noexcept;
+		inline operator yuv8 () const noexcept;
+		inline operator yuva8 () const noexcept;
 
-		inline operator hsv () const noexcept;
-		inline operator hsva () const noexcept;
+		inline operator hsv8 () const noexcept;
+		inline operator hsva8 () const noexcept;
 
-		inline operator color_processor () const noexcept;
+		inline operator colorv () const noexcept;
 
-		inline bgra& operator+= (const bgra& c) noexcept { r += c.r; g += c.g; b += c.b; a += c.a; return *this; }
-		inline bgra& operator-= (const bgra& c) noexcept { r -= c.r; g -= c.g; b -= c.b; a -= c.a; return *this; }
-		inline bgra& operator*= (const bgra& c) noexcept { r *= c.r; g *= c.g; b *= c.b; a *= c.a; return *this; }
-		inline bgra& operator/= (const bgra& c) noexcept { r /= c.r; g /= c.g; b /= c.b; a /= c.a; return *this; }
+		inline bgra8& operator+= (const bgra8& c) noexcept { r += c.r; g += c.g; b += c.b; a += c.a; return *this; }
+		inline bgra8& operator-= (const bgra8& c) noexcept { r -= c.r; g -= c.g; b -= c.b; a -= c.a; return *this; }
+		inline bgra8& operator*= (const bgra8& c) noexcept { r *= c.r; g *= c.g; b *= c.b; a *= c.a; return *this; }
+		inline bgra8& operator/= (const bgra8& c) noexcept { r /= c.r; g /= c.g; b /= c.b; a /= c.a; return *this; }
 	};
-	inline bgra operator+ (const bgra& c1, const bgra& c2) noexcept { return bgra (c1.r + c2.r, c1.g + c2.g, c1.b + c2.b, c1.a + c2.a); }
-	inline bgra operator- (const bgra& c1, const bgra& c2) noexcept { return bgra (c1.r - c2.r, c1.g - c2.g, c1.b - c2.b, c1.a - c2.a); }
-	inline bgra operator* (const bgra& c1, const bgra& c2) noexcept { return bgra (c1.r * c2.r, c1.g * c2.g, c1.b * c2.b, c1.a * c2.a); }
-	inline bgra operator/ (const bgra& c1, const bgra& c2) noexcept { return bgra (c1.r / c2.r, c1.g / c2.g, c1.b / c2.b, c1.a / c2.a); }
-	inline bgra operator* (const bgra& c1, double factor) noexcept { return bgra ((uint8_t)(c1.r * factor), (uint8_t)(c1.g * factor), (uint8_t)(c1.b * factor), (uint8_t)(c1.a * factor)); }
-	inline bgra operator/ (const bgra& c1, double factor) noexcept { return bgra ((uint8_t)(c1.r / factor), (uint8_t)(c1.g / factor), (uint8_t)(c1.b / factor), (uint8_t)(c1.a / factor)); }
-	inline bgra operator& (const bgra& c1, const bgra& c2) noexcept { return bgra (c1.r & c2.r, c1.g & c2.g, c1.b & c2.b, c1.a & c2.a); }
-	inline bgra operator| (const bgra& c1, const bgra& c2) noexcept { return bgra (c1.r | c2.r, c1.g | c2.g, c1.b | c2.b, c1.a | c2.a); }
-	inline bgra operator^ (const bgra& c1, const bgra& c2) noexcept { return bgra (c1.r ^ c2.r, c1.g ^ c2.g, c1.b ^ c2.b, c1.a ^ c2.a); }
-	inline bgra operator~ (const bgra& c) noexcept { return bgra (~c.r, ~c.g, ~c.b, ~c.a); }
-	inline bool operator== (const bgra& c1, const bgra& c2) noexcept { return c1.color == c2.color; }
+	inline bgra8 operator+ (const bgra8& c1, const bgra8& c2) noexcept { return bgra8(c1.r + c2.r, c1.g + c2.g, c1.b + c2.b, c1.a + c2.a); }
+	inline bgra8 operator- (const bgra8& c1, const bgra8& c2) noexcept { return bgra8(c1.r - c2.r, c1.g - c2.g, c1.b - c2.b, c1.a - c2.a); }
+	inline bgra8 operator* (const bgra8& c1, const bgra8& c2) noexcept { return bgra8(c1.r * c2.r, c1.g * c2.g, c1.b * c2.b, c1.a * c2.a); }
+	inline bgra8 operator/ (const bgra8& c1, const bgra8& c2) noexcept { return bgra8(c1.r / c2.r, c1.g / c2.g, c1.b / c2.b, c1.a / c2.a); }
+	inline bgra8 operator* (const bgra8& c1, double factor) noexcept { return bgra8((uint8_t)(c1.r * factor), (uint8_t)(c1.g * factor), (uint8_t)(c1.b * factor), (uint8_t)(c1.a * factor)); }
+	inline bgra8 operator/ (const bgra8& c1, double factor) noexcept { return bgra8((uint8_t)(c1.r / factor), (uint8_t)(c1.g / factor), (uint8_t)(c1.b / factor), (uint8_t)(c1.a / factor)); }
+	inline bgra8 operator& (const bgra8& c1, const bgra8& c2) noexcept { return bgra8(c1.r & c2.r, c1.g & c2.g, c1.b & c2.b, c1.a & c2.a); }
+	inline bgra8 operator| (const bgra8& c1, const bgra8& c2) noexcept { return bgra8(c1.r | c2.r, c1.g | c2.g, c1.b | c2.b, c1.a | c2.a); }
+	inline bgra8 operator^ (const bgra8& c1, const bgra8& c2) noexcept { return bgra8(c1.r ^ c2.r, c1.g ^ c2.g, c1.b ^ c2.b, c1.a ^ c2.a); }
+	inline bgra8 operator~ (const bgra8& c) noexcept { return bgra8(~c.r, ~c.g, ~c.b, ~c.a); }
+	inline bool operator== (const bgra8& c1, const bgra8& c2) noexcept { return c1.color == c2.color; }
 
-	struct bgr
+	struct bgr8
 	{
 		union
 		{
 			struct { uint8_t b, g, r; };
 			uint24_t color;
 		};
-		bgr () noexcept = default;
-		inline bgr (uint8_t r, uint8_t g, uint8_t b) noexcept
-			: r (r), g (g), b (b)
+		bgr8() noexcept = default;
+		inline bgr8(uint8_t r, uint8_t g, uint8_t b) noexcept
+			: r(r), g(g), b(b)
 		{ }
-		inline bgr (uint24_t bgr) noexcept
-			: color (bgr)
+		inline bgr8(uint24_t bgr) noexcept
+			: color(bgr)
 		{ }
 
 		inline uint8_t& operator [] (int index) noexcept { return reinterpret_cast<uint8_t*>(this)[index]; }
 		inline const uint8_t& operator [] (int index) const noexcept { return reinterpret_cast<const uint8_t*>(this)[index]; }
 
-		static inline bgr max_color () noexcept { return bgr (255, 255, 255); }
-		static inline bgr min_color () noexcept { return bgr (0, 0, 0); }
+		static inline bgr8 max_color() noexcept { return bgr8(255, 255, 255); }
+		static inline bgr8 min_color() noexcept { return bgr8(0, 0, 0); }
 
-		inline operator rgba () const noexcept;
-		inline operator rgb () const noexcept;
+		inline operator rgba8 () const noexcept;
+		inline operator rgb8 () const noexcept;
 		inline operator rgbaf () const noexcept;
-		inline operator bgra () const noexcept;
+		inline operator bgra8 () const noexcept;
 		inline operator bgra4 () const noexcept;
 		inline operator bgr565 () const noexcept;
 
-		inline operator grayscale () const noexcept;
-		inline operator grayscalef () const noexcept;
+		inline operator r8 () const noexcept;
+		inline operator rf () const noexcept;
 
-		inline operator yuv () const noexcept;
-		inline operator yuva () const noexcept;
+		inline operator yuv8 () const noexcept;
+		inline operator yuva8 () const noexcept;
 
-		inline operator hsv () const noexcept;
-		inline operator hsva () const noexcept;
+		inline operator hsv8 () const noexcept;
+		inline operator hsva8 () const noexcept;
 
-		inline operator color_processor () const noexcept;
+		inline operator colorv () const noexcept;
 
-		inline bgr& operator+= (const bgr& c) noexcept { r += c.r; g += c.g; b += c.b; return *this; }
-		inline bgr& operator-= (const bgr& c) noexcept { r -= c.r; g -= c.g; b -= c.b; return *this; }
-		inline bgr& operator*= (const bgr& c) noexcept { r *= c.r; g *= c.g; b *= c.b; return *this; }
-		inline bgr& operator/= (const bgr& c) noexcept { r /= c.r; g /= c.g; b /= c.b; return *this; }
+		inline bgr8& operator+= (const bgr8& c) noexcept { r += c.r; g += c.g; b += c.b; return *this; }
+		inline bgr8& operator-= (const bgr8& c) noexcept { r -= c.r; g -= c.g; b -= c.b; return *this; }
+		inline bgr8& operator*= (const bgr8& c) noexcept { r *= c.r; g *= c.g; b *= c.b; return *this; }
+		inline bgr8& operator/= (const bgr8& c) noexcept { r /= c.r; g /= c.g; b /= c.b; return *this; }
 	};
-	inline bgr operator+ (const bgr& c1, const bgr& c2) noexcept { return bgr (c1.r + c2.r, c1.g + c2.g, c1.b + c2.b); }
-	inline bgr operator- (const bgr& c1, const bgr& c2) noexcept { return bgr (c1.r - c2.r, c1.g - c2.g, c1.b - c2.b); }
-	inline bgr operator* (const bgr& c1, const bgr& c2) noexcept { return bgr (c1.r * c2.r, c1.g * c2.g, c1.b * c2.b); }
-	inline bgr operator/ (const bgr& c1, const bgr& c2) noexcept { return bgr (c1.r / c2.r, c1.g / c2.g, c1.b / c2.b); }
-	inline bgr operator* (const bgr& c1, double factor) noexcept { return bgr ((uint8_t)(c1.r * factor), (uint8_t)(c1.g * factor), (uint8_t)(c1.b * factor)); }
-	inline bgr operator/ (const bgr& c1, double factor) noexcept { return bgr ((uint8_t)(c1.r / factor), (uint8_t)(c1.g / factor), (uint8_t)(c1.b / factor)); }
-	inline bgr operator& (const bgr& c1, const bgr& c2) noexcept { return bgr (c1.r & c2.r, c1.g & c2.g, c1.b & c2.b); }
-	inline bgr operator| (const bgr& c1, const bgr& c2) noexcept { return bgr (c1.r | c2.r, c1.g | c2.g, c1.b | c2.b); }
-	inline bgr operator^ (const bgr& c1, const bgr& c2) noexcept { return bgr (c1.r ^ c2.r, c1.g ^ c2.g, c1.b ^ c2.b); }
-	inline bgr operator~ (const bgr& c) noexcept { return bgr (~c.r, ~c.g, ~c.b); }
-	inline bool operator== (const bgr& c1, const bgr& c2) noexcept { return c1.color == c2.color; }
+	inline bgr8 operator+ (const bgr8& c1, const bgr8& c2) noexcept { return bgr8(c1.r + c2.r, c1.g + c2.g, c1.b + c2.b); }
+	inline bgr8 operator- (const bgr8& c1, const bgr8& c2) noexcept { return bgr8(c1.r - c2.r, c1.g - c2.g, c1.b - c2.b); }
+	inline bgr8 operator* (const bgr8& c1, const bgr8& c2) noexcept { return bgr8(c1.r * c2.r, c1.g * c2.g, c1.b * c2.b); }
+	inline bgr8 operator/ (const bgr8& c1, const bgr8& c2) noexcept { return bgr8(c1.r / c2.r, c1.g / c2.g, c1.b / c2.b); }
+	inline bgr8 operator* (const bgr8& c1, double factor) noexcept { return bgr8((uint8_t)(c1.r * factor), (uint8_t)(c1.g * factor), (uint8_t)(c1.b * factor)); }
+	inline bgr8 operator/ (const bgr8& c1, double factor) noexcept { return bgr8((uint8_t)(c1.r / factor), (uint8_t)(c1.g / factor), (uint8_t)(c1.b / factor)); }
+	inline bgr8 operator& (const bgr8& c1, const bgr8& c2) noexcept { return bgr8(c1.r & c2.r, c1.g & c2.g, c1.b & c2.b); }
+	inline bgr8 operator| (const bgr8& c1, const bgr8& c2) noexcept { return bgr8(c1.r | c2.r, c1.g | c2.g, c1.b | c2.b); }
+	inline bgr8 operator^ (const bgr8& c1, const bgr8& c2) noexcept { return bgr8(c1.r ^ c2.r, c1.g ^ c2.g, c1.b ^ c2.b); }
+	inline bgr8 operator~ (const bgr8& c) noexcept { return bgr8(~c.r, ~c.g, ~c.b); }
+	inline bool operator== (const bgr8& c1, const bgr8& c2) noexcept { return static_cast<int>(c1.color) == static_cast<int>(c2.color); }
 
 	struct bgra4
 	{
@@ -563,12 +517,12 @@ namespace dseed
 			struct { uint8_t b : 4, g : 4, r : 4, a : 4; };
 			uint16_t color;
 		};
-		bgra4 () noexcept = default;
-		inline bgra4 (uint8_t r, uint8_t g, uint8_t b, uint8_t a = 15) noexcept
-			: r (r), g (g), b (b), a (a)
+		bgra4() noexcept = default;
+		inline bgra4(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 15) noexcept
+			: r(r), g(g), b(b), a(a)
 		{ }
-		inline bgra4 (uint16_t bgra) noexcept
-			: color (bgra)
+		inline bgra4(uint16_t bgra) noexcept
+			: color(bgra)
 		{ }
 
 		inline uint8_t operator [] (int index) const noexcept
@@ -583,42 +537,42 @@ namespace dseed
 			}
 		}
 
-		static inline bgra4 max_color () noexcept { return bgra4 (15, 15, 15, 15); }
-		static inline bgra4 min_color () noexcept { return bgra4 (0, 0, 0, 0); }
+		static inline bgra4 max_color() noexcept { return bgra4(15, 15, 15, 15); }
+		static inline bgra4 min_color() noexcept { return bgra4(0, 0, 0, 0); }
 
-		inline operator rgba () const noexcept;
-		inline operator rgb () const noexcept;
+		inline operator rgba8 () const noexcept;
+		inline operator rgb8 () const noexcept;
 		inline operator rgbaf () const noexcept;
-		inline operator bgra () const noexcept;
-		inline operator bgr () const noexcept;
+		inline operator bgra8 () const noexcept;
+		inline operator bgr8 () const noexcept;
 		inline operator bgr565 () const noexcept;
 
-		inline operator grayscale () const noexcept;
-		inline operator grayscalef () const noexcept;
+		inline operator r8 () const noexcept;
+		inline operator rf () const noexcept;
 
-		inline operator yuv () const noexcept;
-		inline operator yuva () const noexcept;
+		inline operator yuv8 () const noexcept;
+		inline operator yuva8 () const noexcept;
 
-		inline operator hsv () const noexcept;
-		inline operator hsva () const noexcept;
+		inline operator hsv8 () const noexcept;
+		inline operator hsva8 () const noexcept;
 
-		inline operator color_processor () const noexcept;
+		inline operator colorv () const noexcept;
 
 		inline bgra4& operator+= (const bgra4& c) noexcept { r += c.r; g += c.g; b += c.b; a += c.a; return *this; }
 		inline bgra4& operator-= (const bgra4& c) noexcept { r -= c.r; g -= c.g; b -= c.b; a -= c.a; return *this; }
 		inline bgra4& operator*= (const bgra4& c) noexcept { r *= c.r; g *= c.g; b *= c.b; a *= c.a; return *this; }
 		inline bgra4& operator/= (const bgra4& c) noexcept { r /= c.r; g /= c.g; b /= c.b; a /= c.a; return *this; }
 	};
-	inline bgra4 operator+ (const bgra4& c1, const bgra4& c2) noexcept { return bgra4 (c1.r + c2.r, c1.g + c2.g, c1.b + c2.b, c1.a + c2.a); }
-	inline bgra4 operator- (const bgra4& c1, const bgra4& c2) noexcept { return bgra4 (c1.r - c2.r, c1.g - c2.g, c1.b - c2.b, c1.a - c2.a); }
-	inline bgra4 operator* (const bgra4& c1, const bgra4& c2) noexcept { return bgra4 (c1.r * c2.r, c1.g * c2.g, c1.b * c2.b, c1.a * c2.a); }
-	inline bgra4 operator/ (const bgra4& c1, const bgra4& c2) noexcept { return bgra4 (c1.r / c2.r, c1.g / c2.g, c1.b / c2.b, c1.a / c2.a); }
-	inline bgra4 operator* (const bgra4& c1, double factor) noexcept { return bgra4 ((uint8_t)(c1.r * factor), (uint8_t)(c1.g * factor), (uint8_t)(c1.b * factor), (uint8_t)(c1.a * factor)); }
-	inline bgra4 operator/ (const bgra4& c1, double factor) noexcept { return bgra4 ((uint8_t)(c1.r / factor), (uint8_t)(c1.g / factor), (uint8_t)(c1.b / factor), (uint8_t)(c1.a / factor)); }
-	inline bgra4 operator& (const bgra4& c1, const bgra4& c2) noexcept { return bgra4 (c1.r & c2.r, c1.g & c2.g, c1.b & c2.b, c1.a & c2.a); }
-	inline bgra4 operator| (const bgra4& c1, const bgra4& c2) noexcept { return bgra4 (c1.r | c2.r, c1.g | c2.g, c1.b | c2.b, c1.a | c2.a); }
-	inline bgra4 operator^ (const bgra4& c1, const bgra4& c2) noexcept { return bgra4 ((c1.r ^ c2.r) & 0xf, (c1.g ^ c2.g) & 0xf, (c1.b ^ c2.b) & 0xf, (c1.a ^ c2.a) & 0xf); }
-	inline bgra4 operator~ (const bgra4& c) noexcept { return bgra4 ((~c.r) & 0xf, (~c.g) & 0xf, (~c.b) & 0xf, (~c.a) & 0xf); }
+	inline bgra4 operator+ (const bgra4& c1, const bgra4& c2) noexcept { return bgra4(c1.r + c2.r, c1.g + c2.g, c1.b + c2.b, c1.a + c2.a); }
+	inline bgra4 operator- (const bgra4& c1, const bgra4& c2) noexcept { return bgra4(c1.r - c2.r, c1.g - c2.g, c1.b - c2.b, c1.a - c2.a); }
+	inline bgra4 operator* (const bgra4& c1, const bgra4& c2) noexcept { return bgra4(c1.r * c2.r, c1.g * c2.g, c1.b * c2.b, c1.a * c2.a); }
+	inline bgra4 operator/ (const bgra4& c1, const bgra4& c2) noexcept { return bgra4(c1.r / c2.r, c1.g / c2.g, c1.b / c2.b, c1.a / c2.a); }
+	inline bgra4 operator* (const bgra4& c1, double factor) noexcept { return bgra4((uint8_t)(c1.r * factor), (uint8_t)(c1.g * factor), (uint8_t)(c1.b * factor), (uint8_t)(c1.a * factor)); }
+	inline bgra4 operator/ (const bgra4& c1, double factor) noexcept { return bgra4((uint8_t)(c1.r / factor), (uint8_t)(c1.g / factor), (uint8_t)(c1.b / factor), (uint8_t)(c1.a / factor)); }
+	inline bgra4 operator& (const bgra4& c1, const bgra4& c2) noexcept { return bgra4(c1.r & c2.r, c1.g & c2.g, c1.b & c2.b, c1.a & c2.a); }
+	inline bgra4 operator| (const bgra4& c1, const bgra4& c2) noexcept { return bgra4(c1.r | c2.r, c1.g | c2.g, c1.b | c2.b, c1.a | c2.a); }
+	inline bgra4 operator^ (const bgra4& c1, const bgra4& c2) noexcept { return bgra4((c1.r ^ c2.r) & 0xf, (c1.g ^ c2.g) & 0xf, (c1.b ^ c2.b) & 0xf, (c1.a ^ c2.a) & 0xf); }
+	inline bgra4 operator~ (const bgra4& c) noexcept { return bgra4((~c.r) & 0xf, (~c.g) & 0xf, (~c.b) & 0xf, (~c.a) & 0xf); }
 	inline bool operator== (const bgra4& c1, const bgra4& c2) noexcept { return c1.color == c2.color; }
 
 	struct bgr565
@@ -628,12 +582,12 @@ namespace dseed
 			struct { uint8_t b : 5, g : 6, r : 5; };
 			uint16_t color;
 		};
-		bgr565 () noexcept = default;
-		inline bgr565 (uint8_t r, uint8_t g, uint8_t b) noexcept
-			: r (r), g (g), b (b)
+		bgr565() noexcept = default;
+		inline bgr565(uint8_t r, uint8_t g, uint8_t b) noexcept
+			: r(r), g(g), b(b)
 		{ }
-		inline bgr565 (uint16_t bgr) noexcept
-			: color (bgr)
+		inline bgr565(uint16_t bgr) noexcept
+			: color(bgr)
 		{ }
 
 		inline uint8_t operator [] (int index) const noexcept
@@ -647,42 +601,42 @@ namespace dseed
 			}
 		}
 
-		static inline bgr565 max_color () noexcept { return bgr565 (31, 63, 31); }
-		static inline bgr565 min_color () noexcept { return bgr565 (0, 0, 0); }
+		static inline bgr565 max_color() noexcept { return bgr565(31, 63, 31); }
+		static inline bgr565 min_color() noexcept { return bgr565(0, 0, 0); }
 
-		inline operator rgba () const noexcept;
-		inline operator rgb () const noexcept;
+		inline operator rgba8 () const noexcept;
+		inline operator rgb8 () const noexcept;
 		inline operator rgbaf () const noexcept;
-		inline operator bgra () const noexcept;
-		inline operator bgr () const noexcept;
+		inline operator bgra8 () const noexcept;
+		inline operator bgr8 () const noexcept;
 		inline operator bgra4 () const noexcept;
 
-		inline operator grayscale () const noexcept;
-		inline operator grayscalef () const noexcept;
+		inline operator r8 () const noexcept;
+		inline operator rf () const noexcept;
 
-		inline operator yuv () const noexcept;
-		inline operator yuva () const noexcept;
+		inline operator yuv8 () const noexcept;
+		inline operator yuva8 () const noexcept;
 
-		inline operator hsv () const noexcept;
-		inline operator hsva () const noexcept;
+		inline operator hsv8 () const noexcept;
+		inline operator hsva8 () const noexcept;
 
-		inline operator color_processor () const noexcept;
+		inline operator colorv () const noexcept;
 
 		inline bgr565& operator+= (const bgr565& c) noexcept { r += c.r; g += c.g; b += c.b; return *this; }
 		inline bgr565& operator-= (const bgr565& c) noexcept { r -= c.r; g -= c.g; b -= c.b; return *this; }
 		inline bgr565& operator*= (const bgr565& c) noexcept { r *= c.r; g *= c.g; b *= c.b; return *this; }
 		inline bgr565& operator/= (const bgr565& c) noexcept { r /= c.r; g /= c.g; b /= c.b; return *this; }
 	};
-	inline bgr565 operator+ (const bgr565& c1, const bgr565& c2) noexcept { return bgr565 (c1.r + c2.r, c1.g + c2.g, c1.b + c2.b); }
-	inline bgr565 operator- (const bgr565& c1, const bgr565& c2) noexcept { return bgr565 (c1.r - c2.r, c1.g - c2.g, c1.b - c2.b); }
-	inline bgr565 operator* (const bgr565& c1, const bgr565& c2) noexcept { return bgr565 (c1.r * c2.r, c1.g * c2.g, c1.b * c2.b); }
-	inline bgr565 operator/ (const bgr565& c1, const bgr565& c2) noexcept { return bgr565 (c1.r / c2.r, c1.g / c2.g, c1.b / c2.b); }
-	inline bgr565 operator* (const bgr565& c1, double factor) noexcept { return bgr565 ((uint8_t)(c1.r * factor), (uint8_t)(c1.g * factor), (uint8_t)(c1.b * factor)); }
-	inline bgr565 operator/ (const bgr565& c1, double factor) noexcept { return bgr565 ((uint8_t)(c1.r / factor), (uint8_t)(c1.g / factor), (uint8_t)(c1.b / factor)); }
-	inline bgr565 operator& (const bgr565& c1, const bgr565& c2) noexcept { return bgr565 (c1.r & c2.r, c1.g & c2.g, c1.b & c2.b); }
-	inline bgr565 operator| (const bgr565& c1, const bgr565& c2) noexcept { return bgr565 (c1.r | c2.r, c1.g | c2.g, c1.b | c2.b); }
-	inline bgr565 operator^ (const bgr565& c1, const bgr565& c2) noexcept { return bgr565 ((c1.r ^ c2.r) & 0x1f, (c1.g ^ c2.g) & 0x3f, (c1.b ^ c2.b) & 0x1f); }
-	inline bgr565 operator~ (const bgr565& c) noexcept { return bgr565 ((~c.r) & 0x1f, (~c.g) & 0x3f, (~c.b) & 0x1f); }
+	inline bgr565 operator+ (const bgr565& c1, const bgr565& c2) noexcept { return bgr565(c1.r + c2.r, c1.g + c2.g, c1.b + c2.b); }
+	inline bgr565 operator- (const bgr565& c1, const bgr565& c2) noexcept { return bgr565(c1.r - c2.r, c1.g - c2.g, c1.b - c2.b); }
+	inline bgr565 operator* (const bgr565& c1, const bgr565& c2) noexcept { return bgr565(c1.r * c2.r, c1.g * c2.g, c1.b * c2.b); }
+	inline bgr565 operator/ (const bgr565& c1, const bgr565& c2) noexcept { return bgr565(c1.r / c2.r, c1.g / c2.g, c1.b / c2.b); }
+	inline bgr565 operator* (const bgr565& c1, double factor) noexcept { return bgr565((uint8_t)(c1.r * factor), (uint8_t)(c1.g * factor), (uint8_t)(c1.b * factor)); }
+	inline bgr565 operator/ (const bgr565& c1, double factor) noexcept { return bgr565((uint8_t)(c1.r / factor), (uint8_t)(c1.g / factor), (uint8_t)(c1.b / factor)); }
+	inline bgr565 operator& (const bgr565& c1, const bgr565& c2) noexcept { return bgr565(c1.r & c2.r, c1.g & c2.g, c1.b & c2.b); }
+	inline bgr565 operator| (const bgr565& c1, const bgr565& c2) noexcept { return bgr565(c1.r | c2.r, c1.g | c2.g, c1.b | c2.b); }
+	inline bgr565 operator^ (const bgr565& c1, const bgr565& c2) noexcept { return bgr565((c1.r ^ c2.r) & 0x1f, (c1.g ^ c2.g) & 0x3f, (c1.b ^ c2.b) & 0x1f); }
+	inline bgr565 operator~ (const bgr565& c) noexcept { return bgr565((~c.r) & 0x1f, (~c.g) & 0x3f, (~c.b) & 0x1f); }
 	inline bool operator== (const bgr565& c1, const bgr565& c2) noexcept { return c1.color == c2.color; }
 
 #	if COMPILER_MSVC
@@ -703,102 +657,102 @@ namespace dseed
 #		pragma pack (1)
 #	endif
 
-	struct grayscale
+	struct r8
 	{
 		uint8_t color;
-		grayscale () noexcept = default;
-		inline grayscale (uint8_t grayscale) noexcept : color (grayscale) { }
-		inline grayscale (const rgb& rgb) noexcept
-			: color ((uint8_t)maximum (0.0, minimum (255.0, +0.2627 * rgb.r + +0.678 * rgb.g + +0.0593 * rgb.b)))
+		r8() noexcept = default;
+		inline r8(uint8_t grayscale) noexcept : color(grayscale) { }
+		inline r8(const rgb8& rgb) noexcept
+			: color((uint8_t)maximum(0.0, minimum(255.0, +0.2627 * rgb.r + +0.678 * rgb.g + +0.0593 * rgb.b)))
 		{ }
 
 		inline uint8_t& operator [] (int index) noexcept { return reinterpret_cast<uint8_t*>(this)[index]; }
 		inline const uint8_t& operator [] (int index) const noexcept { return reinterpret_cast<const uint8_t*>(this)[index]; }
 
-		static inline grayscale max_color () noexcept { return grayscale (255); }
-		static inline grayscale min_color () noexcept { return grayscale (0); }
+		static inline r8 max_color() noexcept { return r8(255); }
+		static inline r8 min_color() noexcept { return r8(0); }
 
-		inline operator rgba () const noexcept;
-		inline operator rgb () const noexcept;
+		inline operator rgba8 () const noexcept;
+		inline operator rgb8 () const noexcept;
 		inline operator rgbaf () const noexcept;
-		inline operator bgra () const noexcept;
-		inline operator bgr () const noexcept;
+		inline operator bgra8 () const noexcept;
+		inline operator bgr8 () const noexcept;
 		inline operator bgra4 () const noexcept;
 		inline operator bgr565 () const noexcept;
 
-		inline operator grayscalef () const noexcept;
+		inline operator rf () const noexcept;
 
-		inline operator yuv () const noexcept;
-		inline operator yuva () const noexcept;
+		inline operator yuv8 () const noexcept;
+		inline operator yuva8 () const noexcept;
 
-		inline operator hsv () const noexcept;
-		inline operator hsva () const noexcept;
+		inline operator hsv8 () const noexcept;
+		inline operator hsva8 () const noexcept;
 
-		inline operator color_processor () const noexcept;
+		inline operator colorv () const noexcept;
 
-		inline grayscale& operator+= (const grayscale& c) noexcept { color += c.color; return *this; }
-		inline grayscale& operator-= (const grayscale& c) noexcept { color -= c.color; return *this; }
-		inline grayscale& operator*= (const grayscale& c) noexcept { color *= c.color; return *this; }
-		inline grayscale& operator/= (const grayscale& c) noexcept { color /= c.color; return *this; }
+		inline r8& operator+= (const r8& c) noexcept { color += c.color; return *this; }
+		inline r8& operator-= (const r8& c) noexcept { color -= c.color; return *this; }
+		inline r8& operator*= (const r8& c) noexcept { color *= c.color; return *this; }
+		inline r8& operator/= (const r8& c) noexcept { color /= c.color; return *this; }
 	};
-	inline grayscale operator+ (const grayscale& c1, const grayscale& c2) noexcept { return grayscale (c1.color + c2.color); }
-	inline grayscale operator- (const grayscale& c1, const grayscale& c2) noexcept { return grayscale (c1.color - c2.color); }
-	inline grayscale operator* (const grayscale& c1, const grayscale& c2) noexcept { return grayscale (c1.color * c2.color); }
-	inline grayscale operator/ (const grayscale& c1, const grayscale& c2) noexcept { return grayscale (c1.color / c2.color); }
-	inline grayscale operator* (const grayscale& c1, double factor) noexcept { return grayscale ((uint8_t)(c1.color * factor)); }
-	inline grayscale operator/ (const grayscale& c1, double factor) noexcept { return grayscale ((uint8_t)(c1.color / factor)); }
-	inline grayscale operator& (const grayscale& c1, const grayscale& c2) noexcept { return grayscale (c1.color & c2.color); }
-	inline grayscale operator| (const grayscale& c1, const grayscale& c2) noexcept { return grayscale (c1.color | c2.color); }
-	inline grayscale operator^ (const grayscale& c1, const grayscale& c2) noexcept { return grayscale (c1.color ^ c2.color); }
-	inline grayscale operator~ (const grayscale& c) noexcept { return grayscale (~c.color); }
-	inline bool operator== (const grayscale& c1, const grayscale& c2) noexcept { return c1.color == c2.color; }
+	inline r8 operator+ (const r8& c1, const r8& c2) noexcept { return r8(c1.color + c2.color); }
+	inline r8 operator- (const r8& c1, const r8& c2) noexcept { return r8(c1.color - c2.color); }
+	inline r8 operator* (const r8& c1, const r8& c2) noexcept { return r8(c1.color * c2.color); }
+	inline r8 operator/ (const r8& c1, const r8& c2) noexcept { return r8(c1.color / c2.color); }
+	inline r8 operator* (const r8& c1, double factor) noexcept { return r8((uint8_t)(c1.color * factor)); }
+	inline r8 operator/ (const r8& c1, double factor) noexcept { return r8((uint8_t)(c1.color / factor)); }
+	inline r8 operator& (const r8& c1, const r8& c2) noexcept { return r8(c1.color & c2.color); }
+	inline r8 operator| (const r8& c1, const r8& c2) noexcept { return r8(c1.color | c2.color); }
+	inline r8 operator^ (const r8& c1, const r8& c2) noexcept { return r8(c1.color ^ c2.color); }
+	inline r8 operator~ (const r8& c) noexcept { return r8(~c.color); }
+	inline bool operator== (const r8& c1, const r8& c2) noexcept { return c1.color == c2.color; }
 
-	struct grayscalef
+	struct rf
 	{
 		float color;
-		grayscalef () noexcept = default;
-		inline grayscalef (float grayscale) : color (grayscale) { }
-		inline grayscalef (const rgbaf& rgbaf)
-			: color ((float)maximum (0.0, minimum (1.0, (+0.2627 * rgbaf.r + +0.678 * rgbaf.g + +0.0593 * rgbaf.b))))
+		rf() noexcept = default;
+		inline rf(float grayscale) : color(grayscale) { }
+		inline rf(const rgbaf& rgbaf)
+			: color((float)maximum(0.0, minimum(1.0, (+0.2627 * rgbaf.r + +0.678 * rgbaf.g + +0.0593 * rgbaf.b))))
 		{ }
 
 		inline float& operator [] (int index) noexcept { return reinterpret_cast<float*>(this)[index]; }
 		inline const float& operator [] (int index) const noexcept { return reinterpret_cast<const float*>(this)[index]; }
 
-		static inline grayscalef max_color () noexcept { return grayscalef (1); }
-		static inline grayscalef min_color () noexcept { return grayscalef (0); }
+		static inline rf max_color() noexcept { return rf(1); }
+		static inline rf min_color() noexcept { return rf(0); }
 
-		inline operator rgba () const noexcept;
-		inline operator rgb () const noexcept;
+		inline operator rgba8 () const noexcept;
+		inline operator rgb8 () const noexcept;
 		inline operator rgbaf () const noexcept;
-		inline operator bgra () const noexcept;
-		inline operator bgr () const noexcept;
+		inline operator bgra8 () const noexcept;
+		inline operator bgr8 () const noexcept;
 		inline operator bgra4 () const noexcept;
 		inline operator bgr565 () const noexcept;
 
-		inline operator grayscale () const noexcept;
+		inline operator r8 () const noexcept;
 
-		inline operator yuv () const noexcept;
-		inline operator yuva () const noexcept;
+		inline operator yuv8 () const noexcept;
+		inline operator yuva8 () const noexcept;
 
-		inline operator hsv () const noexcept;
-		inline operator hsva () const noexcept;
+		inline operator hsv8 () const noexcept;
+		inline operator hsva8 () const noexcept;
 
-		inline operator color_processor () const noexcept;
+		inline operator colorv () const noexcept;
 
-		inline grayscalef& operator+= (const grayscalef& c) noexcept { color += c.color; return *this; }
-		inline grayscalef& operator-= (const grayscalef& c) noexcept { color -= c.color; return *this; }
-		inline grayscalef& operator*= (const grayscalef& c) noexcept { color *= c.color; return *this; }
-		inline grayscalef& operator/= (const grayscalef& c) noexcept { color /= c.color; return *this; }
+		inline rf& operator+= (const rf& c) noexcept { color += c.color; return *this; }
+		inline rf& operator-= (const rf& c) noexcept { color -= c.color; return *this; }
+		inline rf& operator*= (const rf& c) noexcept { color *= c.color; return *this; }
+		inline rf& operator/= (const rf& c) noexcept { color /= c.color; return *this; }
 	};
-	inline grayscalef operator+ (const grayscalef& c1, const grayscalef& c2) noexcept { return grayscalef (c1.color + c2.color); }
-	inline grayscalef operator- (const grayscalef& c1, const grayscalef& c2) noexcept { return grayscalef (c1.color - c2.color); }
-	inline grayscalef operator- (const grayscalef& c) noexcept { return grayscalef (-c.color); }
-	inline grayscalef operator* (const grayscalef& c1, const grayscalef& c2) noexcept { return grayscalef (c1.color * c2.color); }
-	inline grayscalef operator/ (const grayscalef& c1, const grayscalef& c2) noexcept { return grayscalef (c1.color / c2.color); }
-	inline grayscalef operator* (const grayscalef& c1, double factor) noexcept { return grayscalef ((float)(c1.color * factor)); }
-	inline grayscalef operator/ (const grayscalef& c1, double factor) noexcept { return grayscalef ((float)(c1.color / factor)); }
-	inline bool operator== (const grayscalef& c1, const grayscalef& c2) noexcept { return c1.color == c2.color; }
+	inline rf operator+ (const rf& c1, const rf& c2) noexcept { return rf(c1.color + c2.color); }
+	inline rf operator- (const rf& c1, const rf& c2) noexcept { return rf(c1.color - c2.color); }
+	inline rf operator- (const rf& c) noexcept { return rf(-c.color); }
+	inline rf operator* (const rf& c1, const rf& c2) noexcept { return rf(c1.color * c2.color); }
+	inline rf operator/ (const rf& c1, const rf& c2) noexcept { return rf(c1.color / c2.color); }
+	inline rf operator* (const rf& c1, double factor) noexcept { return rf((float)(c1.color * factor)); }
+	inline rf operator/ (const rf& c1, double factor) noexcept { return rf((float)(c1.color / factor)); }
+	inline bool operator== (const rf& c1, const rf& c2) noexcept { return c1.color == c2.color; }
 
 #	if COMPILER_MSVC
 #		pragma pack (pop)
@@ -818,117 +772,117 @@ namespace dseed
 #		pragma pack (1)
 #	endif
 
-	struct yuva
+	struct yuva8
 	{
 		union
 		{
 			struct { uint8_t v, u, y, a; };
 			uint32_t color;
 		};
-		yuva () = default;
-		inline yuva (uint8_t y, uint8_t u, uint8_t v, uint8_t a = 255) noexcept
-			: y (y), u (u), v (v), a (a)
+		yuva8() = default;
+		inline yuva8(uint8_t y, uint8_t u, uint8_t v, uint8_t a = 255) noexcept
+			: y(y), u(u), v(v), a(a)
 		{ }
-		inline yuva (uint32_t yuva) noexcept
-			: color (yuva)
+		inline yuva8(uint32_t yuva) noexcept
+			: color(yuva)
 		{ }
 
 		inline uint8_t& operator [] (int index) noexcept { return reinterpret_cast<uint8_t*>(this)[index]; }
 		inline const uint8_t& operator [] (int index) const noexcept { return reinterpret_cast<const uint8_t*>(this)[index]; }
 
-		static inline yuva max_color () noexcept { return yuva (255, 255, 255, 255); }
-		static inline yuva min_color () noexcept { return yuva (0); }
+		static inline yuva8 max_color() noexcept { return yuva8(255, 255, 255, 255); }
+		static inline yuva8 min_color() noexcept { return yuva8(0); }
 
-		inline operator rgba () const noexcept;
-		inline operator rgb () const noexcept;
+		inline operator rgba8 () const noexcept;
+		inline operator rgb8 () const noexcept;
 		inline operator rgbaf () const noexcept;
-		inline operator bgra () const noexcept;
-		inline operator bgr () const noexcept;
+		inline operator bgra8 () const noexcept;
+		inline operator bgr8 () const noexcept;
 		inline operator bgra4 () const noexcept;
 		inline operator bgr565 () const noexcept;
 
-		inline operator grayscale () const noexcept;
-		inline operator grayscalef () const noexcept;
+		inline operator r8 () const noexcept;
+		inline operator rf () const noexcept;
 
-		inline operator yuv () const noexcept;
+		inline operator yuv8 () const noexcept;
 
-		inline operator hsv () const noexcept;
-		inline operator hsva () const noexcept;
+		inline operator hsv8 () const noexcept;
+		inline operator hsva8 () const noexcept;
 
-		inline operator color_processor () const noexcept;
+		inline operator colorv () const noexcept;
 
-		inline yuva& operator+= (const yuva& c) noexcept { y += c.y; u += c.u; v += c.v; a += c.a; return *this; }
-		inline yuva& operator-= (const yuva& c) noexcept { y -= c.y; u -= c.u; v -= c.v; a -= c.a; return *this; }
-		inline yuva& operator*= (const yuva& c) noexcept { y *= c.y; u *= c.u; v *= c.v; a *= c.a; return *this; }
-		inline yuva& operator/= (const yuva& c) noexcept { y /= c.y; u /= c.u; v /= c.v; a /= c.a; return *this; }
+		inline yuva8& operator+= (const yuva8& c) noexcept { y += c.y; u += c.u; v += c.v; a += c.a; return *this; }
+		inline yuva8& operator-= (const yuva8& c) noexcept { y -= c.y; u -= c.u; v -= c.v; a -= c.a; return *this; }
+		inline yuva8& operator*= (const yuva8& c) noexcept { y *= c.y; u *= c.u; v *= c.v; a *= c.a; return *this; }
+		inline yuva8& operator/= (const yuva8& c) noexcept { y /= c.y; u /= c.u; v /= c.v; a /= c.a; return *this; }
 	};
-	inline yuva operator+ (const yuva& c1, const yuva& c2) noexcept { return yuva (c1.y + c2.y, c1.u + c2.u, c1.v + c2.v, c1.a + c2.a); }
-	inline yuva operator- (const yuva& c1, const yuva& c2) noexcept { return yuva (c1.y - c2.y, c1.u - c2.u, c1.v - c2.v, c1.a - c2.a); }
-	inline yuva operator* (const yuva& c1, const yuva& c2) noexcept { return yuva (c1.y * c2.y, c1.u * c2.u, c1.v * c2.v, c1.a * c2.a); }
-	inline yuva operator/ (const yuva& c1, const yuva& c2) noexcept { return yuva (c1.y / c2.y, c1.u / c2.u, c1.v / c2.v, c1.a / c2.a); }
-	inline yuva operator* (const yuva& c1, double factor) noexcept { return yuva ((uint8_t)(c1.y * factor), (uint8_t)(c1.u * factor), (uint8_t)(c1.v * factor), (uint8_t)(c1.a * factor)); }
-	inline yuva operator/ (const yuva& c1, double factor) noexcept { return yuva ((uint8_t)(c1.y / factor), (uint8_t)(c1.u / factor), (uint8_t)(c1.v / factor), (uint8_t)(c1.a / factor)); }
-	inline yuva operator& (const yuva& c1, const yuva& c2) noexcept { return yuva (c1.y & c2.y, c1.u & c2.u, c1.v & c2.v, c1.a & c2.a); }
-	inline yuva operator| (const yuva& c1, const yuva& c2) noexcept { return yuva (c1.y | c2.y, c1.u | c2.u, c1.v | c2.v, c1.a | c2.a); }
-	inline yuva operator^ (const yuva& c1, const yuva& c2) noexcept { return yuva (c1.y ^ c2.y, c1.u ^ c2.u, c1.v ^ c2.v, c1.a ^ c2.a); }
-	inline yuva operator~ (const yuva& c) noexcept { return yuva (~c.y, ~c.u, ~c.v, ~c.a); }
-	inline bool operator== (const yuva& c1, const yuva& c2) noexcept { return c1.color == c2.color; }
+	inline yuva8 operator+ (const yuva8& c1, const yuva8& c2) noexcept { return yuva8(c1.y + c2.y, c1.u + c2.u, c1.v + c2.v, c1.a + c2.a); }
+	inline yuva8 operator- (const yuva8& c1, const yuva8& c2) noexcept { return yuva8(c1.y - c2.y, c1.u - c2.u, c1.v - c2.v, c1.a - c2.a); }
+	inline yuva8 operator* (const yuva8& c1, const yuva8& c2) noexcept { return yuva8(c1.y * c2.y, c1.u * c2.u, c1.v * c2.v, c1.a * c2.a); }
+	inline yuva8 operator/ (const yuva8& c1, const yuva8& c2) noexcept { return yuva8(c1.y / c2.y, c1.u / c2.u, c1.v / c2.v, c1.a / c2.a); }
+	inline yuva8 operator* (const yuva8& c1, double factor) noexcept { return yuva8((uint8_t)(c1.y * factor), (uint8_t)(c1.u * factor), (uint8_t)(c1.v * factor), (uint8_t)(c1.a * factor)); }
+	inline yuva8 operator/ (const yuva8& c1, double factor) noexcept { return yuva8((uint8_t)(c1.y / factor), (uint8_t)(c1.u / factor), (uint8_t)(c1.v / factor), (uint8_t)(c1.a / factor)); }
+	inline yuva8 operator& (const yuva8& c1, const yuva8& c2) noexcept { return yuva8(c1.y & c2.y, c1.u & c2.u, c1.v & c2.v, c1.a & c2.a); }
+	inline yuva8 operator| (const yuva8& c1, const yuva8& c2) noexcept { return yuva8(c1.y | c2.y, c1.u | c2.u, c1.v | c2.v, c1.a | c2.a); }
+	inline yuva8 operator^ (const yuva8& c1, const yuva8& c2) noexcept { return yuva8(c1.y ^ c2.y, c1.u ^ c2.u, c1.v ^ c2.v, c1.a ^ c2.a); }
+	inline yuva8 operator~ (const yuva8& c) noexcept { return yuva8(~c.y, ~c.u, ~c.v, ~c.a); }
+	inline bool operator== (const yuva8& c1, const yuva8& c2) noexcept { return c1.color == c2.color; }
 
-	struct yuv
+	struct yuv8
 	{
 		union
 		{
 			struct { uint8_t y, u, v; };
 			uint24_t color;
 		};
-		yuv () noexcept = default;
-		inline yuv (uint8_t y, uint8_t u, uint8_t v) noexcept
-			: y (y), u (u), v (v)
+		yuv8() noexcept = default;
+		inline yuv8(uint8_t y, uint8_t u, uint8_t v) noexcept
+			: y(y), u(u), v(v)
 		{ }
-		inline yuv (uint24_t yuv) noexcept
-			: color (yuv)
+		inline yuv8(uint24_t yuv) noexcept
+			: color(yuv)
 		{ }
 
 		inline uint8_t& operator [] (int index) noexcept { return reinterpret_cast<uint8_t*>(this)[index]; }
 		inline const uint8_t& operator [] (int index) const noexcept { return reinterpret_cast<const uint8_t*>(this)[index]; }
 
-		static inline yuv max_color () noexcept { return yuv (255, 255, 255); }
-		static inline yuv min_color () noexcept { return yuv (0); }
+		static inline yuv8 max_color() noexcept { return yuv8(255, 255, 255); }
+		static inline yuv8 min_color() noexcept { return yuv8(0); }
 
-		inline operator rgba () const noexcept;
-		inline operator rgb () const noexcept;
+		inline operator rgba8 () const noexcept;
+		inline operator rgb8 () const noexcept;
 		inline operator rgbaf () const noexcept;
-		inline operator bgra () const noexcept;
-		inline operator bgr () const noexcept;
+		inline operator bgra8 () const noexcept;
+		inline operator bgr8 () const noexcept;
 		inline operator bgra4 () const noexcept;
 		inline operator bgr565 () const noexcept;
 
-		inline operator grayscale () const noexcept;
-		inline operator grayscalef () const noexcept;
+		inline operator r8 () const noexcept;
+		inline operator rf () const noexcept;
 
-		inline operator yuva () const noexcept;
+		inline operator yuva8 () const noexcept;
 
-		inline operator hsv () const noexcept;
-		inline operator hsva () const noexcept;
+		inline operator hsv8 () const noexcept;
+		inline operator hsva8 () const noexcept;
 
-		inline operator color_processor () const noexcept;
+		inline operator colorv () const noexcept;
 
-		inline yuv& operator+= (const yuv& c) noexcept { y += c.y; u += c.u; v += c.v; return *this; }
-		inline yuv& operator-= (const yuv& c) noexcept { y -= c.y; u -= c.u; v -= c.v; return *this; }
-		inline yuv& operator*= (const yuv& c) noexcept { y *= c.y; u *= c.u; v *= c.v; return *this; }
-		inline yuv& operator/= (const yuv& c) noexcept { y /= c.y; u /= c.u; v /= c.v; return *this; }
+		inline yuv8& operator+= (const yuv8& c) noexcept { y += c.y; u += c.u; v += c.v; return *this; }
+		inline yuv8& operator-= (const yuv8& c) noexcept { y -= c.y; u -= c.u; v -= c.v; return *this; }
+		inline yuv8& operator*= (const yuv8& c) noexcept { y *= c.y; u *= c.u; v *= c.v; return *this; }
+		inline yuv8& operator/= (const yuv8& c) noexcept { y /= c.y; u /= c.u; v /= c.v; return *this; }
 	};
-	inline yuv operator+ (const yuv& c1, const yuv& c2) noexcept { return yuv (c1.y + c2.y, c1.u + c2.u, c1.v + c2.v); }
-	inline yuv operator- (const yuv& c1, const yuv& c2) noexcept { return yuv (c1.y - c2.y, c1.u - c2.u, c1.v - c2.v); }
-	inline yuv operator* (const yuv& c1, const yuv& c2) noexcept { return yuv (c1.y * c2.y, c1.u * c2.u, c1.v * c2.v); }
-	inline yuv operator/ (const yuv& c1, const yuv& c2) noexcept { return yuv (c1.y / c2.y, c1.u / c2.u, c1.v / c2.v); }
-	inline yuv operator* (const yuv& c1, double factor) noexcept { return yuv ((uint8_t)(c1.y * factor), (uint8_t)(c1.u * factor), (uint8_t)(c1.v * factor)); }
-	inline yuv operator/ (const yuv& c1, double factor) noexcept { return yuv ((uint8_t)(c1.y / factor), (uint8_t)(c1.u / factor), (uint8_t)(c1.v / factor)); }
-	inline yuv operator& (const yuv& c1, const yuv& c2) noexcept { return yuv (c1.y & c2.y, c1.u & c2.u, c1.v & c2.v); }
-	inline yuv operator| (const yuv& c1, const yuv& c2) noexcept { return yuv (c1.y | c2.y, c1.u | c2.u, c1.v | c2.v); }
-	inline yuv operator^ (const yuv& c1, const yuv& c2) noexcept { return yuv (c1.y ^ c2.y, c1.u ^ c2.u, c1.v ^ c2.v); }
-	inline yuv operator~ (const yuv& c) noexcept { return yuv (~c.y, ~c.u, ~c.v); }
-	inline bool operator== (const yuv& c1, const yuv& c2) noexcept { return c1.color == c2.color; }
+	inline yuv8 operator+ (const yuv8& c1, const yuv8& c2) noexcept { return yuv8(c1.y + c2.y, c1.u + c2.u, c1.v + c2.v); }
+	inline yuv8 operator- (const yuv8& c1, const yuv8& c2) noexcept { return yuv8(c1.y - c2.y, c1.u - c2.u, c1.v - c2.v); }
+	inline yuv8 operator* (const yuv8& c1, const yuv8& c2) noexcept { return yuv8(c1.y * c2.y, c1.u * c2.u, c1.v * c2.v); }
+	inline yuv8 operator/ (const yuv8& c1, const yuv8& c2) noexcept { return yuv8(c1.y / c2.y, c1.u / c2.u, c1.v / c2.v); }
+	inline yuv8 operator* (const yuv8& c1, double factor) noexcept { return yuv8((uint8_t)(c1.y * factor), (uint8_t)(c1.u * factor), (uint8_t)(c1.v * factor)); }
+	inline yuv8 operator/ (const yuv8& c1, double factor) noexcept { return yuv8((uint8_t)(c1.y / factor), (uint8_t)(c1.u / factor), (uint8_t)(c1.v / factor)); }
+	inline yuv8 operator& (const yuv8& c1, const yuv8& c2) noexcept { return yuv8(c1.y & c2.y, c1.u & c2.u, c1.v & c2.v); }
+	inline yuv8 operator| (const yuv8& c1, const yuv8& c2) noexcept { return yuv8(c1.y | c2.y, c1.u | c2.u, c1.v | c2.v); }
+	inline yuv8 operator^ (const yuv8& c1, const yuv8& c2) noexcept { return yuv8(c1.y ^ c2.y, c1.u ^ c2.u, c1.v ^ c2.v); }
+	inline yuv8 operator~ (const yuv8& c) noexcept { return yuv8(~c.y, ~c.u, ~c.v); }
+	inline bool operator== (const yuv8& c1, const yuv8& c2) noexcept { return static_cast<int>(c1.color) == static_cast<int>(c2.color); }
 
 #	if COMPILER_MSVC
 #		pragma pack (pop)
@@ -948,117 +902,117 @@ namespace dseed
 #		pragma pack (1)
 #	endif
 
-	struct hsva
+	struct hsva8
 	{
 		union
 		{
 			struct { uint8_t h, s, v, a; };
 			uint32_t color;
 		};
-		hsva () = default;
-		inline hsva (uint8_t h, uint8_t s, uint8_t v, uint8_t a = 255) noexcept
-			: h (h), s (s), v (v), a (a)
+		hsva8() = default;
+		inline hsva8(uint8_t h, uint8_t s, uint8_t v, uint8_t a = 255) noexcept
+			: h(h), s(s), v(v), a(a)
 		{ }
-		inline hsva (uint32_t hsva) noexcept
-			: color (hsva)
+		inline hsva8(uint32_t hsva) noexcept
+			: color(hsva)
 		{ }
 
 		inline uint8_t& operator [] (int index) noexcept { return reinterpret_cast<uint8_t*>(this)[index]; }
 		inline const uint8_t& operator [] (int index) const noexcept { return reinterpret_cast<const uint8_t*>(this)[index]; }
 
-		static inline hsva max_color () noexcept { return hsva (255, 255, 255, 255); }
-		static inline hsva min_color () noexcept { return hsva (0, 0, 0, 0); }
+		static inline hsva8 max_color() noexcept { return hsva8(255, 255, 255, 255); }
+		static inline hsva8 min_color() noexcept { return hsva8(0, 0, 0, 0); }
 
-		inline operator rgba () const noexcept;
-		inline operator rgb () const noexcept;
+		inline operator rgba8 () const noexcept;
+		inline operator rgb8 () const noexcept;
 		inline operator rgbaf () const noexcept;
-		inline operator bgra () const noexcept;
-		inline operator bgr () const noexcept;
+		inline operator bgra8 () const noexcept;
+		inline operator bgr8 () const noexcept;
 		inline operator bgra4 () const noexcept;
 		inline operator bgr565 () const noexcept;
 
-		inline operator grayscale () const noexcept;
-		inline operator grayscalef () const noexcept;
+		inline operator r8 () const noexcept;
+		inline operator rf () const noexcept;
 
-		inline operator yuva () const noexcept;
-		inline operator yuv () const noexcept;
+		inline operator yuva8 () const noexcept;
+		inline operator yuv8 () const noexcept;
 
-		inline operator hsv () const noexcept;
+		inline operator hsv8 () const noexcept;
 
-		inline operator color_processor () const noexcept;
+		inline operator colorv () const noexcept;
 
-		inline hsva& operator+= (const hsva& c) noexcept { h += c.h; s += c.s; v += c.v; a += c.a; return *this; }
-		inline hsva& operator-= (const hsva& c) noexcept { h -= c.h; s -= c.s; v -= c.v; a -= c.a; return *this; }
-		inline hsva& operator*= (const hsva& c) noexcept { h *= c.h; s *= c.s; v *= c.v; a *= c.a; return *this; }
-		inline hsva& operator/= (const hsva& c) noexcept { h /= c.h; s /= c.s; v /= c.v; a /= c.a; return *this; }
+		inline hsva8& operator+= (const hsva8& c) noexcept { h += c.h; s += c.s; v += c.v; a += c.a; return *this; }
+		inline hsva8& operator-= (const hsva8& c) noexcept { h -= c.h; s -= c.s; v -= c.v; a -= c.a; return *this; }
+		inline hsva8& operator*= (const hsva8& c) noexcept { h *= c.h; s *= c.s; v *= c.v; a *= c.a; return *this; }
+		inline hsva8& operator/= (const hsva8& c) noexcept { h /= c.h; s /= c.s; v /= c.v; a /= c.a; return *this; }
 	};
-	inline hsva operator+ (const hsva& c1, const hsva& c2) noexcept { return hsva (c1.h + c2.h, c1.s + c2.s, c1.v + c2.v, c1.a + c2.a); }
-	inline hsva operator- (const hsva& c1, const hsva& c2) noexcept { return hsva (c1.h - c2.h, c1.s - c2.s, c1.v - c2.v, c1.a - c2.a); }
-	inline hsva operator* (const hsva& c1, const hsva& c2) noexcept { return hsva (c1.h * c2.h, c1.s * c2.s, c1.v * c2.v, c1.a * c2.a); }
-	inline hsva operator/ (const hsva& c1, const hsva& c2) noexcept { return hsva (c1.h / c2.h, c1.s / c2.s, c1.v / c2.v, c1.a / c2.a); }
-	inline hsva operator* (const hsva& c1, double factor) noexcept { return hsva ((uint8_t)(c1.h * factor), (uint8_t)(c1.s * factor), (uint8_t)(c1.v * factor), (uint8_t)(c1.a * factor)); }
-	inline hsva operator/ (const hsva& c1, double factor) noexcept { return hsva ((uint8_t)(c1.h / factor), (uint8_t)(c1.s / factor), (uint8_t)(c1.v / factor), (uint8_t)(c1.a / factor)); }
-	inline hsva operator& (const hsva& c1, const hsva& c2) noexcept { return hsva (c1.h & c2.h, c1.s & c2.s, c1.v & c2.v, c1.a & c2.a); }
-	inline hsva operator| (const hsva& c1, const hsva& c2) noexcept { return hsva (c1.h | c2.h, c1.s | c2.s, c1.v | c2.v, c1.a | c2.a); }
-	inline hsva operator^ (const hsva& c1, const hsva& c2) noexcept { return hsva (c1.h ^ c2.h, c1.s ^ c2.s, c1.v ^ c2.v, c1.a ^ c2.a); }
-	inline hsva operator~ (const hsva& c) noexcept { return hsva (~c.h, ~c.s, ~c.v, ~c.a); }
-	inline bool operator== (const hsva& c1, const hsva& c2) noexcept { return c1.color == c2.color; }
+	inline hsva8 operator+ (const hsva8& c1, const hsva8& c2) noexcept { return hsva8(c1.h + c2.h, c1.s + c2.s, c1.v + c2.v, c1.a + c2.a); }
+	inline hsva8 operator- (const hsva8& c1, const hsva8& c2) noexcept { return hsva8(c1.h - c2.h, c1.s - c2.s, c1.v - c2.v, c1.a - c2.a); }
+	inline hsva8 operator* (const hsva8& c1, const hsva8& c2) noexcept { return hsva8(c1.h * c2.h, c1.s * c2.s, c1.v * c2.v, c1.a * c2.a); }
+	inline hsva8 operator/ (const hsva8& c1, const hsva8& c2) noexcept { return hsva8(c1.h / c2.h, c1.s / c2.s, c1.v / c2.v, c1.a / c2.a); }
+	inline hsva8 operator* (const hsva8& c1, double factor) noexcept { return hsva8((uint8_t)(c1.h * factor), (uint8_t)(c1.s * factor), (uint8_t)(c1.v * factor), (uint8_t)(c1.a * factor)); }
+	inline hsva8 operator/ (const hsva8& c1, double factor) noexcept { return hsva8((uint8_t)(c1.h / factor), (uint8_t)(c1.s / factor), (uint8_t)(c1.v / factor), (uint8_t)(c1.a / factor)); }
+	inline hsva8 operator& (const hsva8& c1, const hsva8& c2) noexcept { return hsva8(c1.h & c2.h, c1.s & c2.s, c1.v & c2.v, c1.a & c2.a); }
+	inline hsva8 operator| (const hsva8& c1, const hsva8& c2) noexcept { return hsva8(c1.h | c2.h, c1.s | c2.s, c1.v | c2.v, c1.a | c2.a); }
+	inline hsva8 operator^ (const hsva8& c1, const hsva8& c2) noexcept { return hsva8(c1.h ^ c2.h, c1.s ^ c2.s, c1.v ^ c2.v, c1.a ^ c2.a); }
+	inline hsva8 operator~ (const hsva8& c) noexcept { return hsva8(~c.h, ~c.s, ~c.v, ~c.a); }
+	inline bool operator== (const hsva8& c1, const hsva8& c2) noexcept { return c1.color == c2.color; }
 
-	struct hsv
+	struct hsv8
 	{
 		union
 		{
 			struct { uint8_t h, s, v; };
 			uint24_t color;
 		};
-		hsv () noexcept = default;
-		inline hsv (uint8_t h, uint8_t s, uint8_t v) noexcept
-			: h (h), s (s), v (v)
+		hsv8() noexcept = default;
+		inline hsv8(uint8_t h, uint8_t s, uint8_t v) noexcept
+			: h(h), s(s), v(v)
 		{ }
-		inline hsv (uint24_t hsv) noexcept
-			: color (hsv)
+		inline hsv8(uint24_t hsv) noexcept
+			: color(hsv)
 		{ }
 
 		inline uint8_t& operator [] (int index) noexcept { return reinterpret_cast<uint8_t*>(this)[index]; }
 		inline const uint8_t& operator [] (int index) const noexcept { return reinterpret_cast<const uint8_t*>(this)[index]; }
 
-		static inline hsv max_color () noexcept { return hsv (255, 255, 255); }
-		static inline hsv min_color () noexcept { return hsv (0, 0, 0); }
+		static inline hsv8 max_color() noexcept { return hsv8(255, 255, 255); }
+		static inline hsv8 min_color() noexcept { return hsv8(0, 0, 0); }
 
-		inline operator rgba () const noexcept;
-		inline operator rgb () const noexcept;
+		inline operator rgba8 () const noexcept;
+		inline operator rgb8 () const noexcept;
 		inline operator rgbaf () const noexcept;
-		inline operator bgra () const noexcept;
-		inline operator bgr () const noexcept;
+		inline operator bgra8 () const noexcept;
+		inline operator bgr8 () const noexcept;
 		inline operator bgra4 () const noexcept;
 		inline operator bgr565 () const noexcept;
 
-		inline operator grayscale () const noexcept;
-		inline operator grayscalef () const noexcept;
+		inline operator r8 () const noexcept;
+		inline operator rf () const noexcept;
 
-		inline operator yuva () const noexcept;
-		inline operator yuv () const noexcept;
+		inline operator yuva8 () const noexcept;
+		inline operator yuv8 () const noexcept;
 
-		inline operator hsva () const noexcept;
+		inline operator hsva8 () const noexcept;
 
-		inline operator color_processor () const noexcept;
+		inline operator colorv () const noexcept;
 
-		inline hsv& operator+= (const hsv& c) noexcept { h += c.h; s += c.s; v += c.v; return *this; }
-		inline hsv& operator-= (const hsv& c) noexcept { h -= c.h; s -= c.s; v -= c.v; return *this; }
-		inline hsv& operator*= (const hsv& c) noexcept { h *= c.h; s *= c.s; v *= c.v; return *this; }
-		inline hsv& operator/= (const hsv& c) noexcept { h /= c.h; s /= c.s; v /= c.v; return *this; }
+		inline hsv8& operator+= (const hsv8& c) noexcept { h += c.h; s += c.s; v += c.v; return *this; }
+		inline hsv8& operator-= (const hsv8& c) noexcept { h -= c.h; s -= c.s; v -= c.v; return *this; }
+		inline hsv8& operator*= (const hsv8& c) noexcept { h *= c.h; s *= c.s; v *= c.v; return *this; }
+		inline hsv8& operator/= (const hsv8& c) noexcept { h /= c.h; s /= c.s; v /= c.v; return *this; }
 	};
-	inline hsv operator+ (const hsv& c1, const hsv& c2) noexcept { return hsv (c1.h + c2.h, c1.s + c2.s, c1.v + c2.v); }
-	inline hsv operator- (const hsv& c1, const hsv& c2) noexcept { return hsv (c1.h - c2.h, c1.s - c2.s, c1.v - c2.v); }
-	inline hsv operator* (const hsv& c1, const hsv& c2) noexcept { return hsv (c1.h * c2.h, c1.s * c2.s, c1.v * c2.v); }
-	inline hsv operator/ (const hsv& c1, const hsv& c2) noexcept { return hsv (c1.h / c2.h, c1.s / c2.s, c1.v / c2.v); }
-	inline hsv operator* (const hsv& c1, double factor) noexcept { return hsv ((uint8_t)(c1.h * factor), (uint8_t)(c1.s * factor), (uint8_t)(c1.v * factor)); }
-	inline hsv operator/ (const hsv& c1, double factor) noexcept { return hsv ((uint8_t)(c1.h / factor), (uint8_t)(c1.s / factor), (uint8_t)(c1.v / factor)); }
-	inline hsv operator& (const hsv& c1, const hsv& c2) noexcept { return hsv (c1.h & c2.h, c1.s & c2.s, c1.v & c2.v); }
-	inline hsv operator| (const hsv& c1, const hsv& c2) noexcept { return hsv (c1.h | c2.h, c1.s | c2.s, c1.v | c2.v); }
-	inline hsv operator^ (const hsv& c1, const hsv& c2) noexcept { return hsv (c1.h ^ c2.h, c1.s ^ c2.s, c1.v ^ c2.v); }
-	inline hsv operator~ (const hsv& c) noexcept { return hsv (~c.h, ~c.s, ~c.v); }
-	inline bool operator== (const hsv& c1, const hsv& c2) noexcept { return c1.color == c2.color; }
+	inline hsv8 operator+ (const hsv8& c1, const hsv8& c2) noexcept { return hsv8(c1.h + c2.h, c1.s + c2.s, c1.v + c2.v); }
+	inline hsv8 operator- (const hsv8& c1, const hsv8& c2) noexcept { return hsv8(c1.h - c2.h, c1.s - c2.s, c1.v - c2.v); }
+	inline hsv8 operator* (const hsv8& c1, const hsv8& c2) noexcept { return hsv8(c1.h * c2.h, c1.s * c2.s, c1.v * c2.v); }
+	inline hsv8 operator/ (const hsv8& c1, const hsv8& c2) noexcept { return hsv8(c1.h / c2.h, c1.s / c2.s, c1.v / c2.v); }
+	inline hsv8 operator* (const hsv8& c1, double factor) noexcept { return hsv8((uint8_t)(c1.h * factor), (uint8_t)(c1.s * factor), (uint8_t)(c1.v * factor)); }
+	inline hsv8 operator/ (const hsv8& c1, double factor) noexcept { return hsv8((uint8_t)(c1.h / factor), (uint8_t)(c1.s / factor), (uint8_t)(c1.v / factor)); }
+	inline hsv8 operator& (const hsv8& c1, const hsv8& c2) noexcept { return hsv8(c1.h & c2.h, c1.s & c2.s, c1.v & c2.v); }
+	inline hsv8 operator| (const hsv8& c1, const hsv8& c2) noexcept { return hsv8(c1.h | c2.h, c1.s | c2.s, c1.v | c2.v); }
+	inline hsv8 operator^ (const hsv8& c1, const hsv8& c2) noexcept { return hsv8(c1.h ^ c2.h, c1.s ^ c2.s, c1.v ^ c2.v); }
+	inline hsv8 operator~ (const hsv8& c) noexcept { return hsv8(~c.h, ~c.s, ~c.v); }
+	inline bool operator== (const hsv8& c1, const hsv8& c2) noexcept { return static_cast<int>(c1.color) == static_cast<int>(c2.color); }
 
 #	if COMPILER_MSVC
 #		pragma pack (pop)
@@ -1072,65 +1026,75 @@ namespace dseed
 	//
 	////////////////////////////////////////////////////////////////////////////////////////
 
-	struct color_processor
+	struct colorv
 	{
-		float a, b, c, d;
-		color_processor () noexcept : a (0), b (0), c (0), d (0) { }
-		color_processor (float a, float b, float c, float d) noexcept
-			: a (a), b (b), c (c), d (d) { }
+		f32x4_t vector;
 
-		inline float& operator [] (int index) noexcept { return reinterpret_cast<float*>(this)[index]; }
-		inline const float& operator [] (int index) const noexcept { return reinterpret_cast<const float*>(this)[index]; }
+		inline colorv() noexcept : vector((float)0) { }
+		inline colorv(float a, float b, float c, float d) noexcept
+			: vector(a, b, c, d) { }
+		inline colorv(const f32x4_t& v) : vector(v) { }
 
-		inline operator rgba () const noexcept;
-		inline operator rgb () const noexcept;
+		inline float& operator [] (int index) noexcept
+		{
+			return reinterpret_cast<float*>(this)[index];
+		}
+		inline const float& operator [] (int index) const noexcept
+		{
+			return reinterpret_cast<const float*>(this)[index];
+		}
+
+		inline void store(WRITES(4) float* a) const noexcept
+		{
+			f32x4_t::store(a, &vector);
+		}
+
+		inline operator rgba8 () const noexcept;
+		inline operator rgb8 () const noexcept;
 		inline operator rgbaf () const noexcept;
-		inline operator bgra () const noexcept;
-		inline operator bgr () const noexcept;
+		inline operator bgra8 () const noexcept;
+		inline operator bgr8 () const noexcept;
 		inline operator bgra4 () const noexcept;
 		inline operator bgr565 () const noexcept;
 
-		inline operator grayscale () const noexcept;
-		inline operator grayscalef () const noexcept;
+		inline operator r8 () const noexcept;
+		inline operator rf () const noexcept;
 
-		inline operator yuva () const noexcept;
-		inline operator yuv () const noexcept;
+		inline operator yuva8 () const noexcept;
+		inline operator yuv8 () const noexcept;
 
-		inline operator hsva () const noexcept;
-		inline operator hsv () const noexcept;
+		inline operator hsva8 () const noexcept;
+		inline operator hsv8 () const noexcept;
 
-		inline color_processor& operator+= (const color_processor& cp) noexcept { a += cp.a; b += cp.b; c += cp.c; d += cp.d; return *this; }
-		inline color_processor& operator-= (const color_processor& cp) noexcept { a -= cp.a; b -= cp.b; c -= cp.c; d -= cp.d; return *this; }
-		inline color_processor& operator*= (const color_processor& cp) noexcept { a *= cp.a; b *= cp.b; c *= cp.c; d *= cp.d; return *this; }
-		inline color_processor& operator/= (const color_processor& cp) noexcept { a /= cp.a; b /= cp.b; c /= cp.c; d /= cp.d; return *this; }
+		inline colorv& operator+= (const colorv& cp) noexcept { vector = addfv(vector, cp.vector); return *this; }
+		inline colorv& operator-= (const colorv& cp) noexcept { vector = subtractfv(vector, cp.vector); return *this; }
+		inline colorv& operator*= (const colorv& cp) noexcept { vector = multiplyfv(vector, cp.vector); return *this; }
+		inline colorv& operator/= (const colorv& cp) noexcept { vector = dividefv(vector, cp.vector); return *this; }
 
-		inline void restore_alpha (const rgba& oc) noexcept { d = (float)oc.a; }
-		inline void restore_alpha (const rgb& oc) noexcept { }
-		inline void restore_alpha (const rgbaf& oc) noexcept { d = oc.a; }
-		inline void restore_alpha (const bgra& oc) noexcept { d = (float)oc.a; }
-		inline void restore_alpha (const bgr& oc) noexcept { }
-		inline void restore_alpha (const bgra4& oc) noexcept { d = (float)oc.a; }
-		inline void restore_alpha (const bgr565& oc) noexcept { }
-		inline void restore_alpha (const grayscale& oc) noexcept { }
-		inline void restore_alpha (const grayscalef& oc) noexcept { }
-		inline void restore_alpha (const yuva& oc) noexcept { d = (float)oc.a; }
-		inline void restore_alpha (const yuv& oc) noexcept { }
-		inline void restore_alpha (const hsva& oc) noexcept { d = (float)oc.a; }
-		inline void restore_alpha (const hsv& oc) noexcept { }
+		inline void restore_alpha(const rgba8& oc) noexcept { this->operator[](3) = (float)oc.a; }
+		inline void restore_alpha(const rgb8& oc) noexcept { }
+		inline void restore_alpha(const rgbaf& oc) noexcept { this->operator[](3) = oc.a; }
+		inline void restore_alpha(const bgra8& oc) noexcept { this->operator[](3) = (float)oc.a; }
+		inline void restore_alpha(const bgr8& oc) noexcept { }
+		inline void restore_alpha(const bgra4& oc) noexcept { this->operator[](3) = (float)oc.a; }
+		inline void restore_alpha(const bgr565& oc) noexcept { }
+		inline void restore_alpha(const r8& oc) noexcept { }
+		inline void restore_alpha(const rf& oc) noexcept { }
+		inline void restore_alpha(const yuva8& oc) noexcept { this->operator[](3) = (float)oc.a; }
+		inline void restore_alpha(const yuv8& oc) noexcept { }
+		inline void restore_alpha(const hsva8& oc) noexcept { this->operator[](3) = (float)oc.a; }
+		inline void restore_alpha(const hsv8& oc) noexcept { }
 	};
 
-	inline color_processor operator+ (const color_processor& c1, const color_processor& c2) noexcept { return color_processor (c1.a + c2.a, c1.b + c2.b, c1.c + c2.c, c1.d + c2.d); }
-	inline color_processor operator- (const color_processor& c1, const color_processor& c2) noexcept { return color_processor (c1.a - c2.a, c1.b - c2.b, c1.c - c2.c, c1.d - c2.d); }
-	inline color_processor operator- (const color_processor& c) noexcept { return color_processor (-c.a, -c.b, -c.c, -c.d); }
-	inline color_processor operator* (const color_processor& c1, const color_processor& c2) noexcept { return color_processor (c1.a * c2.a, c1.b * c2.b, c1.c * c2.c, c1.d * c2.d); }
-	inline color_processor operator/ (const color_processor& c1, const color_processor& c2) noexcept { return color_processor (c1.a / c2.a, c1.b / c2.b, c1.c / c2.c, c1.d / c2.d); }
-	inline color_processor operator* (const color_processor& c1, double factor) noexcept { return color_processor ((float)(c1.a * factor), (float)(c1.b * factor), (float)(c1.c * factor), (float)(c1.d * factor)); }
-	inline color_processor operator/ (const color_processor& c1, double factor) noexcept { float rf = 1 / (float)factor; return color_processor ((float)(c1.a * rf), (float)(c1.b * rf), (float)(c1.c * rf), (float)(c1.d * rf)); }
-	inline bool operator== (const color_processor& c1, const color_processor& c2) noexcept
-	{
-		vectorf a ((float*)&c1), b ((float*)&c2);
-		return a == b;
-	}
+	inline colorv operator+ (const colorv& c1, const colorv& c2) noexcept { return colorv(addfv(c1.vector, c2.vector)); }
+	inline colorv operator- (const colorv& c1, const colorv& c2) noexcept { return colorv(subtractfv(c1.vector, c2.vector)); }
+	inline colorv operator- (const colorv& c) noexcept { return colorv(negatefv(c.vector)); }
+	inline colorv operator* (const colorv& c1, const colorv& c2) noexcept { return colorv(multiplyfv(c1.vector, c2.vector)); }
+	inline colorv operator/ (const colorv& c1, const colorv& c2) noexcept { return colorv(dividefv(c1.vector, c2.vector)); }
+	inline colorv operator* (const colorv& c1, double factor) noexcept { return colorv(multiplyfv(c1.vector, (float)factor)); }
+	inline colorv operator/ (const colorv& c1, double factor) noexcept { return colorv(dividefv(c1.vector, (float)factor)); }
+	inline bool operator== (const colorv& c1, const colorv& c2) noexcept { return equalsb(c1.vector, c2.vector); }
+	inline bool operator!= (const colorv& c1, const colorv& c2) noexcept { return not_equalsb(c1.vector, c2.vector); }
 
 	////////////////////////////////////////////////////////////////////////////////////////
 	//
@@ -1138,483 +1102,509 @@ namespace dseed
 	//
 	////////////////////////////////////////////////////////////////////////////////////////
 
-	inline rgba::operator rgb() const noexcept { return rgb (r, g, b); }
-	inline rgba::operator rgbaf() const noexcept { return rgbaf (r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f); }
-	inline rgba::operator bgra() const noexcept { return bgra (r, g, b, a); }
-	inline rgba::operator bgr() const noexcept { return bgr (r, g, b); }
-	inline rgba::operator bgra4() const noexcept { return bgra4 (r / 17, g / 17, b / 17, a / 17); }
-	inline rgba::operator bgr565() const noexcept { return bgr565 (r / 8, g / 4, b / 8); }
-	inline rgba::operator grayscale() const noexcept { return grayscale (rgb2y (r, g, b)); }
-	inline rgba::operator grayscalef() const noexcept { return grayscalef (rgb2y (r, g, b) / 255.0f); }
-	inline rgba::operator yuv() const noexcept { return yuv (rgb2y (r, g, b), rgb2u (r, g, b), rgb2v (r, g, b)); }
-	inline rgba::operator yuva() const noexcept { return yuva (rgb2y (r, g, b), rgb2u (r, g, b), rgb2v (r, g, b), a); }
-	inline rgba::operator hsv() const noexcept { uint8_t h, s, v; rgb2hsv (r, g, b, h, s, v); return hsv (h, s, v); }
-	inline rgba::operator hsva() const noexcept { uint8_t h, s, v; rgb2hsv (r, g, b, h, s, v); return hsva (h, s, v, a); }
-	inline rgba::operator color_processor() const noexcept
+	inline rgba8::operator rgb8() const noexcept { return rgb8(r, g, b); }
+	inline rgba8::operator rgbaf() const noexcept { return rgbaf(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f); }
+	inline rgba8::operator bgra8() const noexcept { return bgra8(r, g, b, a); }
+	inline rgba8::operator bgr8() const noexcept { return bgr8(r, g, b); }
+	inline rgba8::operator bgra4() const noexcept { return bgra4(r / 17, g / 17, b / 17, a / 17); }
+	inline rgba8::operator bgr565() const noexcept { return bgr565(r / 8, g / 4, b / 8); }
+	inline rgba8::operator r8() const noexcept { return r8(rgb2y(r, g, b)); }
+	inline rgba8::operator rf() const noexcept { return rf(rgb2y(r, g, b) / 255.0f); }
+	inline rgba8::operator yuv8() const noexcept { return yuv8(rgb2y(r, g, b), rgb2u(r, g, b), rgb2v(r, g, b)); }
+	inline rgba8::operator yuva8() const noexcept { return yuva8(rgb2y(r, g, b), rgb2u(r, g, b), rgb2v(r, g, b), a); }
+	inline rgba8::operator hsv8() const noexcept { uint8_t h, s, v; rgb2hsv(r, g, b, h, s, v); return hsv8(h, s, v); }
+	inline rgba8::operator hsva8() const noexcept { uint8_t h, s, v; rgb2hsv(r, g, b, h, s, v); return hsva8(h, s, v, a); }
+	inline rgba8::operator colorv() const noexcept
 	{
-		return color_processor ((float)r, (float)g, (float)b, (float)a);
+		return colorv((float)r, (float)g, (float)b, (float)a);
 	}
 
-	inline rgb::operator rgba() const noexcept { return rgba (r, g, b, 255); }
-	inline rgb::operator rgbaf() const noexcept { return rgbaf (r / 255.0f, g / 255.0f, b / 255.0f, 1); }
-	inline rgb::operator bgra() const noexcept { return bgra (r, g, b, 255); }
-	inline rgb::operator bgr() const noexcept { return bgr (r, g, b); }
-	inline rgb::operator bgra4() const noexcept { return bgra4 (r / 17, g / 17, b / 17, 15); }
-	inline rgb::operator bgr565() const noexcept { return bgr565 (r / 8, g / 4, b / 8); }
-	inline rgb::operator grayscale() const noexcept { return grayscale (rgb2y (r, g, b)); }
-	inline rgb::operator grayscalef() const noexcept { return grayscalef (rgb2y (r, g, b) / 255.0f); }
-	inline rgb::operator yuv() const noexcept { return yuv (rgb2y (r, g, b), rgb2u (r, g, b), rgb2v (r, g, b)); }
-	inline rgb::operator yuva() const noexcept { return yuva (rgb2y (r, g, b), rgb2u (r, g, b), rgb2v (r, g, b), 255); }
-	inline rgb::operator hsv() const noexcept { uint8_t h, s, v; rgb2hsv (r, g, b, h, s, v); return hsv (h, s, v); }
-	inline rgb::operator hsva() const noexcept { uint8_t h, s, v; rgb2hsv (r, g, b, h, s, v); return hsva (h, s, v, 255); }
-	inline rgb::operator color_processor() const noexcept
+	inline rgb8::operator rgba8() const noexcept { return rgba8(r, g, b, 255); }
+	inline rgb8::operator rgbaf() const noexcept { return rgbaf(r / 255.0f, g / 255.0f, b / 255.0f, 1); }
+	inline rgb8::operator bgra8() const noexcept { return bgra8(r, g, b, 255); }
+	inline rgb8::operator bgr8() const noexcept { return bgr8(r, g, b); }
+	inline rgb8::operator bgra4() const noexcept { return bgra4(r / 17, g / 17, b / 17, 15); }
+	inline rgb8::operator bgr565() const noexcept { return bgr565(r / 8, g / 4, b / 8); }
+	inline rgb8::operator r8() const noexcept { return r8(rgb2y(r, g, b)); }
+	inline rgb8::operator rf() const noexcept { return rf(rgb2y(r, g, b) / 255.0f); }
+	inline rgb8::operator yuv8() const noexcept { return yuv8(rgb2y(r, g, b), rgb2u(r, g, b), rgb2v(r, g, b)); }
+	inline rgb8::operator yuva8() const noexcept { return yuva8(rgb2y(r, g, b), rgb2u(r, g, b), rgb2v(r, g, b), 255); }
+	inline rgb8::operator hsv8() const noexcept { uint8_t h, s, v; rgb2hsv(r, g, b, h, s, v); return hsv8(h, s, v); }
+	inline rgb8::operator hsva8() const noexcept { uint8_t h, s, v; rgb2hsv(r, g, b, h, s, v); return hsva8(h, s, v, 255); }
+	inline rgb8::operator colorv() const noexcept
 	{
-		return color_processor ((float)r, (float)g, (float)b, 0);
+		return colorv((float)r, (float)g, (float)b, 0);
 	}
 
-	inline rgbaf::operator rgba() const noexcept { return rgba ((uint8_t)(r * 255), (uint8_t)(g * 255), (uint8_t)(b * 255), (uint8_t)(a * 255)); }
-	inline rgbaf::operator rgb() const noexcept { return rgb ((uint8_t)r * 255, (uint8_t)g * 255, (uint8_t)(b * 255)); }
-	inline rgbaf::operator bgra() const noexcept { return bgra ((uint8_t)(r * 255), (uint8_t)(g * 255), (uint8_t)(b * 255), (uint8_t)(a * 255)); }
-	inline rgbaf::operator bgr() const noexcept { return bgr ((uint8_t)(r * 255), (uint8_t)(g * 255), (uint8_t)(b * 255)); }
-	inline rgbaf::operator bgra4() const noexcept { return bgra4 ((uint8_t)(r * 15), (uint8_t)(g * 15), (uint8_t)(b * 15), (uint8_t)(a * 15)); }
-	inline rgbaf::operator bgr565() const noexcept { return bgr565 ((uint8_t)(r * 31), (uint8_t)(g * 63), (uint8_t)(b * 31)); }
-	inline rgbaf::operator grayscale() const noexcept { return grayscale (rgb2y ((uint8_t)(r * 255), (uint8_t)(g * 255), (uint8_t)(b * 255))); }
-	inline rgbaf::operator grayscalef() const noexcept { return grayscalef (0.299f * r + 0.587f * g + 0.114f * b); }
-	inline rgbaf::operator yuv() const noexcept { bgr bgr = *this; return (yuv)bgr; }
-	inline rgbaf::operator yuva() const noexcept { bgra bgra = *this; return (yuva)bgra; }
-	inline rgbaf::operator hsv() const noexcept { uint8_t h, s, v; rgb2hsv ((uint8_t)(r * 255), (uint8_t)(g * 255), (uint8_t)(b * 255), h, s, v); return hsv (h, s, v); }
-	inline rgbaf::operator hsva() const noexcept { uint8_t h, s, v; rgb2hsv ((uint8_t)(r * 255), (uint8_t)(g * 255), (uint8_t)(b * 255), h, s, v); return hsva (h, s, v, (uint8_t)(a * 255)); }
-	inline rgbaf::operator color_processor() const noexcept
+	inline rgbaf::operator rgba8() const noexcept { return rgba8((uint8_t)(r * 255), (uint8_t)(g * 255), (uint8_t)(b * 255), (uint8_t)(a * 255)); }
+	inline rgbaf::operator rgb8() const noexcept { return rgb8((uint8_t)r * 255, (uint8_t)g * 255, (uint8_t)(b * 255)); }
+	inline rgbaf::operator bgra8() const noexcept { return bgra8((uint8_t)(r * 255), (uint8_t)(g * 255), (uint8_t)(b * 255), (uint8_t)(a * 255)); }
+	inline rgbaf::operator bgr8() const noexcept { return bgr8((uint8_t)(r * 255), (uint8_t)(g * 255), (uint8_t)(b * 255)); }
+	inline rgbaf::operator bgra4() const noexcept { return bgra4((uint8_t)(r * 15), (uint8_t)(g * 15), (uint8_t)(b * 15), (uint8_t)(a * 15)); }
+	inline rgbaf::operator bgr565() const noexcept { return bgr565((uint8_t)(r * 31), (uint8_t)(g * 63), (uint8_t)(b * 31)); }
+	inline rgbaf::operator r8() const noexcept { return r8(rgb2y((uint8_t)(r * 255), (uint8_t)(g * 255), (uint8_t)(b * 255))); }
+	inline rgbaf::operator rf() const noexcept { return rf(0.299f * r + 0.587f * g + 0.114f * b); }
+	inline rgbaf::operator yuv8() const noexcept { bgr8 bgr = *this; return (yuv8)bgr; }
+	inline rgbaf::operator yuva8() const noexcept { bgra8 bgra = *this; return (yuva8)bgra; }
+	inline rgbaf::operator hsv8() const noexcept { uint8_t h, s, v; rgb2hsv((uint8_t)(r * 255), (uint8_t)(g * 255), (uint8_t)(b * 255), h, s, v); return hsv8(h, s, v); }
+	inline rgbaf::operator hsva8() const noexcept { uint8_t h, s, v; rgb2hsv((uint8_t)(r * 255), (uint8_t)(g * 255), (uint8_t)(b * 255), h, s, v); return hsva8(h, s, v, (uint8_t)(a * 255)); }
+	inline rgbaf::operator colorv() const noexcept
 	{
-		return color_processor (r, g, b, a);
+		return colorv(f32x4_t::load((const float*)this));
 	}
 
-	inline bgra::operator rgba() const noexcept { return rgba (r, g, b, a); }
-	inline bgra::operator rgb() const noexcept { return rgb (r, g, b); }
-	inline bgra::operator rgbaf() const noexcept { return rgbaf (r / 255.0f, g / 255.0f, b / 255.0f); }
-	inline bgra::operator bgr() const noexcept { return bgr (r, g, b); }
-	inline bgra::operator bgra4() const noexcept { return bgra4 (r / 17, g / 17, b / 17, a / 17); }
-	inline bgra::operator bgr565() const noexcept { return bgr565 (r / 8, g / 4, b / 8); }
-	inline bgra::operator grayscale() const noexcept { return grayscale (rgb2y (r, g, b)); }
-	inline bgra::operator grayscalef() const noexcept { return grayscalef (rgb2y (r, g, b) / 255.0f); }
-	inline bgra::operator yuv() const noexcept { return yuv (rgb2y (r, g, b), rgb2u (r, g, b), rgb2v (r, g, b)); }
-	inline bgra::operator yuva() const noexcept { return yuva (rgb2y (r, g, b), rgb2u (r, g, b), rgb2v (r, g, b), a); }
-	inline bgra::operator hsv() const noexcept { uint8_t h, s, v; rgb2hsv (r, g, b, h, s, v); return hsv (h, s, v); }
-	inline bgra::operator hsva() const noexcept { uint8_t h, s, v; rgb2hsv (r, g, b, h, s, v); return hsva (h, s, v, a); }
-	inline bgra::operator color_processor() const noexcept
+	inline bgra8::operator rgba8() const noexcept { return rgba8(r, g, b, a); }
+	inline bgra8::operator rgb8() const noexcept { return rgb8(r, g, b); }
+	inline bgra8::operator rgbaf() const noexcept { return rgbaf(r / 255.0f, g / 255.0f, b / 255.0f); }
+	inline bgra8::operator bgr8() const noexcept { return bgr8(r, g, b); }
+	inline bgra8::operator bgra4() const noexcept { return bgra4(r / 17, g / 17, b / 17, a / 17); }
+	inline bgra8::operator bgr565() const noexcept { return bgr565(r / 8, g / 4, b / 8); }
+	inline bgra8::operator r8() const noexcept { return r8(rgb2y(r, g, b)); }
+	inline bgra8::operator rf() const noexcept { return rf(rgb2y(r, g, b) / 255.0f); }
+	inline bgra8::operator yuv8() const noexcept { return yuv8(rgb2y(r, g, b), rgb2u(r, g, b), rgb2v(r, g, b)); }
+	inline bgra8::operator yuva8() const noexcept { return yuva8(rgb2y(r, g, b), rgb2u(r, g, b), rgb2v(r, g, b), a); }
+	inline bgra8::operator hsv8() const noexcept { uint8_t h, s, v; rgb2hsv(r, g, b, h, s, v); return hsv8(h, s, v); }
+	inline bgra8::operator hsva8() const noexcept { uint8_t h, s, v; rgb2hsv(r, g, b, h, s, v); return hsva8(h, s, v, a); }
+	inline bgra8::operator colorv() const noexcept
 	{
-		return color_processor ((float)b, (float)g, (float)r, (float)a);
+		return colorv((float)b, (float)g, (float)r, (float)a);
 	}
 
-	inline bgr::operator rgba() const noexcept { return rgba (r, g, b, 255); }
-	inline bgr::operator rgb() const noexcept { return rgb (r, g, b); }
-	inline bgr::operator rgbaf() const noexcept { return rgbaf (r / 255.0f, g / 255.0f, b / 255.0f, 1); }
-	inline bgr::operator bgra() const noexcept { return bgra (r, g, b, 255); }
-	inline bgr::operator bgra4() const noexcept { return bgra4 (r / 17, g / 17, b / 17, 15); }
-	inline bgr::operator bgr565() const noexcept { return bgr565 (r / 8, g / 4, b / 8); }
-	inline bgr::operator grayscale() const noexcept { return grayscale (rgb2y (r, g, b)); }
-	inline bgr::operator grayscalef() const noexcept { return grayscalef (rgb2y (r, g, b) / 255.0f); }
-	inline bgr::operator yuv() const noexcept { return yuv (rgb2y (r, g, b), rgb2u (r, g, b), rgb2v (r, g, b)); }
-	inline bgr::operator yuva() const noexcept { return yuva (rgb2y (r, g, b), rgb2u (r, g, b), rgb2v (r, g, b), 255); }
-	inline bgr::operator hsv() const noexcept { uint8_t h, s, v; rgb2hsv (r, g, b, h, s, v); return hsv (h, s, v); }
-	inline bgr::operator hsva() const noexcept { uint8_t h, s, v; rgb2hsv (r, g, b, h, s, v); return hsva (h, s, v, 255); }
-	inline bgr::operator color_processor() const noexcept
+	inline bgr8::operator rgba8() const noexcept { return rgba8(r, g, b, 255); }
+	inline bgr8::operator rgb8() const noexcept { return rgb8(r, g, b); }
+	inline bgr8::operator rgbaf() const noexcept { return rgbaf(r / 255.0f, g / 255.0f, b / 255.0f, 1); }
+	inline bgr8::operator bgra8() const noexcept { return bgra8(r, g, b, 255); }
+	inline bgr8::operator bgra4() const noexcept { return bgra4(r / 17, g / 17, b / 17, 15); }
+	inline bgr8::operator bgr565() const noexcept { return bgr565(r / 8, g / 4, b / 8); }
+	inline bgr8::operator r8() const noexcept { return r8(rgb2y(r, g, b)); }
+	inline bgr8::operator rf() const noexcept { return rf(rgb2y(r, g, b) / 255.0f); }
+	inline bgr8::operator yuv8() const noexcept { return yuv8(rgb2y(r, g, b), rgb2u(r, g, b), rgb2v(r, g, b)); }
+	inline bgr8::operator yuva8() const noexcept { return yuva8(rgb2y(r, g, b), rgb2u(r, g, b), rgb2v(r, g, b), 255); }
+	inline bgr8::operator hsv8() const noexcept { uint8_t h, s, v; rgb2hsv(r, g, b, h, s, v); return hsv8(h, s, v); }
+	inline bgr8::operator hsva8() const noexcept { uint8_t h, s, v; rgb2hsv(r, g, b, h, s, v); return hsva8(h, s, v, 255); }
+	inline bgr8::operator colorv() const noexcept
 	{
-		return color_processor ((float)b, (float)g, (float)r, 0);
+		return colorv((float)b, (float)g, (float)r, 0);
 	}
 
-	inline bgra4::operator rgba() const noexcept { return rgba (r * 17, g * 17, b * 17, a * 17); }
-	inline bgra4::operator rgb() const noexcept { return rgb (r * 17, g * 17, b * 17); }
-	inline bgra4::operator rgbaf() const noexcept { return rgbaf (r / 15.0f, g / 15.0f, b / 15.0f, a / 15.0f); }
-	inline bgra4::operator bgra() const noexcept { return bgra (r * 17, g * 17, b * 17, a * 17); }
-	inline bgra4::operator bgr() const noexcept { return bgr (r * 17, g * 17, b * 17); }
-	inline bgra4::operator bgr565() const noexcept { return bgr565 (r * 2, g * 4, b * 2); }
-	inline bgra4::operator grayscale() const noexcept { return grayscale (rgb2y (r * 17, g * 17, b * 17)); }
-	inline bgra4::operator grayscalef() const noexcept { return grayscalef (rgb2y (r * 17, g * 17, b * 17) / 255.0f); }
-	inline bgra4::operator yuv() const noexcept { return yuv (rgb2y (r * 17, g * 17, b * 17), rgb2u (r * 17, g * 17, b * 17), rgb2v (r * 17, g * 17, b * 17)); }
-	inline bgra4::operator yuva() const noexcept { return yuva (rgb2y (r * 17, g * 17, b * 17), rgb2u (r * 17, g * 17, b * 17), rgb2v (r * 17, g * 17, b * 17), a * 17); }
-	inline bgra4::operator hsv() const noexcept { uint8_t h, s, v; rgb2hsv (r * 17, g * 17, b * 17, h, s, v); return hsv (h, s, v); }
-	inline bgra4::operator hsva() const noexcept { uint8_t h, s, v; rgb2hsv (r * 17, g * 17, b * 17, h, s, v); return hsva (h, s, v, a * 17); }
-	inline bgra4::operator color_processor() const noexcept
+	inline bgra4::operator rgba8() const noexcept { return rgba8(r * 17, g * 17, b * 17, a * 17); }
+	inline bgra4::operator rgb8() const noexcept { return rgb8(r * 17, g * 17, b * 17); }
+	inline bgra4::operator rgbaf() const noexcept { return rgbaf(r / 15.0f, g / 15.0f, b / 15.0f, a / 15.0f); }
+	inline bgra4::operator bgra8() const noexcept { return bgra8(r * 17, g * 17, b * 17, a * 17); }
+	inline bgra4::operator bgr8() const noexcept { return bgr8(r * 17, g * 17, b * 17); }
+	inline bgra4::operator bgr565() const noexcept { return bgr565(r * 2, g * 4, b * 2); }
+	inline bgra4::operator r8() const noexcept { return r8(rgb2y(r * 17, g * 17, b * 17)); }
+	inline bgra4::operator rf() const noexcept { return rf(rgb2y(r * 17, g * 17, b * 17) / 255.0f); }
+	inline bgra4::operator yuv8() const noexcept { return yuv8(rgb2y(r * 17, g * 17, b * 17), rgb2u(r * 17, g * 17, b * 17), rgb2v(r * 17, g * 17, b * 17)); }
+	inline bgra4::operator yuva8() const noexcept { return yuva8(rgb2y(r * 17, g * 17, b * 17), rgb2u(r * 17, g * 17, b * 17), rgb2v(r * 17, g * 17, b * 17), a * 17); }
+	inline bgra4::operator hsv8() const noexcept { uint8_t h, s, v; rgb2hsv(r * 17, g * 17, b * 17, h, s, v); return hsv8(h, s, v); }
+	inline bgra4::operator hsva8() const noexcept { uint8_t h, s, v; rgb2hsv(r * 17, g * 17, b * 17, h, s, v); return hsva8(h, s, v, a * 17); }
+	inline bgra4::operator colorv() const noexcept
 	{
-		return color_processor ((float)b, (float)g, (float)r, (float)a);
+		return colorv((float)b, (float)g, (float)r, (float)a);
 	}
 
-	inline bgr565::operator rgba() const noexcept { return rgba (r * 8, g * 4, b * 8, 255); }
-	inline bgr565::operator rgb() const noexcept { return rgb (r * 8, g * 4, b * 8); }
-	inline bgr565::operator rgbaf() const noexcept { return rgbaf (r / 31.0f, g / 63.0f, b / 31.0f, 1); }
-	inline bgr565::operator bgra() const noexcept { return bgra (r * 8, g * 4, b * 8, 255); }
-	inline bgr565::operator bgr() const noexcept { return bgr (r * 8, g * 4, b * 8); }
-	inline bgr565::operator bgra4() const noexcept { return bgra4 (r / 2, g / 4, b / 2, 15); }
-	inline bgr565::operator grayscale() const noexcept { return grayscale (rgb2y (r * 8, g * 4, b * 8)); }
-	inline bgr565::operator grayscalef() const noexcept { return grayscalef (rgb2y (r * 8, g * 4, b * 8) / 255.0f); }
-	inline bgr565::operator yuv() const noexcept { return yuv (rgb2y (r * 8, g * 4, b * 8), rgb2u (r * 8, g * 4, b * 8), rgb2v (r * 8, g * 4, b * 8)); }
-	inline bgr565::operator yuva() const noexcept { return yuva (rgb2y (r * 8, g * 4, b * 8), rgb2u (r * 8, g * 4, b * 8), rgb2v (r * 8, g * 4, b * 8), 255); }
-	inline bgr565::operator hsv() const noexcept { uint8_t h, s, v; rgb2hsv (r * 8, g * 4, b * 8, h, s, v); return hsv (h, s, v); }
-	inline bgr565::operator hsva() const noexcept { uint8_t h, s, v; rgb2hsv (r * 8, g * 4, b * 8, h, s, v); return hsva (h, s, v, 255); }
-	inline bgr565::operator color_processor() const noexcept
+	inline bgr565::operator rgba8() const noexcept { return rgba8(r * 8, g * 4, b * 8, 255); }
+	inline bgr565::operator rgb8() const noexcept { return rgb8(r * 8, g * 4, b * 8); }
+	inline bgr565::operator rgbaf() const noexcept { return rgbaf(r / 31.0f, g / 63.0f, b / 31.0f, 1); }
+	inline bgr565::operator bgra8() const noexcept { return bgra8(r * 8, g * 4, b * 8, 255); }
+	inline bgr565::operator bgr8() const noexcept { return bgr8(r * 8, g * 4, b * 8); }
+	inline bgr565::operator bgra4() const noexcept { return bgra4(r / 2, g / 4, b / 2, 15); }
+	inline bgr565::operator r8() const noexcept { return r8(rgb2y(r * 8, g * 4, b * 8)); }
+	inline bgr565::operator rf() const noexcept { return rf(rgb2y(r * 8, g * 4, b * 8) / 255.0f); }
+	inline bgr565::operator yuv8() const noexcept { return yuv8(rgb2y(r * 8, g * 4, b * 8), rgb2u(r * 8, g * 4, b * 8), rgb2v(r * 8, g * 4, b * 8)); }
+	inline bgr565::operator yuva8() const noexcept { return yuva8(rgb2y(r * 8, g * 4, b * 8), rgb2u(r * 8, g * 4, b * 8), rgb2v(r * 8, g * 4, b * 8), 255); }
+	inline bgr565::operator hsv8() const noexcept { uint8_t h, s, v; rgb2hsv(r * 8, g * 4, b * 8, h, s, v); return hsv8(h, s, v); }
+	inline bgr565::operator hsva8() const noexcept { uint8_t h, s, v; rgb2hsv(r * 8, g * 4, b * 8, h, s, v); return hsva8(h, s, v, 255); }
+	inline bgr565::operator colorv() const noexcept
 	{
-		return color_processor ((float)b, (float)g, (float)r, 0);
+		return colorv((float)b, (float)g, (float)r, 0);
 	}
 
-	inline grayscale::operator rgba () const noexcept { return rgba (color, color, color, 255); }
-	inline grayscale::operator rgb () const noexcept { return rgb (color, color, color); }
-	inline grayscale::operator rgbaf () const noexcept { float t = color / 255.0f; return rgbaf (t, t, t, 1.0f); }
-	inline grayscale::operator bgra () const noexcept { return bgra (color, color, color, 255); }
-	inline grayscale::operator bgr () const noexcept { return bgr (color, color, color); }
-	inline grayscale::operator bgra4 () const noexcept { uint8_t t = color / 17; return bgra4 (t, t, t, 15); }
-	inline grayscale::operator bgr565 () const noexcept { return bgr565 (color / 8, color / 4, color / 8); }
-	inline grayscale::operator grayscalef () const noexcept { return grayscalef (color / 255.0f); }
-	inline grayscale::operator yuv () const noexcept { return yuv (color, 0, 0); }
-	inline grayscale::operator yuva () const noexcept { return yuva (color, 0, 0, 255); }
-	inline grayscale::operator hsv() const noexcept { return hsv (0, 0, color); }
-	inline grayscale::operator hsva() const noexcept { return hsva (0, 0, color, 255); }
-	inline grayscale::operator color_processor() const noexcept
+	inline r8::operator rgba8 () const noexcept { return rgba8(color, color, color, 255); }
+	inline r8::operator rgb8 () const noexcept { return rgb8(color, color, color); }
+	inline r8::operator rgbaf () const noexcept { float t = color / 255.0f; return rgbaf(t, t, t, 1.0f); }
+	inline r8::operator bgra8 () const noexcept { return bgra8(color, color, color, 255); }
+	inline r8::operator bgr8 () const noexcept { return bgr8(color, color, color); }
+	inline r8::operator bgra4 () const noexcept { uint8_t t = color / 17; return bgra4(t, t, t, 15); }
+	inline r8::operator bgr565 () const noexcept { return bgr565(color / 8, color / 4, color / 8); }
+	inline r8::operator rf () const noexcept { return rf(color / 255.0f); }
+	inline r8::operator yuv8 () const noexcept { return yuv8(color, 0, 0); }
+	inline r8::operator yuva8 () const noexcept { return yuva8(color, 0, 0, 255); }
+	inline r8::operator hsv8() const noexcept { return hsv8(0, 0, color); }
+	inline r8::operator hsva8() const noexcept { return hsva8(0, 0, color, 255); }
+	inline r8::operator colorv() const noexcept
 	{
-		return color_processor ((float)color, 0, 0, 0);
+		return colorv((float)color, 0, 0, 0);
 	}
 
-	inline grayscalef::operator rgba () const noexcept { uint8_t t = (uint8_t)(color * 255); return rgba (t, t, t, 255); }
-	inline grayscalef::operator rgb () const noexcept { uint8_t t = (uint8_t)(color * 255); return rgb (t, t, t); }
-	inline grayscalef::operator rgbaf () const noexcept { return rgbaf (color, color, color, 1.0f); }
-	inline grayscalef::operator bgra () const noexcept { uint8_t t = (uint8_t)(color * 255); return bgra (t, t, t, 255); }
-	inline grayscalef::operator bgr () const noexcept { uint8_t t = (uint8_t)(color * 255); return bgr (t, t, t); }
-	inline grayscalef::operator bgra4 () const noexcept { uint8_t t = (uint8_t)(color * 15); return bgra4 (t, t, t, 15); }
-	inline grayscalef::operator bgr565 () const noexcept { return bgr565 ((uint8_t)(color * 8), (uint8_t)(color * 4), (uint8_t)(color * 8)); }
-	inline grayscalef::operator grayscale () const noexcept { return grayscale ((uint8_t)(color * 255)); }
-	inline grayscalef::operator yuv () const noexcept { return yuv ((uint8_t)(color * 255), 0, 0); }
-	inline grayscalef::operator yuva () const noexcept { return yuva ((uint8_t)(color * 255), 0, 0, 255); }
-	inline grayscalef::operator hsv() const noexcept { return hsv (0, 0, (uint8_t)(color * 255)); }
-	inline grayscalef::operator hsva() const noexcept { return hsva (0, 0, (uint8_t)(color * 255), 255); }
-	inline grayscalef::operator color_processor() const noexcept
+	inline rf::operator rgba8 () const noexcept { uint8_t t = (uint8_t)(color * 255); return rgba8(t, t, t, 255); }
+	inline rf::operator rgb8 () const noexcept { uint8_t t = (uint8_t)(color * 255); return rgb8(t, t, t); }
+	inline rf::operator rgbaf () const noexcept { return rgbaf(color, color, color, 1.0f); }
+	inline rf::operator bgra8 () const noexcept { uint8_t t = (uint8_t)(color * 255); return bgra8(t, t, t, 255); }
+	inline rf::operator bgr8 () const noexcept { uint8_t t = (uint8_t)(color * 255); return bgr8(t, t, t); }
+	inline rf::operator bgra4 () const noexcept { uint8_t t = (uint8_t)(color * 15); return bgra4(t, t, t, 15); }
+	inline rf::operator bgr565 () const noexcept { return bgr565((uint8_t)(color * 8), (uint8_t)(color * 4), (uint8_t)(color * 8)); }
+	inline rf::operator r8 () const noexcept { return r8((uint8_t)(color * 255)); }
+	inline rf::operator yuv8 () const noexcept { return yuv8((uint8_t)(color * 255), 0, 0); }
+	inline rf::operator yuva8 () const noexcept { return yuva8((uint8_t)(color * 255), 0, 0, 255); }
+	inline rf::operator hsv8() const noexcept { return hsv8(0, 0, (uint8_t)(color * 255)); }
+	inline rf::operator hsva8() const noexcept { return hsva8(0, 0, (uint8_t)(color * 255), 255); }
+	inline rf::operator colorv() const noexcept
 	{
-		return color_processor (color, 0, 0, 0);
+		return colorv(color, 0, 0, 0);
 	}
 
-	inline yuva::operator rgba () const noexcept { return rgba (yuv2r (y, u, v), yuv2g (y, u, v), yuv2b (y, u, v), a); }
-	inline yuva::operator rgb () const noexcept { return rgb (yuv2r (y, u, v), yuv2g (y, u, v), yuv2b (y, u, v)); }
-	inline yuva::operator rgbaf () const noexcept { return (rgbaf)(bgra)* this; }
-	inline yuva::operator bgra () const noexcept { return bgra (yuv2r (y, u, v), yuv2g (y, u, v), yuv2b (y, u, v), a); }
-	inline yuva::operator bgr () const noexcept { return bgr (yuv2r (y, u, v), yuv2g (y, u, v), yuv2b (y, u, v)); }
-	inline yuva::operator bgra4 () const noexcept { return bgra4 (yuv2r (y, u, v) / 17, yuv2g (y, u, v) / 17, yuv2b (y, u, v) / 17, a / 17); }
-	inline yuva::operator bgr565 () const noexcept { return bgr565 (yuv2r (y, u, v) / 8, yuv2g (y, u, v) / 4, yuv2b (y, u, v) / 8); }
-	inline yuva::operator grayscale () const noexcept { return grayscale (y); }
-	inline yuva::operator grayscalef () const noexcept { return grayscalef (y / 255.0f); }
-	inline yuva::operator yuv () const noexcept { return yuv (y, u, v); }
-	inline yuva::operator hsv() const noexcept { return (hsv)(rgb)* this; }
-	inline yuva::operator hsva() const noexcept { return (hsva)(rgba)* this; }
-	inline yuva::operator color_processor() const noexcept
+	inline yuva8::operator rgba8 () const noexcept { return rgba8(yuv2r(y, u, v), yuv2g(y, u, v), yuv2b(y, u, v), a); }
+	inline yuva8::operator rgb8 () const noexcept { return rgb8(yuv2r(y, u, v), yuv2g(y, u, v), yuv2b(y, u, v)); }
+	inline yuva8::operator rgbaf () const noexcept { return (rgbaf)(bgra8)*this; }
+	inline yuva8::operator bgra8 () const noexcept { return bgra8(yuv2r(y, u, v), yuv2g(y, u, v), yuv2b(y, u, v), a); }
+	inline yuva8::operator bgr8 () const noexcept { return bgr8(yuv2r(y, u, v), yuv2g(y, u, v), yuv2b(y, u, v)); }
+	inline yuva8::operator bgra4 () const noexcept { return bgra4(yuv2r(y, u, v) / 17, yuv2g(y, u, v) / 17, yuv2b(y, u, v) / 17, a / 17); }
+	inline yuva8::operator bgr565 () const noexcept { return bgr565(yuv2r(y, u, v) / 8, yuv2g(y, u, v) / 4, yuv2b(y, u, v) / 8); }
+	inline yuva8::operator r8 () const noexcept { return r8(y); }
+	inline yuva8::operator rf () const noexcept { return rf(y / 255.0f); }
+	inline yuva8::operator yuv8 () const noexcept { return yuv8(y, u, v); }
+	inline yuva8::operator hsv8() const noexcept { return (hsv8)(rgb8)*this; }
+	inline yuva8::operator hsva8() const noexcept { return (hsva8)(rgba8)*this; }
+	inline yuva8::operator colorv() const noexcept
 	{
-		return color_processor ((float)y, (float)u, (float)v, (float)a);
+		return colorv((float)y, (float)u, (float)v, (float)a);
 	}
 
-	inline yuv::operator rgba () const noexcept { return rgba (yuv2r (y, u, v), yuv2g (y, u, v), yuv2b (y, u, v), 255); }
-	inline yuv::operator rgb () const noexcept { return rgb (yuv2r (y, u, v), yuv2g (y, u, v), yuv2b (y, u, v)); }
-	inline yuv::operator rgbaf () const noexcept { return (rgbaf)(rgba)* this; }
-	inline yuv::operator bgra () const noexcept { return bgra (yuv2r (y, u, v), yuv2g (y, u, v), yuv2b (y, u, v), 255); }
-	inline yuv::operator bgr () const noexcept { return bgr (yuv2r (y, u, v), yuv2g (y, u, v), yuv2b (y, u, v)); }
-	inline yuv::operator bgra4 () const noexcept { return bgra4 (yuv2r (y, u, v) / 17, yuv2g (y, u, v) / 17, yuv2b (y, u, v) / 17, 15); }
-	inline yuv::operator bgr565 () const noexcept { return bgr565 (yuv2r (y, u, v) / 8, yuv2g (y, u, v) / 4, yuv2b (y, u, v) / 8); }
-	inline yuv::operator grayscale () const noexcept { return grayscale (y); }
-	inline yuv::operator grayscalef () const noexcept { return grayscalef (y / 255.0f); }
-	inline yuv::operator yuva () const noexcept { return yuva (y, u, v, 255); }
-	inline yuv::operator hsv() const noexcept { return (hsv)(rgb)* this; }
-	inline yuv::operator hsva() const noexcept { return (hsva)(rgb)* this; }
-	inline yuv::operator color_processor() const noexcept
+	inline yuv8::operator rgba8 () const noexcept { return rgba8(yuv2r(y, u, v), yuv2g(y, u, v), yuv2b(y, u, v), 255); }
+	inline yuv8::operator rgb8 () const noexcept { return rgb8(yuv2r(y, u, v), yuv2g(y, u, v), yuv2b(y, u, v)); }
+	inline yuv8::operator rgbaf () const noexcept { return (rgbaf)(rgba8)*this; }
+	inline yuv8::operator bgra8 () const noexcept { return bgra8(yuv2r(y, u, v), yuv2g(y, u, v), yuv2b(y, u, v), 255); }
+	inline yuv8::operator bgr8 () const noexcept { return bgr8(yuv2r(y, u, v), yuv2g(y, u, v), yuv2b(y, u, v)); }
+	inline yuv8::operator bgra4 () const noexcept { return bgra4(yuv2r(y, u, v) / 17, yuv2g(y, u, v) / 17, yuv2b(y, u, v) / 17, 15); }
+	inline yuv8::operator bgr565 () const noexcept { return bgr565(yuv2r(y, u, v) / 8, yuv2g(y, u, v) / 4, yuv2b(y, u, v) / 8); }
+	inline yuv8::operator r8 () const noexcept { return r8(y); }
+	inline yuv8::operator rf () const noexcept { return rf(y / 255.0f); }
+	inline yuv8::operator yuva8 () const noexcept { return yuva8(y, u, v, 255); }
+	inline yuv8::operator hsv8() const noexcept { return (hsv8)(rgb8)*this; }
+	inline yuv8::operator hsva8() const noexcept { return (hsva8)(rgb8)*this; }
+	inline yuv8::operator colorv() const noexcept
 	{
-		return color_processor ((float)y, (float)u, (float)v, 0);
+		return colorv((float)y, (float)u, (float)v, 0);
 	}
 
-	inline hsva::operator rgba () const noexcept { uint8_t r, g, b; hsv2rgb (h, s, v, r, g, b); return rgba (r, g, b, a); }
-	inline hsva::operator rgb () const noexcept { uint8_t r, g, b; hsv2rgb (h, s, v, r, g, b); return rgb (r, g, b); }
-	inline hsva::operator rgbaf () const noexcept { return (rgbaf)(rgba)*this; }
-	inline hsva::operator bgra () const noexcept { uint8_t r, g, b; hsv2rgb (h, s, v, r, g, b); return bgra (r, g, b, a); }
-	inline hsva::operator bgr () const noexcept { uint8_t r, g, b; hsv2rgb (h, s, v, r, g, b); return bgr (r, g, b); }
-	inline hsva::operator bgra4 () const noexcept { uint8_t r, g, b; hsv2rgb (h, s, v, r, g, b); return bgra4 (r / 17, g / 17, b / 17, a / 17); }
-	inline hsva::operator bgr565 () const noexcept { uint8_t r, g, b; hsv2rgb (h, s, v, r, g, b); return bgr (r / 8, g / 4, b / 8); }
-	inline hsva::operator grayscale () const noexcept { return grayscale (v); }
-	inline hsva::operator grayscalef () const noexcept { return grayscalef (v / 255.0f); }
-	inline hsva::operator yuva () const noexcept { return (yuva)(rgba)*this; }
-	inline hsva::operator yuv() const noexcept { return (yuv)(rgb)*this; }
-	inline hsva::operator hsv() const noexcept { return hsv (h, s, v); }
-	inline hsva::operator color_processor() const noexcept
+	inline hsva8::operator rgba8 () const noexcept { uint8_t r, g, b; hsv2rgb(h, s, v, r, g, b); return rgba8(r, g, b, a); }
+	inline hsva8::operator rgb8 () const noexcept { uint8_t r, g, b; hsv2rgb(h, s, v, r, g, b); return rgb8(r, g, b); }
+	inline hsva8::operator rgbaf () const noexcept { return (rgbaf)(rgba8)*this; }
+	inline hsva8::operator bgra8 () const noexcept { uint8_t r, g, b; hsv2rgb(h, s, v, r, g, b); return bgra8(r, g, b, a); }
+	inline hsva8::operator bgr8 () const noexcept { uint8_t r, g, b; hsv2rgb(h, s, v, r, g, b); return bgr8(r, g, b); }
+	inline hsva8::operator bgra4 () const noexcept { uint8_t r, g, b; hsv2rgb(h, s, v, r, g, b); return bgra4(r / 17, g / 17, b / 17, a / 17); }
+	inline hsva8::operator bgr565 () const noexcept { uint8_t r, g, b; hsv2rgb(h, s, v, r, g, b); return bgr8(r / 8, g / 4, b / 8); }
+	inline hsva8::operator r8 () const noexcept { return r8(v); }
+	inline hsva8::operator rf () const noexcept { return rf(v / 255.0f); }
+	inline hsva8::operator yuva8 () const noexcept { return (yuva8)(rgba8)*this; }
+	inline hsva8::operator yuv8() const noexcept { return (yuv8)(rgb8)*this; }
+	inline hsva8::operator hsv8() const noexcept { return hsv8(h, s, v); }
+	inline hsva8::operator colorv() const noexcept
 	{
-		return color_processor ((float)h, (float)s, (float)v, (float)a);
+		return colorv((float)h, (float)s, (float)v, (float)a);
 	}
 
-	inline hsv::operator rgba () const noexcept { uint8_t r, g, b; hsv2rgb (h, s, v, r, g, b); return rgba (r, g, b, 255); }
-	inline hsv::operator rgb () const noexcept { uint8_t r, g, b; hsv2rgb (h, s, v, r, g, b); return rgb (r, g, b); }
-	inline hsv::operator rgbaf () const noexcept { return (rgbaf)(rgba)*this; }
-	inline hsv::operator bgra () const noexcept { uint8_t r, g, b; hsv2rgb (h, s, v, r, g, b); return bgra (r, g, b, 255); }
-	inline hsv::operator bgr () const noexcept { uint8_t r, g, b; hsv2rgb (h, s, v, r, g, b); return bgr (r, g, b); }
-	inline hsv::operator bgra4 () const noexcept { uint8_t r, g, b; hsv2rgb (h, s, v, r, g, b); return bgra4 (r / 17, g / 17, b / 17, 15); }
-	inline hsv::operator bgr565 () const noexcept { uint8_t r, g, b; hsv2rgb (h, s, v, r, g, b); return bgr (r / 8, g / 4, b / 8); }
-	inline hsv::operator grayscale () const noexcept { return grayscale (v); }
-	inline hsv::operator grayscalef () const noexcept { return grayscalef (v / 255.0f); }
-	inline hsv::operator yuva () const noexcept { return (yuva)(rgba)*this; }
-	inline hsv::operator yuv() const noexcept { return (yuv)(rgb)*this; }
-	inline hsv::operator hsva() const noexcept { return hsva (h, s, v, 255); }
-	inline hsv::operator color_processor() const noexcept
+	inline hsv8::operator rgba8 () const noexcept { uint8_t r, g, b; hsv2rgb(h, s, v, r, g, b); return rgba8(r, g, b, 255); }
+	inline hsv8::operator rgb8 () const noexcept { uint8_t r, g, b; hsv2rgb(h, s, v, r, g, b); return rgb8(r, g, b); }
+	inline hsv8::operator rgbaf () const noexcept { return (rgbaf)(rgba8)*this; }
+	inline hsv8::operator bgra8 () const noexcept { uint8_t r, g, b; hsv2rgb(h, s, v, r, g, b); return bgra8(r, g, b, 255); }
+	inline hsv8::operator bgr8 () const noexcept { uint8_t r, g, b; hsv2rgb(h, s, v, r, g, b); return bgr8(r, g, b); }
+	inline hsv8::operator bgra4 () const noexcept { uint8_t r, g, b; hsv2rgb(h, s, v, r, g, b); return bgra4(r / 17, g / 17, b / 17, 15); }
+	inline hsv8::operator bgr565 () const noexcept { uint8_t r, g, b; hsv2rgb(h, s, v, r, g, b); return bgr8(r / 8, g / 4, b / 8); }
+	inline hsv8::operator r8 () const noexcept { return r8(v); }
+	inline hsv8::operator rf () const noexcept { return rf(v / 255.0f); }
+	inline hsv8::operator yuva8 () const noexcept { return (yuva8)(rgba8)*this; }
+	inline hsv8::operator yuv8() const noexcept { return (yuv8)(rgb8)*this; }
+	inline hsv8::operator hsva8() const noexcept { return hsva8(h, s, v, 255); }
+	inline hsv8::operator colorv() const noexcept
 	{
-		return color_processor ((float)h, (float)s, (float)v, 0);
+		return colorv((float)h, (float)s, (float)v, 0);
 	}
 
-	inline color_processor::operator rgba () const noexcept
+	inline colorv::operator rgba8 () const noexcept
 	{
-		return rgba (
-			saturate8 ((int32_t)a),
-			saturate8 ((int32_t)b),
-			saturate8 ((int32_t)c),
-			saturate8 ((int32_t)d)
+		float arr[4];
+		store(arr);
+		return rgba8(
+			saturate8((int32_t)arr[0]),
+			saturate8((int32_t)arr[1]),
+			saturate8((int32_t)arr[2]),
+			saturate8((int32_t)arr[3])
 		);
 	}
-	inline color_processor::operator rgb () const noexcept
+	inline colorv::operator rgb8 () const noexcept
 	{
-		return rgb (
-			saturate8 ((int32_t)a),
-			saturate8 ((int32_t)b),
-			saturate8 ((int32_t)c)
+		float arr[4];
+		store(arr);
+		return rgb8(
+			saturate8((int32_t)arr[0]),
+			saturate8((int32_t)arr[1]),
+			saturate8((int32_t)arr[2])
 		);
 	}
-	inline color_processor::operator rgbaf () const noexcept
+	inline colorv::operator rgbaf () const noexcept
 	{
-		return rgbaf (
-			saturatef (a),
-			saturatef (b),
-			saturatef (c),
-			saturatef (d)
+		float arr[4];
+		store(arr);
+		return rgbaf(
+			saturatef(arr[0]),
+			saturatef(arr[1]),
+			saturatef(arr[2]),
+			saturatef(arr[3])
 		);
 	}
-	inline color_processor::operator bgra () const noexcept
+	inline colorv::operator bgra8 () const noexcept
 	{
-		return bgra (
-			saturate8 ((int32_t)c),
-			saturate8 ((int32_t)b),
-			saturate8 ((int32_t)a),
-			saturate8 ((int32_t)d)
+		float arr[4];
+		store(arr);
+		return bgra8(
+			saturate8((int32_t)arr[2]),
+			saturate8((int32_t)arr[1]),
+			saturate8((int32_t)arr[0]),
+			saturate8((int32_t)arr[3])
 		);
 	}
-	inline color_processor::operator bgr () const noexcept
+	inline colorv::operator bgr8 () const noexcept
 	{
-		return bgr (
-			saturate8 ((int32_t)c),
-			saturate8 ((int32_t)b),
-			saturate8 ((int32_t)a)
+		float arr[4];
+		store(arr);
+		return bgr8(
+			saturate8((int32_t)arr[2]),
+			saturate8((int32_t)arr[1]),
+			saturate8((int32_t)arr[0])
 		);
 	}
-	inline color_processor::operator bgra4 () const noexcept
+	inline colorv::operator bgra4 () const noexcept
 	{
-		return bgra4 (
-			saturate4 ((int32_t)c),
-			saturate4 ((int32_t)b),
-			saturate4 ((int32_t)a),
-			saturate4 ((int32_t)d)
+		float arr[4];
+		store(arr);
+		return bgra4(
+			saturate4((int32_t)arr[2]),
+			saturate4((int32_t)arr[1]),
+			saturate4((int32_t)arr[0]),
+			saturate4((int32_t)arr[3])
 		);
 	}
-	inline color_processor::operator bgr565 () const noexcept
+	inline colorv::operator bgr565 () const noexcept
 	{
-		return bgr565 (
-			saturate5 ((int32_t)c),
-			saturate6 ((int32_t)b),
-			saturate5 ((int32_t)a)
+		float arr[4];
+		store(arr);
+		return bgr565(
+			saturate5((int32_t)arr[2]),
+			saturate6((int32_t)arr[1]),
+			saturate5((int32_t)arr[0])
 		);
 	}
-	inline color_processor::operator grayscale () const noexcept
+	inline colorv::operator r8 () const noexcept
 	{
-		return grayscale (
-			saturate8 ((int32_t)a)
+		float arr[4];
+		store(arr);
+		return r8(
+			saturate8((int32_t)arr[0])
 		);
 	}
-	inline color_processor::operator grayscalef () const noexcept
+	inline colorv::operator rf () const noexcept
 	{
-		return grayscalef (
-			saturatef (a)
+		float arr[4];
+		store(arr);
+		return rf(
+			saturatef(arr[0])
 		);
 	}
-	inline color_processor::operator yuva () const noexcept
+	inline colorv::operator yuva8 () const noexcept
 	{
-		return yuva (
-			saturate8 ((int32_t)a),
-			saturate8 ((int32_t)b),
-			saturate8 ((int32_t)c),
-			saturate8 ((int32_t)d)
+		float arr[4];
+		store(arr);
+		return yuva8(
+			saturate8((int32_t)arr[0]),
+			saturate8((int32_t)arr[1]),
+			saturate8((int32_t)arr[2]),
+			saturate8((int32_t)arr[3])
 		);
 	}
-	inline color_processor::operator yuv() const noexcept
+	inline colorv::operator yuv8() const noexcept
 	{
-		return yuv (
-			saturate8 ((int32_t)a),
-			saturate8 ((int32_t)b),
-			saturate8 ((int32_t)c)
+		float arr[4];
+		store(arr);
+		return yuv8(
+			saturate8((int32_t)arr[0]),
+			saturate8((int32_t)arr[1]),
+			saturate8((int32_t)arr[2])
 		);
 	}
-	inline color_processor::operator hsva() const noexcept
+	inline colorv::operator hsva8() const noexcept
 	{
-		return hsva (
-			saturate8 ((int32_t)a),
-			saturate8 ((int32_t)b),
-			saturate8 ((int32_t)c),
-			saturate8 ((int32_t)d)
+		float arr[4];
+		store(arr);
+		return hsva8(
+			saturate8((int32_t)arr[0]),
+			saturate8((int32_t)arr[1]),
+			saturate8((int32_t)arr[2]),
+			saturate8((int32_t)arr[3])
 		);
 	}
-	inline color_processor::operator hsv() const noexcept
+	inline colorv::operator hsv8() const noexcept
 	{
-		return hsv (
-			saturate8 ((int32_t)a),
-			saturate8 ((int32_t)b),
-			saturate8 ((int32_t)c)
+		float arr[4];
+		store(arr);
+		return hsv8(
+			saturate8((int32_t)arr[0]),
+			saturate8((int32_t)arr[1]),
+			saturate8((int32_t)arr[2])
 		);
 	}
+}
 
-	namespace colours
-	{
-		inline bgra transparent () noexcept { return bgra (0); }
+namespace dseed::color::defs
+{
+	inline bgra8 transparent() noexcept { return bgra8(0); }
 
-		inline bgra black () noexcept { return bgra (0xff000000); }
-		inline bgra white () noexcept { return bgra (0xffffffff); }
+	inline bgra8 black() noexcept { return bgra8(0xff000000); }
+	inline bgra8 white() noexcept { return bgra8(0xffffffff); }
 
-		inline bgra red () noexcept { return bgra (0xff0000ff); }
-		inline bgra green () noexcept { return bgra (0xff00ff00); }
-		inline bgra blue () noexcept { return bgra (0xffff0000); }
+	inline bgra8 red() noexcept { return bgra8(0xff0000ff); }
+	inline bgra8 green() noexcept { return bgra8(0xff00ff00); }
+	inline bgra8 blue() noexcept { return bgra8(0xffff0000); }
 
-		inline bgra cyan () noexcept { return bgra (0xffffff00); }
-		inline bgra magenta () noexcept { return bgra (0xffff00ff); }
-		inline bgra yellow () noexcept { return bgra (0xff00ffff); }
+	inline bgra8 cyan() noexcept { return bgra8(0xffffff00); }
+	inline bgra8 magenta() noexcept { return bgra8(0xffff00ff); }
+	inline bgra8 yellow() noexcept { return bgra8(0xff00ffff); }
 
-		inline bgra aliceblue () noexcept { return bgra (0xfffff8f0); }
-		inline bgra antiquewhite () noexcept { return bgra (0xffd7ebfa); }
-		inline bgra aqua () noexcept { return bgra (0xffffff00); }
-		inline bgra aquamarine () noexcept { return bgra (0xffd4ff7f); }
-		inline bgra azure () noexcept { return bgra (0xfffffff0); }
-		inline bgra beige () noexcept { return bgra (0xffdcf5f5); }
-		inline bgra bisque () noexcept { return bgra (0xffc4e4ff); }
-		inline bgra blanchedalmond () noexcept { return bgra (0xffcdebff); }
-		inline bgra blueviolet () noexcept { return bgra (0xffe22b8a); }
-		inline bgra brown () noexcept { return bgra (0xff2a2aa5); }
-		inline bgra burlywood () noexcept { return bgra (0xff87b8de); }
-		inline bgra cadetblue () noexcept { return bgra (0xffa09e5f); }
-		inline bgra chartreuse () noexcept { return bgra (0xff00ff7f); }
-		inline bgra chocolate () noexcept { return bgra (0xff1e69d2); }
-		inline bgra coral () noexcept { return bgra (0xff507fff); }
-		inline bgra cornflowerblue () noexcept { return bgra (0xffed9564); }
-		inline bgra cornsilk () noexcept { return bgra (0xffdcf8ff); }
-		inline bgra crimson () noexcept { return bgra (0xff3c14dc); }
-		inline bgra darkblue () noexcept { return bgra (0xff8b0000); }
-		inline bgra darkcyan () noexcept { return bgra (0xff8b8b00); }
-		inline bgra darkgoldenrod () noexcept { return bgra (0xff0b86b8); }
-		inline bgra darkgray () noexcept { return bgra (0xffa9a9a9); }
-		inline bgra darkgreen () noexcept { return bgra (0xff006400); }
-		inline bgra darkkhaki () noexcept { return bgra (0xff6bb7bd); }
-		inline bgra darkmagenta () noexcept { return bgra (0xff8b008b); }
-		inline bgra darkolivegreen () noexcept { return bgra (0xff2f6b55); }
-		inline bgra darkorange () noexcept { return bgra (0xff008cff); }
-		inline bgra darkorchid () noexcept { return bgra (0xffcc3299); }
-		inline bgra darkred () noexcept { return bgra (0xff00008b); }
-		inline bgra darksalmon () noexcept { return bgra (0xff7a96e9); }
-		inline bgra darkseaGreen () noexcept { return bgra (0xff8bbc8f); }
-		inline bgra darkslateBlue () noexcept { return bgra (0xff8b3d48); }
-		inline bgra darkslateGray () noexcept { return bgra (0xff4f4f2f); }
-		inline bgra darkturquoise () noexcept { return bgra (0xffd1ce00); }
-		inline bgra darkviolet () noexcept { return bgra (0xffd30094); }
-		inline bgra deeppink () noexcept { return bgra (0xff9314ff); }
-		inline bgra deepskyblue () noexcept { return bgra (0xffffbf00); }
-		inline bgra dimgray () { return bgra (0xff696969); }
-		inline bgra dodgerblue () noexcept { return bgra (0xffff901e); }
-		inline bgra firebrick () noexcept { return bgra (0xff2222b2); }
-		inline bgra floralwhite () noexcept { return bgra (0xfff0faff); }
-		inline bgra forestgreen () noexcept { return bgra (0xff228b22); }
-		inline bgra fuchsia () noexcept { return bgra (0xffff00ff); }
-		inline bgra gainsboro () noexcept { return bgra (0xffdcdcdc); }
-		inline bgra ghostwhite () noexcept { return bgra (0xfffff8f8); }
-		inline bgra gold () noexcept { return bgra (0xff00d7ff); }
-		inline bgra goldenrod () noexcept { return bgra (0xff20a5da); }
-		inline bgra gray () noexcept { return bgra (0xff808080); }
-		inline bgra greenyellow () noexcept { return bgra (0xff2fffad); }
-		inline bgra honeydew () noexcept { return bgra (0xfff0fff0); }
-		inline bgra hotpink () noexcept { return bgra (0xffb469ff); }
-		inline bgra indianred () noexcept { return bgra (0xff5c5ccd); }
-		inline bgra indigo () noexcept { return bgra (0xff82004b); }
-		inline bgra ivory () noexcept { return bgra (0xfff0ffff); }
-		inline bgra khaki () noexcept { return bgra (0xff8ce6f0); }
-		inline bgra lavender () noexcept { return bgra (0xfffae6e6); }
-		inline bgra lavenderblush () noexcept { return bgra (0xfff5f0ff); }
-		inline bgra lawngreen () noexcept { return bgra (0xff00fc7c); }
-		inline bgra lemonchiffon () noexcept { return bgra (0xffcdfaff); }
-		inline bgra lightblue () noexcept { return bgra (0xffe6d8ad); }
-		inline bgra lightcoral () noexcept { return bgra (0xff8080f0); }
-		inline bgra lightcyan () noexcept { return bgra (0xffffffe0); }
-		inline bgra lightgoldenrodyellow () noexcept { return bgra (0xffd2fafa); }
-		inline bgra lightgray () noexcept { return bgra (0xffd3d3d3); }
-		inline bgra lightgreen () noexcept { return bgra (0xff90ee90); }
-		inline bgra lightpink () noexcept { return bgra (0xffc1b6ff); }
-		inline bgra lightsalmon () noexcept { return bgra (0xff7aa0ff); }
-		inline bgra lightseaGreen () noexcept { return bgra (0xffaab220); }
-		inline bgra lightskyBlue () noexcept { return bgra (0xffface87); }
-		inline bgra lightslateGray () noexcept { return bgra (0xff998877); }
-		inline bgra lightsteelBlue () noexcept { return bgra (0xffdec4b0); }
-		inline bgra lightyellow () noexcept { return bgra (0xffe0ffff); }
-		inline bgra lime () noexcept { return bgra (0xff00ff00); }
-		inline bgra limegreen () noexcept { return bgra (0xff32cd32); }
-		inline bgra linen () noexcept { return bgra (0xffe6f0fa); }
-		inline bgra maroon () noexcept { return bgra (0xff000080); }
-		inline bgra mediumaquamarine () noexcept { return bgra (0xffaacd66); }
-		inline bgra mediumblue () noexcept { return bgra (0xffcd0000); }
-		inline bgra mediumorchid () noexcept { return bgra (0xffd355ba); }
-		inline bgra mediumpurple () noexcept { return bgra (0xffdb7093); }
-		inline bgra mediumseagreen () noexcept { return bgra (0xff71b33c); }
-		inline bgra mediumslateblue () noexcept { return bgra (0xffee687b); }
-		inline bgra mediumspringgreen () noexcept { return bgra (0xff9afa00); }
-		inline bgra mediumturquoise () noexcept { return bgra (0xffccd148); }
-		inline bgra mediumvioletred () noexcept { return bgra (0xff8515c7); }
-		inline bgra midnightblue () noexcept { return bgra (0xff701919); }
-		inline bgra mintcream () noexcept { return bgra (0xfffafff5); }
-		inline bgra mistyrose () noexcept { return bgra (0xffe1e4ff); }
-		inline bgra moccasin () noexcept { return bgra (0xffb5e4ff); }
-		inline bgra navajowhite () noexcept { return bgra (0xffaddeff); }
-		inline bgra navy () noexcept { return bgra (0xff800000); }
-		inline bgra oldlace () noexcept { return bgra (0xffe6f5fd); }
-		inline bgra olive () noexcept { return bgra (0xff008080); }
-		inline bgra olivedrab () noexcept { return bgra (0xff238e6b); }
-		inline bgra orange () noexcept { return bgra (0xff00a5ff); }
-		inline bgra orangered () noexcept { return bgra (0xff0045ff); }
-		inline bgra orchid () noexcept { return bgra (0xffd670da); }
-		inline bgra palegoldenrod () noexcept { return bgra (0xffaae8ee); }
-		inline bgra palegreen () noexcept { return bgra (0xff98fb98); }
-		inline bgra paleturquoise () noexcept { return bgra (0xffeeeeaf); }
-		inline bgra palevioletred () noexcept { return bgra (0xff9370db); }
-		inline bgra papayawhip () noexcept { return bgra (0xffd5efff); }
-		inline bgra peachpuff () noexcept { return bgra (0xffb9daff); }
-		inline bgra peru () noexcept { return bgra (0xff3f85cd); }
-		inline bgra pink () noexcept { return bgra (0xffcbc0ff); }
-		inline bgra plum () noexcept { return bgra (0xffdda0dd); }
-		inline bgra powderblue () noexcept { return bgra (0xffe6e0b0); }
-		inline bgra purple () noexcept { return bgra (0xff800080); }
-		inline bgra rosybrown () noexcept { return bgra (0xff8f8fbc); }
-		inline bgra royalblue () noexcept { return bgra (0xffe16941); }
-		inline bgra saddlebrown () noexcept { return bgra (0xff13458b); }
-		inline bgra salmon () noexcept { return bgra (0xff7280fa); }
-		inline bgra sandybrown () noexcept { return bgra (0xff60a4f4); }
-		inline bgra seagreen () noexcept { return bgra (0xff578b2e); }
-		inline bgra seashell () noexcept { return bgra (0xffeef5ff); }
-		inline bgra sienna () noexcept { return bgra (0xff2d52a0); }
-		inline bgra silver () noexcept { return bgra (0xffc0c0c0); }
-		inline bgra skyblue () noexcept { return bgra (0xffebce87); }
-		inline bgra slateblue () noexcept { return bgra (0xffcd5a6a); }
-		inline bgra slategray () noexcept { return bgra (0xff908070); }
-		inline bgra snow () noexcept { return bgra (0xfffafaff); }
-		inline bgra springgreen () noexcept { return bgra (0xff7fff00); }
-		inline bgra steelblue () noexcept { return bgra (0xffb48246); }
-		inline bgra tan () noexcept { return bgra (0xff8cb4d2); }
-		inline bgra teal () noexcept { return bgra (0xff808000); }
-		inline bgra thistle () noexcept { return bgra (0xffd8bfd8); }
-		inline bgra tomato () noexcept { return bgra (0xff4763ff); }
-		inline bgra turquoise () noexcept { return bgra (0xffd0e040); }
-		inline bgra violet () noexcept { return bgra (0xffee82ee); }
-		inline bgra webgreen () noexcept { return bgra (0xff008000); }
-		inline bgra wheat () noexcept { return bgra (0xffb3def5); }
-		inline bgra whitesmoke () noexcept { return bgra (0xfff5f5f5); }
-		inline bgra yellowgreen () noexcept { return bgra (0xff32cd9a); }
-	}
+	inline bgra8 aliceblue() noexcept { return bgra8(0xfffff8f0); }
+	inline bgra8 antiquewhite() noexcept { return bgra8(0xffd7ebfa); }
+	inline bgra8 aqua() noexcept { return bgra8(0xffffff00); }
+	inline bgra8 aquamarine() noexcept { return bgra8(0xffd4ff7f); }
+	inline bgra8 azure() noexcept { return bgra8(0xfffffff0); }
+	inline bgra8 beige() noexcept { return bgra8(0xffdcf5f5); }
+	inline bgra8 bisque() noexcept { return bgra8(0xffc4e4ff); }
+	inline bgra8 blanchedalmond() noexcept { return bgra8(0xffcdebff); }
+	inline bgra8 blueviolet() noexcept { return bgra8(0xffe22b8a); }
+	inline bgra8 brown() noexcept { return bgra8(0xff2a2aa5); }
+	inline bgra8 burlywood() noexcept { return bgra8(0xff87b8de); }
+	inline bgra8 cadetblue() noexcept { return bgra8(0xffa09e5f); }
+	inline bgra8 chartreuse() noexcept { return bgra8(0xff00ff7f); }
+	inline bgra8 chocolate() noexcept { return bgra8(0xff1e69d2); }
+	inline bgra8 coral() noexcept { return bgra8(0xff507fff); }
+	inline bgra8 cornflowerblue() noexcept { return bgra8(0xffed9564); }
+	inline bgra8 cornsilk() noexcept { return bgra8(0xffdcf8ff); }
+	inline bgra8 crimson() noexcept { return bgra8(0xff3c14dc); }
+	inline bgra8 darkblue() noexcept { return bgra8(0xff8b0000); }
+	inline bgra8 darkcyan() noexcept { return bgra8(0xff8b8b00); }
+	inline bgra8 darkgoldenrod() noexcept { return bgra8(0xff0b86b8); }
+	inline bgra8 darkgray() noexcept { return bgra8(0xffa9a9a9); }
+	inline bgra8 darkgreen() noexcept { return bgra8(0xff006400); }
+	inline bgra8 darkkhaki() noexcept { return bgra8(0xff6bb7bd); }
+	inline bgra8 darkmagenta() noexcept { return bgra8(0xff8b008b); }
+	inline bgra8 darkolivegreen() noexcept { return bgra8(0xff2f6b55); }
+	inline bgra8 darkorange() noexcept { return bgra8(0xff008cff); }
+	inline bgra8 darkorchid() noexcept { return bgra8(0xffcc3299); }
+	inline bgra8 darkred() noexcept { return bgra8(0xff00008b); }
+	inline bgra8 darksalmon() noexcept { return bgra8(0xff7a96e9); }
+	inline bgra8 darkseaGreen() noexcept { return bgra8(0xff8bbc8f); }
+	inline bgra8 darkslateBlue() noexcept { return bgra8(0xff8b3d48); }
+	inline bgra8 darkslateGray() noexcept { return bgra8(0xff4f4f2f); }
+	inline bgra8 darkturquoise() noexcept { return bgra8(0xffd1ce00); }
+	inline bgra8 darkviolet() noexcept { return bgra8(0xffd30094); }
+	inline bgra8 deeppink() noexcept { return bgra8(0xff9314ff); }
+	inline bgra8 deepskyblue() noexcept { return bgra8(0xffffbf00); }
+	inline bgra8 dimgray() { return bgra8(0xff696969); }
+	inline bgra8 dodgerblue() noexcept { return bgra8(0xffff901e); }
+	inline bgra8 firebrick() noexcept { return bgra8(0xff2222b2); }
+	inline bgra8 floralwhite() noexcept { return bgra8(0xfff0faff); }
+	inline bgra8 forestgreen() noexcept { return bgra8(0xff228b22); }
+	inline bgra8 fuchsia() noexcept { return bgra8(0xffff00ff); }
+	inline bgra8 gainsboro() noexcept { return bgra8(0xffdcdcdc); }
+	inline bgra8 ghostwhite() noexcept { return bgra8(0xfffff8f8); }
+	inline bgra8 gold() noexcept { return bgra8(0xff00d7ff); }
+	inline bgra8 goldenrod() noexcept { return bgra8(0xff20a5da); }
+	inline bgra8 gray() noexcept { return bgra8(0xff808080); }
+	inline bgra8 greenyellow() noexcept { return bgra8(0xff2fffad); }
+	inline bgra8 honeydew() noexcept { return bgra8(0xfff0fff0); }
+	inline bgra8 hotpink() noexcept { return bgra8(0xffb469ff); }
+	inline bgra8 indianred() noexcept { return bgra8(0xff5c5ccd); }
+	inline bgra8 indigo() noexcept { return bgra8(0xff82004b); }
+	inline bgra8 ivory() noexcept { return bgra8(0xfff0ffff); }
+	inline bgra8 khaki() noexcept { return bgra8(0xff8ce6f0); }
+	inline bgra8 lavender() noexcept { return bgra8(0xfffae6e6); }
+	inline bgra8 lavenderblush() noexcept { return bgra8(0xfff5f0ff); }
+	inline bgra8 lawngreen() noexcept { return bgra8(0xff00fc7c); }
+	inline bgra8 lemonchiffon() noexcept { return bgra8(0xffcdfaff); }
+	inline bgra8 lightblue() noexcept { return bgra8(0xffe6d8ad); }
+	inline bgra8 lightcoral() noexcept { return bgra8(0xff8080f0); }
+	inline bgra8 lightcyan() noexcept { return bgra8(0xffffffe0); }
+	inline bgra8 lightgoldenrodyellow() noexcept { return bgra8(0xffd2fafa); }
+	inline bgra8 lightgray() noexcept { return bgra8(0xffd3d3d3); }
+	inline bgra8 lightgreen() noexcept { return bgra8(0xff90ee90); }
+	inline bgra8 lightpink() noexcept { return bgra8(0xffc1b6ff); }
+	inline bgra8 lightsalmon() noexcept { return bgra8(0xff7aa0ff); }
+	inline bgra8 lightseaGreen() noexcept { return bgra8(0xffaab220); }
+	inline bgra8 lightskyBlue() noexcept { return bgra8(0xffface87); }
+	inline bgra8 lightslateGray() noexcept { return bgra8(0xff998877); }
+	inline bgra8 lightsteelBlue() noexcept { return bgra8(0xffdec4b0); }
+	inline bgra8 lightyellow() noexcept { return bgra8(0xffe0ffff); }
+	inline bgra8 lime() noexcept { return bgra8(0xff00ff00); }
+	inline bgra8 limegreen() noexcept { return bgra8(0xff32cd32); }
+	inline bgra8 linen() noexcept { return bgra8(0xffe6f0fa); }
+	inline bgra8 maroon() noexcept { return bgra8(0xff000080); }
+	inline bgra8 mediumaquamarine() noexcept { return bgra8(0xffaacd66); }
+	inline bgra8 mediumblue() noexcept { return bgra8(0xffcd0000); }
+	inline bgra8 mediumorchid() noexcept { return bgra8(0xffd355ba); }
+	inline bgra8 mediumpurple() noexcept { return bgra8(0xffdb7093); }
+	inline bgra8 mediumseagreen() noexcept { return bgra8(0xff71b33c); }
+	inline bgra8 mediumslateblue() noexcept { return bgra8(0xffee687b); }
+	inline bgra8 mediumspringgreen() noexcept { return bgra8(0xff9afa00); }
+	inline bgra8 mediumturquoise() noexcept { return bgra8(0xffccd148); }
+	inline bgra8 mediumvioletred() noexcept { return bgra8(0xff8515c7); }
+	inline bgra8 midnightblue() noexcept { return bgra8(0xff701919); }
+	inline bgra8 mintcream() noexcept { return bgra8(0xfffafff5); }
+	inline bgra8 mistyrose() noexcept { return bgra8(0xffe1e4ff); }
+	inline bgra8 moccasin() noexcept { return bgra8(0xffb5e4ff); }
+	inline bgra8 navajowhite() noexcept { return bgra8(0xffaddeff); }
+	inline bgra8 navy() noexcept { return bgra8(0xff800000); }
+	inline bgra8 oldlace() noexcept { return bgra8(0xffe6f5fd); }
+	inline bgra8 olive() noexcept { return bgra8(0xff008080); }
+	inline bgra8 olivedrab() noexcept { return bgra8(0xff238e6b); }
+	inline bgra8 orange() noexcept { return bgra8(0xff00a5ff); }
+	inline bgra8 orangered() noexcept { return bgra8(0xff0045ff); }
+	inline bgra8 orchid() noexcept { return bgra8(0xffd670da); }
+	inline bgra8 palegoldenrod() noexcept { return bgra8(0xffaae8ee); }
+	inline bgra8 palegreen() noexcept { return bgra8(0xff98fb98); }
+	inline bgra8 paleturquoise() noexcept { return bgra8(0xffeeeeaf); }
+	inline bgra8 palevioletred() noexcept { return bgra8(0xff9370db); }
+	inline bgra8 papayawhip() noexcept { return bgra8(0xffd5efff); }
+	inline bgra8 peachpuff() noexcept { return bgra8(0xffb9daff); }
+	inline bgra8 peru() noexcept { return bgra8(0xff3f85cd); }
+	inline bgra8 pink() noexcept { return bgra8(0xffcbc0ff); }
+	inline bgra8 plum() noexcept { return bgra8(0xffdda0dd); }
+	inline bgra8 powderblue() noexcept { return bgra8(0xffe6e0b0); }
+	inline bgra8 purple() noexcept { return bgra8(0xff800080); }
+	inline bgra8 rosybrown() noexcept { return bgra8(0xff8f8fbc); }
+	inline bgra8 royalblue() noexcept { return bgra8(0xffe16941); }
+	inline bgra8 saddlebrown() noexcept { return bgra8(0xff13458b); }
+	inline bgra8 salmon() noexcept { return bgra8(0xff7280fa); }
+	inline bgra8 sandybrown() noexcept { return bgra8(0xff60a4f4); }
+	inline bgra8 seagreen() noexcept { return bgra8(0xff578b2e); }
+	inline bgra8 seashell() noexcept { return bgra8(0xffeef5ff); }
+	inline bgra8 sienna() noexcept { return bgra8(0xff2d52a0); }
+	inline bgra8 silver() noexcept { return bgra8(0xffc0c0c0); }
+	inline bgra8 skyblue() noexcept { return bgra8(0xffebce87); }
+	inline bgra8 slateblue() noexcept { return bgra8(0xffcd5a6a); }
+	inline bgra8 slategray() noexcept { return bgra8(0xff908070); }
+	inline bgra8 snow() noexcept { return bgra8(0xfffafaff); }
+	inline bgra8 springgreen() noexcept { return bgra8(0xff7fff00); }
+	inline bgra8 steelblue() noexcept { return bgra8(0xffb48246); }
+	inline bgra8 tan() noexcept { return bgra8(0xff8cb4d2); }
+	inline bgra8 teal() noexcept { return bgra8(0xff808000); }
+	inline bgra8 thistle() noexcept { return bgra8(0xffd8bfd8); }
+	inline bgra8 tomato() noexcept { return bgra8(0xff4763ff); }
+	inline bgra8 turquoise() noexcept { return bgra8(0xffd0e040); }
+	inline bgra8 violet() noexcept { return bgra8(0xffee82ee); }
+	inline bgra8 webgreen() noexcept { return bgra8(0xff008000); }
+	inline bgra8 wheat() noexcept { return bgra8(0xffb3def5); }
+	inline bgra8 whitesmoke() noexcept { return bgra8(0xfff5f5f5); }
+	inline bgra8 yellowgreen() noexcept { return bgra8(0xff32cd9a); }
 }
 
 #endif

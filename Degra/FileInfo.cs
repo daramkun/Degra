@@ -31,7 +31,7 @@ namespace Daramee.Degra
 			set
 			{
 				queued = value;
-				PC ( nameof ( Queued ) );
+				PC(nameof(Queued));
 			}
 		}
 		public string OriginalFilename { get; private set; }
@@ -42,7 +42,7 @@ namespace Daramee.Degra
 			set
 			{
 				status = value;
-				PC ( nameof ( Status ) );
+				PC(nameof(Status));
 			}
 		}
 
@@ -53,9 +53,9 @@ namespace Daramee.Degra
 			OriginalFilename = filename;
 		}
 
-		public void CheckExtension ()
+		public void CheckExtension()
 		{
-			if ( !File.Exists ( OriginalFilename ) )
+			if (!File.Exists(OriginalFilename))
 			{
 				Extension = null;
 				return;
@@ -63,21 +63,20 @@ namespace Daramee.Degra
 
 			try
 			{
-				using ( Stream stream = new FileStream ( OriginalFilename, FileMode.Open, FileAccess.Read, FileShare.Read ) )
-				{
-					if ( stream.Length == 0 )
-					{
-						Extension = null;
-						return;
-					}
+				using Stream stream = new FileStream(OriginalFilename, FileMode.Open, FileAccess.Read, FileShare.Read);
 
-					var detector = DetectorService.DetectDetector ( stream );
-					if ( detector == null || !( ProcessingFormat.IsSupportContainerFormat ( detector.Extension )
-						|| ProcessingFormat.IsSupportImageFormat ( detector.Extension ) ) )
-						Extension = null;
-					else
-						Extension = detector.Extension;
+				if (stream.Length == 0)
+				{
+					Extension = null;
+					return;
 				}
+
+				var detector = DetectorService.DetectDetector(stream);
+				if (detector == null || !(ProcessingFormat.IsSupportContainerFormat(detector.Extension)
+				                          || ProcessingFormat.IsSupportImageFormat(detector.Extension)))
+					Extension = null;
+				else
+					Extension = detector.Extension;
 			}
 			catch
 			{
@@ -86,8 +85,8 @@ namespace Daramee.Degra
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
-		private void PC ( string name ) { PropertyChanged?.Invoke ( this, new PropertyChangedEventArgs ( name ) ); }
+		private void PC(string name) { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name)); }
 
-		public bool Equals ( FileInfo other ) => Path.GetFullPath ( OriginalFilename ) == Path.GetFullPath ( other.OriginalFilename );
+		public bool Equals(FileInfo other) => Path.GetFullPath(OriginalFilename) == Path.GetFullPath(other.OriginalFilename);
 	}
 }

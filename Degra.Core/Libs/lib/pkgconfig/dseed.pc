@@ -1,0 +1,13 @@
+prefix=D:/Projects/libdseed/out/install
+exec_prefix=D:/Projects/libdseed/out/install
+libdir=D:/Projects/libdseed/out/install/lib
+sharedlibdir=D:/Projects/libdseed/out/install/lib
+includedir=D:/Projects/libdseed/out/install/include
+
+Name: dseed
+Description: This is Core library for personal.
+Version: 
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -ldseed
+Cflags: -I${includedir}

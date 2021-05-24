@@ -17,33 +17,33 @@ namespace Daramee.Degra
 		public static Optionizer<T> SharedOptionizer { get; private set; }
 		public static T SharedOptions { get { return SharedOptionizer.Options; } }
 
-		JsonSerializer serializer = new JsonSerializer ( typeof ( T ), new JsonSerializerSettings () { UseSimpleDictionaryFormat = true } );
+		JsonSerializer serializer = new JsonSerializer(typeof(T), new JsonSerializerSettings() { UseSimpleDictionaryFormat = true });
 
 		string saveDirectory;
 
 		public T Options { get; set; }
 
-		public Optionizer ()
+		public Optionizer()
 		{
 			SharedOptionizer = this;
 
 			saveDirectory = $"{AppDomain.CurrentDomain.BaseDirectory}\\Degra.config.json";
-			if ( File.Exists ( saveDirectory ) )
+			if (File.Exists(saveDirectory))
 			{
-				using ( Stream stream = File.Open ( saveDirectory, FileMode.Open ) )
+				using (Stream stream = File.Open(saveDirectory, FileMode.Open))
 				{
-					if ( stream.Length != 0 )
-						Options = serializer.ReadObject ( stream ) as T;
+					if (stream.Length != 0)
+						Options = serializer.ReadObject(stream) as T;
 				}
 			}
 			else
-				Options = Activator.CreateInstance<T> ();
+				Options = Activator.CreateInstance<T>();
 		}
 
-		public void Save ()
+		public void Save()
 		{
-			using ( Stream stream = File.Open ( saveDirectory, FileMode.Create ) )
-				serializer.WriteObject ( stream, Options );
+			using (Stream stream = File.Open(saveDirectory, FileMode.Create))
+				serializer.WriteObject(stream, Options);
 		}
 	}
 }

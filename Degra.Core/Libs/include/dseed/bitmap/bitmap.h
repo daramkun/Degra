@@ -1,165 +1,203 @@
-#ifndef __DSEED_BITMAP_BITMAP_H__
-#define __DSEED_BITMAP_BITMAP_H__
+ï»¿#ifndef __DSEED_BITMAP_H__
+#define __DSEED_BITMAP_H__
 
-namespace dseed
+namespace dseed::bitmaps
 {
-	// Bitmap Type
-	enum bitmaptype_t
-	{
-		// 2D (width * height)
-		bitmaptype_2d,
-		// 2D Cube-map(width * height * 6)
-		bitmaptype_2d_cubemap,
-		// 3D (width * height * depth)
-		bitmaptype_3d,
-	};
-
-	// Cube-map Index
-	enum cubemapindex_t
-	{
-		cubemapindex_positive_x = 0,
-		cubemapindex_negative_x = 1,
-		cubemapindex_positive_y = 2,
-		cubemapindex_negative_y = 3,
-		cubemapindex_positive_z = 4,
-		cubemapindex_negative_z = 5,
-		cubemapindex_size = 6,
-	};
-
-	// Palette Object
 	class DSEEDEXP palette : public object
 	{
 	public:
-		virtual size_t size () = 0;
-		virtual int bits_per_pixel () = 0;
+		virtual size_t size() noexcept = 0;
+		virtual size_t bits_per_pixel() noexcept = 0;
 
 	public:
-		virtual error_t copy_palette (void* dest) = 0;
+		virtual error_t lock(void** ptr) noexcept = 0;
+		virtual error_t unlock() noexcept = 0;
 
 	public:
-		virtual void resize (size_t size) = 0;
-		virtual error_t pixels_pointer (void** ptr) = 0;
+		virtual error_t copy_palette(void* buf) noexcept = 0;
 	};
 
-	DSEEDEXP error_t create_palette (const void* pixels, int bpp, size_t pixelsCount, palette** palette);
-	
-	// Bitmap Object
+	DSEEDEXP error_t create_palette(const void* pixels, size_t bits_per_pixel, size_t size, palette** palette) noexcept;
+	DSEEDEXP error_t create_palette(size_t bits_per_pixel, size_t size, palette** palette) noexcept;
+
+	enum class bitmaptype
+	{
+		bitmap2d,
+		bitmap2dcube,
+		bitmap3d,
+	};
+
+	enum class cubemapindex
+	{
+		positive_x = 0,
+		negative_x = 1,
+		positive_y = 2,
+		negative_y = 3,
+		positive_z = 4,
+		negative_z = 5,
+	};
+
 	class DSEEDEXP bitmap : public object
 	{
 	public:
-		virtual bitmaptype_t type () = 0;
+		virtual bitmaptype type() noexcept = 0;
+		virtual size3i size() noexcept = 0;
+		virtual color::pixelformat format() noexcept = 0;
 
 	public:
-		virtual pixelformat_t format () = 0;
-		virtual size3i size () = 0;
+		virtual error_t palette(palette** palette) noexcept = 0;
 
 	public:
-		virtual error_t palette (palette** palette) = 0;
+		virtual error_t lock(void** ptr) noexcept = 0;
+		virtual error_t unlock() noexcept = 0;
 
 	public:
-		virtual error_t copy_pixels_per_line (void* dest, size_t y, size_t depth = 0) = 0;
-		virtual error_t copy_pixels (void* dest, size_t depth = 0) = 0;
+		virtual error_t copy_pixels(void* dest, size_t depth) = 0;
 
 	public:
-		virtual error_t pixels_pointer_per_line (void** ptr, size_t y, size_t depth = 0) = 0;
-		virtual error_t pixels_pointer (void** ptr, size_t depth = 0) = 0;
+		virtual error_t read_pixels(const rect2i& area, void* ptr, size_t depth = 0) noexcept = 0;
+		virtual error_t write_pixels(const rect2i& area, const void* ptr, size_t depth = 0) noexcept = 0;
 
 	public:
-		virtual error_t read_pixels (void* buffer, const point2i& pos, const size2i& size, size_t depth = 0) = 0;
-		virtual error_t write_pixels (const void* data, const point2i& pos, const size2i& size, size_t depth = 0) = 0;
-
-	public:
-		virtual error_t extra_info (attributes** attr) = 0;
+		virtual error_t extra_info(attributes** attr) noexcept = 0;
 	};
 
-	DSEEDEXP error_t create_bitmap (bitmaptype_t type, const size3i& size, pixelformat_t format, palette* palette, bitmap** bitmap);
+	DSEEDEXP error_t create_bitmap(const void* pixels, bitmaptype type, const size3i& size, color::pixelformat format, palette* palette, bitmap** bitmap) noexcept;
+	DSEEDEXP error_t create_bitmap(bitmaptype type, const size3i& size, color::pixelformat format, palette* palette, bitmap** bitmap) noexcept;
 
-	enum frametype_t
+	enum class arraytype
 	{
-		frametype_plain,
-		frametype_mipmap,
+		plain,
+		mipmap,
 	};
 
-	class DSEEDEXP bitmap_decoder : public object
+	class DSEEDEXP bitmap_array : public object
 	{
 	public:
-		virtual error_t decode_frame (size_t i, bitmap** bitmap, timespan_t* duration) = 0;
-		virtual size_t frame_count () = 0;
-		virtual frametype_t frame_type () = 0;
+		virtual arraytype type() noexcept = 0;
+		virtual size_t size() noexcept = 0;
+
+	public:
+		virtual error_t at(size_t index, dseed::bitmaps::bitmap** bitmap) noexcept = 0;
 	};
 
-	// Decoder Creation Function Prototype
-	using createbitmapdecoder_fn = error_t (*) (dseed::stream*, bitmap_decoder**);
-	// Add Bitmap Decoder to Detection Queue
-	DSEEDEXP error_t add_bitmap_decoder (createbitmapdecoder_fn fn);
-	// Detect Bitmap Decoder from Stream
-	DSEEDEXP error_t detect_bitmap_decoder (dseed::stream* stream, dseed::bitmap_decoder** decoder);
+	DSEEDEXP error_t create_bitmap_array(arraytype type, size_t size, bitmap** bitmaps, bitmap_array** arr) noexcept;
 
-	// Bitmap Encoder
-	class DSEEDEXP bitmap_encoder : public object
+	enum
 	{
-	public:
-		virtual error_t encode_frame (bitmap* bitmap, timespan_t duration) = 0;
-		virtual frametype_t frame_type () = 0;
-
-	public:
-		virtual error_t commit () = 0;
+		bitmap_encoder_options_for_png,
+		bitmap_encoder_options_for_jpeg,
+		bitmap_encoder_options_for_webp,
+		bitmap_encoder_options_for_wic,
 	};
 
-	// Bitmap Encoder Options Base Object
 	struct DSEEDEXP bitmap_encoder_options
 	{
 		size_t options_size;
+		size_t option_type;
+
 	protected:
-		bitmap_encoder_options (size_t options_size) : options_size (options_size) { }
+		bitmap_encoder_options(size_t options_size, size_t option_type) noexcept
+			: options_size(options_size)
+			, option_type(option_type)
+		{ }
 	};
 
-	// Encoder Creation Function Prototype
-	using createbitmapencoder_fn = error_t (*) (dseed::stream*, const bitmap_encoder_options*, bitmap_encoder**);
+	class DSEEDEXP bitmap_encoder : public object
+	{
+	public:
+		virtual arraytype type() noexcept = 0;
 
+	public:
+		virtual error_t encode_frame(bitmap* bitmap) noexcept = 0;
+		virtual error_t commit() noexcept = 0;
+	};
+}
+
+namespace dseed::bitmaps
+{
+	enum class colorcount : uint32_t
+	{
+		unknown = 0,
+		color_1bpp_palettable = 2,
+		color_2bpp_palettable = 4,
+		color_4bpp_palettable = 16,
+		color_8bpp_palettable = 256,
+		color_cannot_palettable = 0xffffffff
+	};
+
+#	if COMPILER_MSVC
+#		pragma pack (push, 1)
+#	else
+#		pragma pack (1)
+#	endif
+	struct bitmap_properties
+	{
+		bool transparent;
+		bool grayscale;
+		colorcount colours;
+	};
+#	if COMPILER_MSVC
+#		pragma pack (pop)
+#	else
+#		pragma pack ()
+#	endif
+
+	DSEEDEXP error_t determine_bitmap_properties(bitmap* bitmap, bitmap_properties* prop, int threshold = 10);
+
+	// Detect Transparented Alpha Value from Bitmap
+	DSEEDEXP error_t detect_transparent(bitmap* bitmap, bool* transparent);
+	// Check Is Bitmap Grayscale?
+	DSEEDEXP error_t detect_grayscale_bitmap(bitmap* bitmap, bool* grayscale, int threshold = 10);
+	// Get Total Colours Count
+	DSEEDEXP error_t get_total_colours(bitmap* bitmap, colorcount* colours);
+}
+
+namespace dseed::bitmaps
+{
 	// Bitmap Pixel Reformatting
 	//  : RGBA, RGB, BGRA, BGR, Grayscale, YCbCr(YUV), Palette color, Chroma Subsampled YCbCr formats(YCbCr 4:2:2 aka YUYV, YCbCr 4:2:0 aka NV12)
 	//    can be converted to each other.
 	//  : Compressed color formats can be converted from/to RGBA only. (BC6H, BC7, ETC2, PVRTC, ASTC not implemented now)
-	DSEEDEXP error_t reformat_bitmap (dseed::bitmap* original, dseed::pixelformat_t reformat, dseed::bitmap** bitmap);
+	DSEEDEXP error_t reformat_bitmap(bitmap* original, dseed::color::pixelformat reformat, bitmap** bitmap);
 
 	// Resize methods
-	enum resize_t
+	enum class resize
 	{
 		// Nearest-Neighborhood
-		resize_nearest,
+		nearest,
 		// Bilinear
-		resize_bilinear,
+		bilinear,
 		// Bicubic,
-		resize_bicubic,
+		bicubic,
 		// Lanczos
-		resize_lanczos,
+		lanczos,
 		// Lanczos x2
-		resize_lanczos2,
+		lanczos2,
 		// Lanczos x3
-		resize_lanczos3,
+		lanczos3,
 		// Lanczos x4
-		resize_lanczos4,
+		lanczos4,
 		// Lanczos x5
-		resize_lanczos5,
+		lanczos5,
 	};
 
 	// Bitmap Rezie
 	//  : RGBA, RGB, BGRA, BGR, Grayscale, YCbCr(YUV, 4:4:4) only support.
-	DSEEDEXP error_t resize_bitmap (dseed::bitmap* original, resize_t resize_method, const size3i& size, dseed::bitmap** bitmap);
+	DSEEDEXP error_t resize_bitmap(bitmap* original, resize resize_method, const size3i& size, bitmap** bitmap);
 	// Bitmap Crop
 	//  : RGBA, RGB, BGRA, BGR, Grayscale, YCbCr(YUV, 4:4:4) only support.
-	DSEEDEXP error_t crop_bitmap (dseed::bitmap* original, const rectangle& area, dseed::bitmap** bitmap);
+	DSEEDEXP error_t crop_bitmap(bitmap* original, const rect2i& area, bitmap** bitmap);
 
 	struct DSEEDEXP bitmap_filter_mask
 	{
 		float mask[192];
 		size_t width, height;
-		bitmap_filter_mask () = default;
-		bitmap_filter_mask (float* mask, size_t width, size_t height);
-		bitmap_filter_mask (float mask, size_t width, size_t height);
+		bitmap_filter_mask() = default;
+		bitmap_filter_mask(float* mask, size_t width, size_t height);
+		bitmap_filter_mask(float mask, size_t width, size_t height);
 
-		inline float get_mask (size_t x, size_t y) const noexcept { return mask[y * width + x]; }
+		inline float get_mask(size_t x, size_t y) const noexcept { return mask[y * width + x]; }
 
 		inline bitmap_filter_mask& operator*= (float factor) noexcept
 		{
@@ -176,31 +214,31 @@ namespace dseed
 			return *this;
 		}
 
-		static void identity_3 (bitmap_filter_mask* mask);
-		static void edge_detection_3 (bitmap_filter_mask* mask);
-		static void sharpen_3 (bitmap_filter_mask* mask);
-		static void gaussian_blur_3 (bitmap_filter_mask* mask);
-		static void gaussian_blur_5 (bitmap_filter_mask* mask);
-		static void unsharpmask_5 (bitmap_filter_mask* mask);
+		static void identity_3(bitmap_filter_mask* mask);
+		static void edge_detection_3(bitmap_filter_mask* mask);
+		static void sharpen_3(bitmap_filter_mask* mask);
+		static void gaussian_blur_3(bitmap_filter_mask* mask);
+		static void gaussian_blur_5(bitmap_filter_mask* mask);
+		static void unsharpmask_5(bitmap_filter_mask* mask);
 	};
 
 	// Bitmap Filtering
 	//  : RGBA, RGB, BGRA, BGR, Grayscale, YCbCr(YUV, 4:4:4) only support.
-	DSEEDEXP error_t filter_bitmap (dseed::bitmap* original, const bitmap_filter_mask& mask, dseed::bitmap** bitmap);
+	DSEEDEXP error_t filter_bitmap(bitmap* original, const bitmap_filter_mask& mask, bitmap** bitmap);
 
-	// Bitmap Horizontal Flipping¡ê
+	// Bitmap Horizontal FlippingÂ¡Ãª
 	//  : RGBA, RGB, BGRA, BGR, Grayscale, YCbCr(YUV, 4:4:4) only support.
-	DSEEDEXP error_t flip_horizontal_bitmap (dseed::bitmap* original, dseed::bitmap** bitmap);
-	// Bitmap Vertical Flipping¢Õ
+	DSEEDEXP error_t flip_horizontal_bitmap(bitmap* original, bitmap** bitmap);
+	// Bitmap Vertical FlippingÂ¢Ã•
 	//  : RGBA, RGB, BGRA, BGR, Grayscale, YCbCr(YUV, 4:4:4) only support.
-	DSEEDEXP error_t flip_vertical_bitmap (dseed::bitmap* original, dseed::bitmap** bitmap);
-	
-	enum histogram_color_t
+	DSEEDEXP error_t flip_vertical_bitmap(bitmap* original, bitmap** bitmap);
+
+	enum class histogram_color
 	{
-		histogram_color_first,
-		histogram_color_second,
-		histogram_color_third,
-		histogram_color_fourth,
+		first,
+		second,
+		third,
+		fourth,
 	};
 
 #	if COMPILER_MSVC
@@ -210,7 +248,7 @@ namespace dseed
 #	endif
 	struct histogram
 	{
-		int histogram[256];
+		int histogram_data[256];
 		size_t total_pixels;
 
 		bool calced_table;
@@ -223,59 +261,33 @@ namespace dseed
 #	endif
 
 	// Generate Histogram from Bitmap
-	DSEEDEXP error_t bitmap_generate_histogram (dseed::bitmap* original, histogram_color_t color, uint32_t depth, histogram* histogram);
+	DSEEDEXP error_t bitmap_generate_histogram(bitmap* original, histogram_color color, uint32_t depth, histogram* histogram);
 	// Doing Histogram Equalization
-	DSEEDEXP error_t histogram_equalization (histogram* histogram);
+	DSEEDEXP error_t histogram_equalization(histogram* histogram);
 	// Apply Histogram to Bitmap
-	DSEEDEXP error_t bitmap_apply_histogram (dseed::bitmap* original, histogram_color_t color, uint32_t depth, const histogram* histogram, dseed::bitmap** bitmap);
+	DSEEDEXP error_t bitmap_apply_histogram(bitmap* original, histogram_color color, uint32_t depth, const histogram* histogram, bitmap** bitmap);
 	// Bitmap Processing to Generate Histogram, Histogram Equalization, Apply Histogram
-	DSEEDEXP error_t bitmap_auto_histogram_equalization (dseed::bitmap* original, histogram_color_t color, uint32_t depth, dseed::bitmap** bitmap);
+	DSEEDEXP error_t bitmap_auto_histogram_equalization(bitmap* original, histogram_color color, uint32_t depth, bitmap** bitmap);
 
 	// Bitmap Binary Operation
 	//  : RGBA, RGB, BGRA, BGR, Grayscale, YCbCr(YUV, 4:4:4) only support.
-	DSEEDEXP error_t bitmap_binary_operation (dseed::bitmap* b1, dseed::bitmap* b2, dseed::binary_operator_t op, dseed::bitmap** bitmap);
+	DSEEDEXP error_t bitmap_binary_operation(bitmap* b1, bitmap* b2, binary_operator op, bitmap** bitmap);
 	// Bitmap Unary Operation
 	//  : RGBA, RGB, BGRA, BGR, Grayscale, YCbCr(YUV, 4:4:4) only support.
-	DSEEDEXP error_t bitmap_unary_operation (dseed::bitmap* b, dseed::unary_operator_t op, dseed::bitmap** bitmap);
-
-	enum colorcount_t : uint32_t
-	{
-		colorcount_unknown = 0,
-		colorcount_1bpp_palettable = 2,
-		colorcount_2bpp_palettable = 4,
-		colorcount_4bpp_palettable = 16,
-		colorcount_8bpp_palettable = 256,
-		colorcount_cannot_palettable = 0xffffffff
-	};
-
-#	if COMPILER_MSVC
-#		pragma pack (push, 1)
-#	else
-#		pragma pack (1)
-#	endif
-	struct bitmap_properties
-	{
-		bool transparent;
-		bool grayscale;
-		colorcount_t colours;
-	};
-#	if COMPILER_MSVC
-#		pragma pack (pop)
-#	else
-#		pragma pack ()
-#	endif
-
-	DSEEDEXP error_t bitmap_determine_bitmap_properties (dseed::bitmap* bitmap, dseed::bitmap_properties* prop, int threshold = 10);
-
-	// Detect Transparented Alpha Value from Bitmap
-	DSEEDEXP error_t bitmap_detect_transparent (dseed::bitmap* bitmap, bool* transparent);
-	// Check Is Bitmap Grayscale?
-	DSEEDEXP error_t bitmap_detect_grayscale_bitmap (dseed::bitmap* bitmap, bool* grayscale, int threshold = 10);
-	// Get Total Colours Count
-	DSEEDEXP error_t bitmap_get_total_colours (dseed::bitmap* bitmap, colorcount_t* colours);
+	DSEEDEXP error_t bitmap_unary_operation(bitmap* b, unary_operator op, bitmap** bitmap);
 }
 
-#include <dseed/bitmap/bitmap.decoders.h>
-#include <dseed/bitmap/bitmap.encoders.h>
+#include "decoders.h"
+#include "encoders.h"
+
+namespace dseed::bitmaps
+{
+	// Decoder Creation Function Prototype
+	using createbitmapdecoder_fn = error_t(*) (dseed::io::stream*, dseed::bitmaps::bitmap_array**);
+	// Add Bitmap Decoder to Detection Queue
+	DSEEDEXP error_t add_bitmap_decoder(createbitmapdecoder_fn fn);
+	// Detect Bitmap Decoder from Stream
+	DSEEDEXP error_t detect_bitmap_decoder(dseed::io::stream* stream, dseed::bitmaps::bitmap_array** decoder);
+}
 
 #endif

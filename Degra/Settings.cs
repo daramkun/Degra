@@ -1,10 +1,6 @@
 ﻿using Daramee.Degra.Native;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Daramee.Degra
 {
@@ -12,19 +8,18 @@ namespace Daramee.Degra
 	{
 		public static Settings SharedSettings { get; private set; }
 
-		string convPathText = System.Environment.GetFolderPath ( Environment.SpecialFolder.MyPictures );
+		string convPathText = Environment.GetFolderPath ( Environment.SpecialFolder.MyPictures );
 		bool fileOverwrite = false;
 		DegrationFormat imageFormat = DegrationFormat.OriginalFormat;
 		uint maxHeight = 8192;
-		ResizeFilter resizeFilter = ResizeFilter.Lanczos;
-		ushort quality = 90;
+		NativeBridge.DegraResizeFilter resizeFilter = NativeBridge.DegraResizeFilter.Ranczos;
+		ushort quality = 80;
 		bool losslessCompression = false;
 		bool onlyConvertNoTransparentDetected = true;
-		bool indexedPixelFormat = true;
-		bool onlyIndexedPixelFormat = true;
+		bool indexedPixelFormat = false;
+		bool onlyIndexedPixelFormat = false;
 		bool grayscalePixelFormat = false;
 		bool onlyGrayscalePixelFormat = true;
-		bool zopfliOpt = true;
 		bool histogramEqualization = false;
 		int threadCount = 0;
 
@@ -33,13 +28,12 @@ namespace Daramee.Degra
 
 		public Settings ()
 		{
-			if ( SharedSettings == null )
-				SharedSettings = this;
+			SharedSettings ??= this;
 		}
 
 		public string ConversionPath
 		{
-			get { return convPathText; }
+			get => convPathText;
 			set
 			{
 				convPathText = value;
@@ -49,7 +43,7 @@ namespace Daramee.Degra
 
 		public bool FileOverwrite
 		{
-			get { return fileOverwrite; }
+			get => fileOverwrite;
 			set
 			{
 				fileOverwrite = value;
@@ -59,7 +53,7 @@ namespace Daramee.Degra
 
 		public DegrationFormat ImageFormat
 		{
-			get { return imageFormat; }
+			get => imageFormat;
 			set
 			{
 				imageFormat = value;
@@ -69,7 +63,7 @@ namespace Daramee.Degra
 
 		public ushort ImageQuality
 		{
-			get { return quality; }
+			get => quality;
 			set
 			{
 				quality = value;
@@ -79,7 +73,7 @@ namespace Daramee.Degra
 
 		public int ThreadCount
 		{
-			get { return threadCount; }
+			get => threadCount;
 			set
 			{
 				threadCount = value;
@@ -90,7 +84,7 @@ namespace Daramee.Degra
 
 		public uint MaximumImageHeight
 		{
-			get { return maxHeight; }
+			get => maxHeight;
 			set
 			{
 				maxHeight = value;
@@ -98,9 +92,9 @@ namespace Daramee.Degra
 			}
 		}
 
-		public ResizeFilter ResizeFilter
+		public NativeBridge.DegraResizeFilter ResizeFilter
 		{
-			get { return resizeFilter; }
+			get => resizeFilter;
 			set
 			{
 				resizeFilter = value;
@@ -110,7 +104,7 @@ namespace Daramee.Degra
 
 		public bool LosslessCompression
 		{
-			get { return losslessCompression; }
+			get => losslessCompression;
 			set
 			{
 				losslessCompression = value;
@@ -120,7 +114,7 @@ namespace Daramee.Degra
 
 		public bool OnlyConvertNoTransparentDetected
 		{
-			get { return onlyConvertNoTransparentDetected; }
+			get => onlyConvertNoTransparentDetected;
 			set
 			{
 				onlyConvertNoTransparentDetected = value;
@@ -130,7 +124,7 @@ namespace Daramee.Degra
 
 		public bool IndexedPixelFormat
 		{
-			get { return indexedPixelFormat; }
+			get => indexedPixelFormat;
 			set
 			{
 				indexedPixelFormat = value;
@@ -140,7 +134,7 @@ namespace Daramee.Degra
 
 		public bool OnlyIndexedPixelFormat
 		{
-			get { return onlyIndexedPixelFormat; }
+			get => onlyIndexedPixelFormat;
 			set
 			{
 				onlyIndexedPixelFormat = value;
@@ -151,7 +145,7 @@ namespace Daramee.Degra
 
 		public bool GrayscalePixelFormat
 		{
-			get { return grayscalePixelFormat; }
+			get => grayscalePixelFormat;
 			set
 			{
 				grayscalePixelFormat = value;
@@ -161,28 +155,19 @@ namespace Daramee.Degra
 
 		public bool OnlyGrayscalePixelFormat
 		{
-			get { return onlyGrayscalePixelFormat; }
+			get => onlyGrayscalePixelFormat;
 			set
 			{
 				onlyGrayscalePixelFormat = value;
 				PC ( nameof ( OnlyGrayscalePixelFormat ) );
 			}
 		}
-		public bool LogicalOnlyGrayscalePixelFormat => GrayscalePixelFormat && OnlyGrayscalePixelFormat;
 
-		public bool ZopfliPNGOptimization
-		{
-			get { return zopfliOpt; }
-			set
-			{
-				zopfliOpt = value;
-				PC ( nameof ( ZopfliPNGOptimization ) );
-			}
-		}
+		public bool LogicalOnlyGrayscalePixelFormat => GrayscalePixelFormat && OnlyGrayscalePixelFormat;
 
 		public bool HistogramEqualization
 		{
-			get { return histogramEqualization; }
+			get => histogramEqualization;
 			set
 			{
 				histogramEqualization = value;

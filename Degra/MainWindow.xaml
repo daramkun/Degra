@@ -130,19 +130,19 @@
 							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=LosslessCompression}"
 									  Content="비손실 압축 사용(WebP)" ToolTip="WebP 압축에 비손실 방식을 사용합니다." />
 							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=IndexedPixelFormat}"
-									  Content="8비트 팔레트 픽셀 형식(PNG)" ToolTip="PNG 압축 시 픽셀 색상 수를 최대 256개로 제한하여 압축률을 높입니다." />
+									  Content="8비트 팔레트 픽셀 형식(PNG)" ToolTip="PNG 압축 시 픽셀 색상 수를 최대 256개로 제한하여 압축률을 높입니다."
+									  IsEnabled="{Binding Source={x:Static local:Settings.SharedSettings}, Path=LogicalOnlyIndexedPixelFormat, Converter={StaticResource booleanNotConverter}}" />
 							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=OnlyIndexedPixelFormat}"
 									  Content="256색 이상은 팔레트로 변환않기" ToolTip="이미지의 픽셀 색상 수가 256색을 넘는다면 팔레트 형식으로 변환하지 않습니다."
-									  IsEnabled="{Binding Source={x:Static local:Settings.SharedSettings}, Path=IndexedPixelFormat}" />
+									  IsEnabled="{Binding Source={x:Static local:Settings.SharedSettings}, Path=IndexedPixelFormat, Converter={StaticResource booleanNotConverter}}" />
 							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=GrayscalePixelFormat}"
-									  Content="회색조 픽셀 형식(JPEG, PNG)" ToolTip="이미지의 픽셀 형식을 8비트 회색조로 변경하여 압축률을 높입니다. " />
+									  Content="회색조 픽셀 형식(JPEG, PNG)" ToolTip="이미지의 픽셀 형식을 8비트 회색조로 변경하여 압축률을 높입니다. "
+									  IsEnabled="{Binding Source={x:Static local:Settings.SharedSettings}, Path=LogicalOnlyGrayscalePixelFormat, Converter={StaticResource booleanNotConverter}}"/>
 							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=OnlyGrayscalePixelFormat}"
 									  Content="회색조인 이미지만 변환하기" ToolTip="이미지의 RGB 픽셀이 회색조로 변환했을 때 손상이 발생한다면, 즉 회색조 이미지가 아니라면 회색조로 변환하지 않습니다."
-									  IsEnabled="{Binding Source={x:Static local:Settings.SharedSettings}, Path=GrayscalePixelFormat}" />
+									  IsEnabled="{Binding Source={x:Static local:Settings.SharedSettings}, Path=GrayscalePixelFormat, Converter={StaticResource booleanNotConverter}}" />
 							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=OnlyConvertNoTransparentDetected}"
 									  Content="투명색 확인 시 JPEG로 변환하지 않음" ToolTip="투명색(알파값)이 포함된 이미지인 경우 투명색을 보존하기 위해 JPEG 변환을 사용하지 않습니다." />
-							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=ZopfliPNGOptimization}"
-									  Content="Zopfli를 이용해 PNG 재압축(PNG)" ToolTip="Zopfli를 이용하여 PNG의 압축률을 최대로 높입니다. 연산력이 많이 필요합니다." />
 							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=HistogramEqualization}"
 									  Content="히스토그램 평활화" ToolTip="픽셀의 히스토그램을 분석한 후 평활화하여 명암 대비를 높입니다. 사진 이미지에만 권장합니다." />
 						</StackPanel>

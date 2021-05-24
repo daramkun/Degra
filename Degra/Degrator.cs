@@ -2,7 +2,6 @@
 using Daramee.Degra.Utilities;
 using Daramee.FileTypeDetector;
 using SharpCompress.Archives;
-using SharpCompress.Archives.Zip;
 using SharpCompress.Readers;
 using System;
 using System.Collections.Concurrent;
@@ -24,20 +23,20 @@ namespace Daramee.Degra
 
 		public double Progress
 		{
-			get { return progress; }
+			get => progress;
 			set
 			{
 				progress = value;
-				PropertyChanged?.Invoke ( this, new PropertyChangedEventArgs ( nameof ( Progress ) ) );
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Progress)));
 			}
 		}
 		public string ProceedFile
 		{
-			get { return proceedFile; }
+			get => proceedFile;
 			set
 			{
 				proceedFile = value;
-				PropertyChanged?.Invoke ( this, new PropertyChangedEventArgs ( nameof ( ProceedFile ) ) );
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProceedFile)));
 			}
 		}
 
@@ -55,299 +54,298 @@ namespace Daramee.Degra
 
 	public static class Degrator
 	{
-		public static bool Degration ( FileInfo fileInfo, ProgressStatus status, CancellationToken cancellationToken )
+		public static bool Degration(FileInfo fileInfo, ProgressStatus status, CancellationToken cancellationToken)
 		{
 			fileInfo.Status = DegraStatus.Processing;
 
 			status.ProceedFile = fileInfo.OriginalFilename;
 			status.Progress = 0;
 
-			if ( cancellationToken.IsCancellationRequested )
+			if (cancellationToken.IsCancellationRequested)
 			{
 				status.Progress = 1;
 				fileInfo.Status = DegraStatus.Cancelled;
 				return false;
 			}
-			if ( !File.Exists ( fileInfo.OriginalFilename ) )
+			if (!File.Exists(fileInfo.OriginalFilename))
 			{
 				status.Progress = 1;
 				fileInfo.Status = DegraStatus.Failed;
 				return false;
 			}
 
-			using ( Stream sourceStream = new FileStream ( fileInfo.OriginalFilename, FileMode.Open, FileAccess.Read ) )
+			var options = new NativeBridge.DegraOptions()
 			{
-				string tempFileName = Path.Combine ( Settings.SharedSettings.ConversionPath, Path.GetFileName ( Path.GetTempFileName () ) );
-				string newFileName = null;
-				bool ret = false;
-				try
+				max_height = Settings.SharedSettings.MaximumImageHeight,
+				use_lossless = Settings.SharedSettings.LosslessCompression,
+				quality = Settings.SharedSettings.ImageQuality,
+				use_8bit_palette = Settings.SharedSettings.IndexedPixelFormat,
+				use_8bit_palette_but_no_use_over_256_color =
+					Settings.SharedSettings.LogicalOnlyIndexedPixelFormat,
+				use_grayscale = Settings.SharedSettings.GrayscalePixelFormat,
+				use_grayscale_but_no_use_to_grayscale_image =
+					Settings.SharedSettings.LogicalOnlyGrayscalePixelFormat,
+				no_convert_to_png_when_detected_transparent_color =
+					Settings.SharedSettings.OnlyConvertNoTransparentDetected,
+				resize_filter = Settings.SharedSettings.ResizeFilter,
+				use_histogram_equailization = Settings.SharedSettings.HistogramEqualization,
+			};
+
+			using var sourceStream = new FileStream(fileInfo.OriginalFilename, FileMode.Open, FileAccess.Read);
+			var tempFileName = Path.Combine(Settings.SharedSettings.ConversionPath, Path.GetFileName(Path.GetTempFileName()));
+			string newFileName = null;
+			var ret = false;
+			try
+			{
+				using (Stream destinationStream = new FileStream(tempFileName, FileMode.Create, FileAccess.ReadWrite))
 				{
-					using ( Stream destinationStream = new FileStream ( tempFileName, FileMode.Create, FileAccess.ReadWrite ) )
+					if (ProcessingFormat.IsSupportContainerFormat(fileInfo.Extension))
 					{
-						if ( ProcessingFormat.IsSupportContainerFormat( fileInfo.Extension ) )
-						{
-							ret = Degration_Zip ( destinationStream, sourceStream, Path.GetFileName ( fileInfo.OriginalFilename ), status, cancellationToken );
-							if ( ret )
-								newFileName = Path.Combine ( Settings.SharedSettings.ConversionPath, Path.GetFileNameWithoutExtension ( fileInfo.OriginalFilename ) + ".zip" );
-						}
-						else
-						{
-							ret = Degration_SingleFile ( destinationStream, sourceStream, fileInfo.Extension, out DegrationFormat format, cancellationToken );
-
-							if ( ret )
-								newFileName = Path.Combine ( Settings.SharedSettings.ConversionPath, GetFileName ( Path.GetFileNameWithoutExtension ( fileInfo.OriginalFilename ), format ) );
-						}
+						ret = Degration_Zip(destinationStream, sourceStream, Path.GetFileName(fileInfo.OriginalFilename), status, cancellationToken);
+						if (ret)
+							newFileName = Path.Combine(Settings.SharedSettings.ConversionPath, Path.GetFileNameWithoutExtension(fileInfo.OriginalFilename) + ".zip");
 					}
-					if ( newFileName != null )
-						Daramee.Winston.File.Operation.Move ( newFileName, tempFileName, Settings.SharedSettings.FileOverwrite );
-				}
-				catch
-				{
-					Daramee.Winston.File.Operation.Delete ( tempFileName );
-					ret = false;
-				}
-				finally
-				{
-					if ( ret )
-						fileInfo.Status = DegraStatus.Done;
-					else if ( cancellationToken.IsCancellationRequested )
-						fileInfo.Status = DegraStatus.Cancelled;
 					else
-						fileInfo.Status = DegraStatus.Failed;
+					{
+						ret = Degration_SingleFile(destinationStream, sourceStream, options, out var format, cancellationToken);
 
-					status.Progress = 1;
+						if (ret)
+							newFileName = Path.Combine(Settings.SharedSettings.ConversionPath, GetFileName(Path.GetFileNameWithoutExtension(fileInfo.OriginalFilename), format));
+					}
 				}
-
-				return ret;
+				if (newFileName != null)
+					Daramee.Winston.File.Operation.Move(newFileName, tempFileName, Settings.SharedSettings.FileOverwrite);
 			}
-		}
-
-		private static void StreamCopy (Stream dest, Stream src)
-		{
-			byte [] buffer = new byte [ 4096 ];
-			int totalRead = 0;
-			while ( true )
+			catch
 			{
-				int read = src.Read ( buffer, 0, buffer.Length );
-				if ( read == 0 ) break;
-				dest.Write ( buffer, 0, read );
-				totalRead += read;
+				Daramee.Winston.File.Operation.Delete(tempFileName);
+				ret = false;
 			}
-		}
-
-		private static string GetExtension ( DegrationFormat format )
-		{
-			switch(format)
+			finally
 			{
-				case DegrationFormat.WebP: return "webp";
-				case DegrationFormat.JPEG: return "jpg";
-				case DegrationFormat.PNG: return "png";
-				default: return "";
+				if (ret)
+					fileInfo.Status = DegraStatus.Done;
+				else if (cancellationToken.IsCancellationRequested)
+					fileInfo.Status = DegraStatus.Cancelled;
+				else
+					fileInfo.Status = DegraStatus.Failed;
+
+				status.Progress = 1;
+			}
+
+			return ret;
+		}
+
+		private static void StreamCopy(Stream dest, Stream src)
+		{
+			var buffer = new byte[4096];
+			while (true)
+			{
+				var read = src.Read(buffer, 0, buffer.Length);
+				if (read == 0) break;
+				dest.Write(buffer, 0, read);
 			}
 		}
 
-		private static string GetFileName ( string filename, DegrationFormat format )
+		private static string GetExtension(DegrationFormat format)
 		{
-			int extensionPosition = filename.LastIndexOf ( '.' );
-			if ( extensionPosition < filename.LastIndexOf ( '\\' ) || extensionPosition < filename.LastIndexOf ( '/' ) )
+			return format switch
+			{
+				DegrationFormat.WebP => "webp",
+				DegrationFormat.JPEG => "jpg",
+				DegrationFormat.PNG => "png",
+				_ => ""
+			};
+		}
+
+		private static string GetFileName(string filename, DegrationFormat format)
+		{
+			var extensionPosition = filename.LastIndexOf('.');
+			if (extensionPosition < filename.LastIndexOf('\\') || extensionPosition < filename.LastIndexOf('/'))
 				extensionPosition = -1;
 
-			if ( extensionPosition == -1 )
-				return $"{filename}.{GetExtension ( format )}";
-			else
-				return $"{filename.Substring ( 0, extensionPosition )}.{GetExtension ( format )}";
+			return extensionPosition == -1 
+				? $"{filename}.{GetExtension(format)}"
+				: $"{filename[..extensionPosition]}.{GetExtension(format)}";
 		}
 
-		private static DegrationFormat GetFormat (string extension, DegrationFormat format)
+		private static DegrationFormat GetFormat(string extension, DegrationFormat format)
 		{
-			if ( format == DegrationFormat.OriginalFormat )
+			if (format != DegrationFormat.OriginalFormat)
+				return format;
+
+			return extension switch
 			{
-				if ( extension == "png" )
-					return DegrationFormat.PNG;
-				else if ( extension == "webp" )
-					return DegrationFormat.WebP;
-				else if ( extension == "jpg" )
-					return DegrationFormat.JPEG;
-				else if ( ProcessingFormat.IsSupportImageFormat ( extension ) )
-					return DegrationFormat.WebP;
-				else
-					return DegrationFormat.OriginalFormat;
-			}
-			return format;
+				"png" => DegrationFormat.PNG,
+				"webp" => DegrationFormat.WebP,
+				"jpg" => DegrationFormat.JPEG,
+				_ => ProcessingFormat.IsSupportImageFormat(extension)
+					? DegrationFormat.WebP
+					: DegrationFormat.OriginalFormat
+			};
 		}
 
-		readonly static ConcurrentQueue<MemoryStream> StreamBag = new ConcurrentQueue<MemoryStream> ();
+		private static readonly ConcurrentQueue<MemoryStream> StreamBag = new();
 		static MemoryStream GetMemoryStream()
 		{
-			if ( StreamBag.TryDequeue ( out MemoryStream ret ) )
-				return ret;
-			return new MemoryStream ();
+			return StreamBag.TryDequeue(out var ret)
+				? ret
+				: new MemoryStream();
 		}
-		static void ReturnMemoryStream (MemoryStream stream)
+		static void ReturnMemoryStream(MemoryStream stream)
 		{
-			StreamBag.Enqueue ( stream );
+			StreamBag.Enqueue(stream);
 		}
 		public static void CleanupMemory()
 		{
-			while ( StreamBag.TryDequeue ( out MemoryStream stream ) )
-				stream.Dispose ();
-			GC.Collect ();
+			while (StreamBag.TryDequeue(out var stream))
+				stream.Dispose();
+			GC.Collect();
 		}
 
-		private static bool Degration_Zip ( Stream dest, Stream src, string containerName, ProgressStatus status, CancellationToken cancellationToken )
+		private static bool Degration_Zip(Stream dest, Stream src, string containerName, ProgressStatus status, CancellationToken cancellationToken)
 		{
-			using ( IArchive srcArchive = ArchiveFactory.Open ( src, new ReaderOptions () { LeaveStreamOpen = true } ) )
+			using var srcArchive = ArchiveFactory.Open(src, new ReaderOptions() { LeaveStreamOpen = true });
+			var entryCount = srcArchive.Entries.Count();
+			using var destArchive = new System.IO.Compression.ZipArchive(dest, System.IO.Compression.ZipArchiveMode.Create, true);
+			var proceed = 0;
+			var cache = new ConcurrentQueue<KeyValuePair<string, MemoryStream>>();
+
+			var options = new NativeBridge.DegraOptions()
 			{
-				int entryCount = srcArchive.Entries.Count ();
-				using ( System.IO.Compression.ZipArchive destArchive = new System.IO.Compression.ZipArchive ( dest, System.IO.Compression.ZipArchiveMode.Create, true ) )
+				save_format = (NativeBridge.DegraSaveFormat) Settings.SharedSettings.ImageFormat,
+				max_height = Settings.SharedSettings.MaximumImageHeight,
+				use_lossless = Settings.SharedSettings.LosslessCompression,
+				quality = Settings.SharedSettings.ImageQuality,
+				use_8bit_palette = Settings.SharedSettings.IndexedPixelFormat,
+				use_8bit_palette_but_no_use_over_256_color =
+					Settings.SharedSettings.LogicalOnlyIndexedPixelFormat,
+				use_grayscale = Settings.SharedSettings.GrayscalePixelFormat,
+				use_grayscale_but_no_use_to_grayscale_image =
+					Settings.SharedSettings.LogicalOnlyGrayscalePixelFormat,
+				no_convert_to_png_when_detected_transparent_color =
+					Settings.SharedSettings.OnlyConvertNoTransparentDetected,
+				resize_filter = Settings.SharedSettings.ResizeFilter,
+				use_histogram_equailization = Settings.SharedSettings.HistogramEqualization,
+			};
+
+			Task.Run(
+				() =>
 				{
-					int proceed = 0;
-					ConcurrentQueue<KeyValuePair<string, MemoryStream>> cache = new ConcurrentQueue<KeyValuePair<string, MemoryStream>> ();
-
-					Task.Run (
-						() =>
-						{
-							try
-							{
-								Parallel.ForEach ( srcArchive.Entries,
-									new ParallelOptions () { CancellationToken = cancellationToken, MaxDegreeOfParallelism = Settings.SharedSettings.LogicalThreadCount },
-									( entry ) =>
-									{
-										if ( entry.IsDirectory || cancellationToken.IsCancellationRequested )
-										{
-											Interlocked.Increment ( ref proceed );
-											return;
-										}
-
-										MemoryStream readStream = GetMemoryStream ();
-										MemoryStream convStream = GetMemoryStream ();
-
-										lock ( srcArchive )
-										{
-											using ( Stream entryStream = entry.OpenEntryStream () )
-												StreamCopy ( readStream, entryStream );
-										}
-
-										status.ProceedFile = $"{containerName} - {entry.Key}";
-										var detector = DetectorService.DetectDetector ( readStream );
-										if ( detector != null && ProcessingFormat.IsSupportImageFormat ( detector.Extension ) )
-										{
-											readStream.Position = 0;
-											bool ret = Degration_SingleFile ( convStream, readStream, detector.Extension, out DegrationFormat format2, cancellationToken );
-											convStream.Position = 0;
-
-											if ( !ret || ( ( GetExtension ( format2 ) == detector.Extension ) && ( readStream.Length <= convStream.Length ) && !Settings.SharedSettings.HistogramEqualization ) )
-												cache.Enqueue ( new KeyValuePair<string, MemoryStream> ( entry.Key, readStream ) );
-											else
-												cache.Enqueue ( new KeyValuePair<string, MemoryStream> ( GetFileName ( entry.Key, format2 ), convStream ) );
-										}
-										else
-											cache.Enqueue ( new KeyValuePair<string, MemoryStream> ( entry.Key, readStream ) );
-									}
-								);
-							}
-							catch ( OperationCanceledException ex )
-							{
-								Debug.WriteLine ( ex );
-							}
-						}
-					);
-
-					Task.Run ( () =>
+					try
 					{
-						while ( status.Progress < 1 )
-						{
-							if ( cancellationToken.IsCancellationRequested )
-								break;
-
-							if ( !cache.TryDequeue ( out KeyValuePair<string, MemoryStream> kv ) )
-								continue;
-
-							status.ProceedFile = kv.Key;
-
-							var destEntry = destArchive.CreateEntry ( kv.Key );
-							using ( Stream destEntryStream = destEntry.Open () )
+						Parallel.ForEach(srcArchive.Entries,
+							new ParallelOptions() { CancellationToken = cancellationToken, MaxDegreeOfParallelism = Settings.SharedSettings.LogicalThreadCount },
+							(entry) =>
 							{
-								kv.Value.Position = 0;
-								StreamCopy ( destEntryStream, kv.Value );
+								if (entry.IsDirectory || cancellationToken.IsCancellationRequested)
+								{
+									Interlocked.Increment(ref proceed);
+									return;
+								}
+
+								var readStream = GetMemoryStream();
+								var convStream = GetMemoryStream();
+
+								lock (srcArchive)
+								{
+									using var entryStream = entry.OpenEntryStream();
+									StreamCopy(readStream, entryStream);
+								}
+
+								status.ProceedFile = $"{containerName} - {entry.Key}";
+								var detector = DetectorService.DetectDetector(readStream);
+								if (detector != null && ProcessingFormat.IsSupportImageFormat(detector.Extension))
+								{
+									readStream.Position = 0;
+									var ret = Degration_SingleFile(convStream, readStream, options, out DegrationFormat format2, cancellationToken);
+									convStream.Position = 0;
+
+									if (!ret || ((GetExtension(format2) == detector.Extension) && (readStream.Length <= convStream.Length) && !Settings.SharedSettings.HistogramEqualization))
+										cache.Enqueue(new KeyValuePair<string, MemoryStream>(entry.Key, readStream));
+									else
+										cache.Enqueue(new KeyValuePair<string, MemoryStream>(GetFileName(entry.Key, format2), convStream));
+								}
+								else
+									cache.Enqueue(new KeyValuePair<string, MemoryStream>(entry.Key, readStream));
 							}
-
-							status.Progress = Interlocked.Increment ( ref proceed ) / ( double ) entryCount;
-
-							kv.Value.SetLength ( 0 );
-							ReturnMemoryStream ( kv.Value );
-						}
-					} );
-
-					while ( status.Progress < 1 )
-					{
-						if ( cancellationToken.IsCancellationRequested )
-							break;
-						Thread.Sleep ( 0 );
+						);
 					}
+					catch (OperationCanceledException ex)
+					{
+						Debug.WriteLine(ex);
+					}
+				}, cancellationToken);
+
+			Task.Run(() =>
+			{
+				while (status.Progress < 1)
+				{
+					if (cancellationToken.IsCancellationRequested)
+						break;
+
+					if (!cache.TryDequeue(out KeyValuePair<string, MemoryStream> kv))
+						continue;
+
+					status.ProceedFile = kv.Key;
+
+					var destEntry = destArchive.CreateEntry(kv.Key);
+					using (var destEntryStream = destEntry.Open())
+					{
+						kv.Value.Position = 0;
+						StreamCopy(destEntryStream, kv.Value);
+					}
+
+					status.Progress = Interlocked.Increment(ref proceed) / (double)entryCount;
+
+					kv.Value.SetLength(0);
+					ReturnMemoryStream(kv.Value);
 				}
+			}, cancellationToken);
+
+			while (status.Progress < 1)
+			{
+				if (cancellationToken.IsCancellationRequested)
+					break;
+				Thread.Sleep(0);
 			}
-			return cancellationToken.IsCancellationRequested ? false : true;
+
+			return !cancellationToken.IsCancellationRequested;
 		}
 
-		private static bool Degration_SingleFile ( Stream dest, Stream src, string ext, out DegrationFormat format, CancellationToken cancellationToken )
+		private static bool Degration_SingleFile(Stream dest, Stream src, in NativeBridge.DegraOptions options, out DegrationFormat format, CancellationToken cancellationToken)
 		{
-			if ( cancellationToken.IsCancellationRequested )
+			if (cancellationToken.IsCancellationRequested)
 			{
 				format = DegrationFormat.OriginalFormat;
 				return false;
 			}
 
-			format = GetFormat ( ext, Settings.SharedSettings.ImageFormat );
-			if ( format == DegrationFormat.OriginalFormat )
-				return false;
+			using var inputStream = new DegraStream(src);
+			using var outputStream = new DegraStream(dest);
 
-			using ( DegraBitmap bitmap = new DegraBitmap ( src ) )
+			var result = NativeBridge.Degra_DoProcess(inputStream, outputStream, options, out var savedFormat);
+
+			switch (savedFormat)
 			{
-				dest.Position = 0;
+				case NativeBridge.DegraSaveFormat.WebP:
+					format = DegrationFormat.WebP;
+					break;
 
-				bool grayscaleOnly = false, palettable = false;
-				if ( ( format == DegrationFormat.JPEG && Settings.SharedSettings.OnlyConvertNoTransparentDetected )
-					|| Settings.SharedSettings.LogicalOnlyIndexedPixelFormat
-					|| Settings.SharedSettings.LogicalOnlyGrayscalePixelFormat )
-				{
-					bitmap.DetectBitmapProperties ( out bool containsTransparent, out grayscaleOnly, out palettable );
-					if ( format == DegrationFormat.JPEG && Settings.SharedSettings.OnlyConvertNoTransparentDetected && containsTransparent )
-						return false;
-				}
+				case NativeBridge.DegraSaveFormat.Jpeg:
+					format = DegrationFormat.JPEG;
+					break;
 
-				if ( bitmap.Size.Height > Settings.SharedSettings.MaximumImageHeight )
-					bitmap.Resize ( ( int ) Settings.SharedSettings.MaximumImageHeight, Settings.SharedSettings.ResizeFilter );
+				case NativeBridge.DegraSaveFormat.Png:
+					format = DegrationFormat.PNG;
+					break;
 
-				if ( Settings.SharedSettings.HistogramEqualization )
-					bitmap.HistogramEqualization ();
-
-				if ( Settings.SharedSettings.GrayscalePixelFormat && format != DegrationFormat.WebP )
-					if ( Settings.SharedSettings.LogicalOnlyGrayscalePixelFormat && grayscaleOnly )
-						bitmap.To8BitGrayscaleColorFormat ();
-				if ( Settings.SharedSettings.IndexedPixelFormat && format == DegrationFormat.PNG )
-					if ( Settings.SharedSettings.LogicalOnlyIndexedPixelFormat && palettable )
-						bitmap.To8BitIndexedColorFormat ();
-
-				switch ( format )
-				{
-					case DegrationFormat.WebP:
-						bitmap.SaveToWebP ( dest, Settings.SharedSettings.ImageQuality, Settings.SharedSettings.LosslessCompression );
-						break;
-
-					case DegrationFormat.JPEG:
-						bitmap.SaveToJPEG ( dest, Settings.SharedSettings.ImageQuality );
-						break;
-
-					case DegrationFormat.PNG:
-						bitmap.SaveToPNG ( dest, Settings.SharedSettings.ZopfliPNGOptimization );
-						break;
-
-					default: return false;
-				}
+				default:
+					format = DegrationFormat.OriginalFormat;
+					return false;
 			}
 
-			return true;
+			return result != NativeBridge.DegraResult.Failed;
 		}
 	}
 }

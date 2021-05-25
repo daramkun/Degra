@@ -15,6 +15,7 @@
 		<conv:ListViewItemColorConverter x:Key="listViewItemColorConverter" />
 		<conv:StatusTextConverter x:Key="statusTextConverter" />
 		<conv:BooleanNotConverter x:Key="booleanNotConverter" />
+		<conv:FileSizeConverter x:Key="fileSizeConverter" />
 
 		<Path x:Key="iconOpenButton" Data="M7.5160018,7.0210069L32,7.0210069 26.112001,21.280001 2.2460016,21.280001z M0,0L9.2969996,0 11.158,4.0930236 26.091997,4.0930236 26.087999,5.3469933 6.3500015,5.3469933 0.46300124,21.280001 0,21.280001z" Stretch="Uniform" Fill="#FF000000" Width="14" Height="14" RenderTransformOrigin="0.5,0.5" />
 		<Path x:Key="iconDeleteButton" Data="M2.2927691,29.869995L29.987991,29.869995C30.572986,29.869995 31.051994,30.350006 31.051994,30.93399 31.051994,31.522003 30.572986,32 29.987991,32L2.2927691,32C1.7077578,32 1.2287654,31.522003 1.2287652,30.93399 1.2287654,30.350006 1.7077578,29.869995 2.2927691,29.869995z M9.8858304,11.558014L2.1267674,19.368011 7.0638022,24.429993C7.4928064,24.862,8.5888075,25.610016,9.1948151,25.610016L12.466844,25.610016C13.073843,25.610016,13.934858,24.862,14.364853,24.429993L18.478898,20.153992z M19.202903,0C19.747905,0,20.292909,0.24398804,20.707904,0.65899658L29.412975,9.3980103C30.240983,10.225006,30.240983,11.653992,29.412975,12.483002L16.103881,25.936005C15.274865,26.766998,13.640849,27.73999,12.466844,27.73999L9.1948151,27.73999C8.0238165,27.73999,6.3878021,26.766998,5.5577931,25.936005L0.62175103,20.708008C-0.20725034,19.880005,-0.20725034,18.52301,0.62175103,17.697998L17.69688,0.6210022C18.108886,0.20599365,18.656894,0,19.202903,0z" Stretch="Uniform" Fill="#FF000000" Width="14" Height="14" RenderTransformOrigin="0.5,0.5" />
@@ -131,20 +132,18 @@
 									  Content="비손실 압축 사용(WebP)" ToolTip="WebP 압축에 비손실 방식을 사용합니다." />
 							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=IndexedPixelFormat}"
 									  Content="8비트 팔레트 픽셀 형식(PNG)" ToolTip="PNG 압축 시 픽셀 색상 수를 최대 256개로 제한하여 압축률을 높입니다."
-									  IsEnabled="{Binding Source={x:Static local:Settings.SharedSettings}, Path=LogicalOnlyIndexedPixelFormat, Converter={StaticResource booleanNotConverter}}" />
+									  IsEnabled="{Binding Source={x:Static local:Settings.SharedSettings}, Path=OnlyIndexedPixelFormat, Converter={StaticResource booleanNotConverter}}" />
 							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=OnlyIndexedPixelFormat}"
-									  Content="256색 이상은 팔레트로 변환않기" ToolTip="이미지의 픽셀 색상 수가 256색을 넘는다면 팔레트 형식으로 변환하지 않습니다."
+									  Content="256색 이하면 8비트 팔레트 픽셀 형식(PNG)" ToolTip="이미지의 픽셀 색상 수가 256색을 넘는다면 팔레트 형식으로 변환하지 않습니다."
 									  IsEnabled="{Binding Source={x:Static local:Settings.SharedSettings}, Path=IndexedPixelFormat, Converter={StaticResource booleanNotConverter}}" />
 							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=GrayscalePixelFormat}"
 									  Content="회색조 픽셀 형식(JPEG, PNG)" ToolTip="이미지의 픽셀 형식을 8비트 회색조로 변경하여 압축률을 높입니다. "
-									  IsEnabled="{Binding Source={x:Static local:Settings.SharedSettings}, Path=LogicalOnlyGrayscalePixelFormat, Converter={StaticResource booleanNotConverter}}"/>
+									  IsEnabled="{Binding Source={x:Static local:Settings.SharedSettings}, Path=OnlyGrayscalePixelFormat, Converter={StaticResource booleanNotConverter}}"/>
 							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=OnlyGrayscalePixelFormat}"
-									  Content="회색조인 이미지만 변환하기" ToolTip="이미지의 RGB 픽셀이 회색조로 변환했을 때 손상이 발생한다면, 즉 회색조 이미지가 아니라면 회색조로 변환하지 않습니다."
+									  Content="회색조인 이미지만 회색조 픽셀 형식(JPEG, PNG)" ToolTip="이미지의 RGB 픽셀이 회색조로 변환했을 때 손상이 발생한다면, 즉 회색조 이미지가 아니라면 회색조로 변환하지 않습니다."
 									  IsEnabled="{Binding Source={x:Static local:Settings.SharedSettings}, Path=GrayscalePixelFormat, Converter={StaticResource booleanNotConverter}}" />
 							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=OnlyConvertNoTransparentDetected}"
 									  Content="투명색 확인 시 JPEG로 변환하지 않음" ToolTip="투명색(알파값)이 포함된 이미지인 경우 투명색을 보존하기 위해 JPEG 변환을 사용하지 않습니다." />
-							<CheckBox Margin="0,0,0,4" IsChecked="{Binding Source={x:Static local:Settings.SharedSettings}, Path=HistogramEqualization}"
-									  Content="히스토그램 평활화" ToolTip="픽셀의 히스토그램을 분석한 후 평활화하여 명암 대비를 높입니다. 사진 이미지에만 권장합니다." />
 						</StackPanel>
 					</GroupBox>
 
@@ -154,8 +153,9 @@
 
 			<ListView Name="ListViewFiles" Grid.Column="1" AllowDrop="True" Drop="ListViewFiles_Drop" DragEnter="ListViewFiles_DragEnter" KeyUp="ListViewFiles_KeyUp">
 				<ListView.ItemContainerStyle>
-					<Style TargetType="{x:Type ListViewItem}">
+					<Style TargetType="ListViewItem">
 						<Setter Property="Background" Value="{Binding Path=Status, Converter={StaticResource listViewItemColorConverter}}" />
+						<Setter Property="HorizontalContentAlignment" Value="Stretch" />
 					</Style>
 				</ListView.ItemContainerStyle>
 
@@ -178,17 +178,25 @@
 							</GridViewColumn.CellTemplate>
 						</GridViewColumn>
 
-						<GridViewColumn Width="394">
+						<GridViewColumn Width="300">
 							<GridViewColumnHeader Content="파일" />
 							<GridViewColumn.CellTemplate>
 								<DataTemplate>
 									<StackPanel Orientation="Horizontal">
-										<TextBlock Foreground="DarkSlateBlue" Text="{Binding OriginalFilename}" ToolTip="{Binding OriginalFilename}" />
+										<TextBlock Foreground="DarkSlateBlue" Text="{Binding Filename}" ToolTip="{Binding OriginalFilename}" />
 									</StackPanel>
 								</DataTemplate>
 							</GridViewColumn.CellTemplate>
 						</GridViewColumn>
 						<GridViewColumn Width="72">
+							<GridViewColumnHeader Content="파일 크기" />
+							<GridViewColumn.CellTemplate>
+								<DataTemplate>
+									<TextBlock Foreground="DarkSlateBlue" Text="{Binding FileSize, Converter={StaticResource fileSizeConverter}}" Background="Transparent" />
+								</DataTemplate>
+							</GridViewColumn.CellTemplate>
+						</GridViewColumn>
+						<GridViewColumn Width="68">
 							<GridViewColumnHeader Content="상태" />
 							<GridViewColumn.CellTemplate>
 								<DataTemplate>

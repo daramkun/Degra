@@ -10,7 +10,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -81,14 +80,13 @@ namespace Daramee.Degra
 				quality = Settings.SharedSettings.ImageQuality,
 				use_8bit_palette = Settings.SharedSettings.IndexedPixelFormat,
 				use_8bit_palette_but_no_use_over_256_color =
-					Settings.SharedSettings.LogicalOnlyIndexedPixelFormat,
+					Settings.SharedSettings.OnlyIndexedPixelFormat,
 				use_grayscale = Settings.SharedSettings.GrayscalePixelFormat,
 				use_grayscale_but_no_use_to_grayscale_image =
-					Settings.SharedSettings.LogicalOnlyGrayscalePixelFormat,
+					Settings.SharedSettings.OnlyGrayscalePixelFormat,
 				no_convert_to_png_when_detected_transparent_color =
 					Settings.SharedSettings.OnlyConvertNoTransparentDetected,
 				resize_filter = Settings.SharedSettings.ResizeFilter,
-				use_histogram_equailization = Settings.SharedSettings.HistogramEqualization,
 			};
 
 			using var sourceStream = new FileStream(fileInfo.OriginalFilename, FileMode.Open, FileAccess.Read);
@@ -219,14 +217,13 @@ namespace Daramee.Degra
 				quality = Settings.SharedSettings.ImageQuality,
 				use_8bit_palette = Settings.SharedSettings.IndexedPixelFormat,
 				use_8bit_palette_but_no_use_over_256_color =
-					Settings.SharedSettings.LogicalOnlyIndexedPixelFormat,
+					Settings.SharedSettings.OnlyIndexedPixelFormat,
 				use_grayscale = Settings.SharedSettings.GrayscalePixelFormat,
 				use_grayscale_but_no_use_to_grayscale_image =
-					Settings.SharedSettings.LogicalOnlyGrayscalePixelFormat,
+					Settings.SharedSettings.OnlyGrayscalePixelFormat,
 				no_convert_to_png_when_detected_transparent_color =
 					Settings.SharedSettings.OnlyConvertNoTransparentDetected,
 				resize_filter = Settings.SharedSettings.ResizeFilter,
-				use_histogram_equailization = Settings.SharedSettings.HistogramEqualization,
 			};
 
 			Task.Run(
@@ -258,10 +255,10 @@ namespace Daramee.Degra
 								if (detector != null && ProcessingFormat.IsSupportImageFormat(detector.Extension))
 								{
 									readStream.Position = 0;
-									var ret = Degration_SingleFile(convStream, readStream, options, out DegrationFormat format2, cancellationToken);
+									var ret = Degration_SingleFile(convStream, readStream, options, out var format2, cancellationToken);
 									convStream.Position = 0;
 
-									if (!ret || ((GetExtension(format2) == detector.Extension) && (readStream.Length <= convStream.Length) && !Settings.SharedSettings.HistogramEqualization))
+									if (!ret || ((GetExtension(format2) == detector.Extension) && (readStream.Length <= convStream.Length)))
 										cache.Enqueue(new KeyValuePair<string, MemoryStream>(entry.Key, readStream));
 									else
 										cache.Enqueue(new KeyValuePair<string, MemoryStream>(GetFileName(entry.Key, format2), convStream));

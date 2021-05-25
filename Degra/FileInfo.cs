@@ -35,6 +35,16 @@ namespace Daramee.Degra
 			}
 		}
 		public string OriginalFilename { get; private set; }
+		public string Filename => Path.GetFileName(OriginalFilename);
+
+		public long FileSize
+		{
+			get
+			{
+				using var stream = new FileStream(OriginalFilename, FileMode.Open, FileAccess.Read);
+				return stream.Length;
+			}
+		}
 
 		public DegraStatus Status
 		{

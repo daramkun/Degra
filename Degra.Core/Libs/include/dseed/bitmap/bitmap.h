@@ -83,6 +83,21 @@ namespace dseed::bitmaps
 
 	DSEEDEXP error_t create_bitmap_array(arraytype type, size_t size, bitmap** bitmaps, bitmap_array** arr) noexcept;
 
+	static inline error_t create_bitmap_array(arraytype type, bitmap* bitmap, bitmap_array** arr) noexcept
+	{
+		return create_bitmap_array(type, 1, &bitmap, arr);
+	}
+
+	static inline error_t create_bitmap_array(arraytype type, std::vector<bitmap*>& bitmaps, bitmap_array** arr) noexcept
+	{
+		return create_bitmap_array(type, bitmaps.size(), bitmaps.data(), arr);
+	}
+
+	static inline error_t create_bitmap_array(arraytype type, std::vector<dseed::autoref<bitmap>>& bitmaps, bitmap_array** arr) noexcept
+	{
+		return create_bitmap_array(type, bitmaps.size(), reinterpret_cast<bitmap**>(bitmaps.data()), arr);
+	}
+
 	enum
 	{
 		bitmap_encoder_options_for_png,
@@ -275,6 +290,12 @@ namespace dseed::bitmaps
 	// Bitmap Unary Operation
 	//  : RGBA, RGB, BGRA, BGR, Grayscale, YCbCr(YUV, 4:4:4) only support.
 	DSEEDEXP error_t bitmap_unary_operation(bitmap* b, unary_operator op, bitmap** bitmap);
+}
+
+namespace dseed::bitmaps
+{
+	DSEEDEXP error_t bitmap_split_rgb_elements(bitmap* original, bitmap** r, bitmap** g, bitmap** b, bitmap** a);
+	DSEEDEXP error_t bitmap_join_rgb_elements(bitmap* r, bitmap* g, bitmap* b, bitmap* a, bitmap** rgba);
 }
 
 #include "decoders.h"

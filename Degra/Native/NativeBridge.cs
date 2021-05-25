@@ -34,8 +34,8 @@ namespace Daramee.Degra.Native
 			Nearest,
 			Linear,
 			Bicubic,
-			Ranczos,
-			RanczosX5,
+			Lanczos,
+			LanczosX5,
 		};
 
 		public enum DegraSaveFormat
@@ -76,8 +76,6 @@ namespace Daramee.Degra.Native
 			public bool use_grayscale_but_no_use_to_grayscale_image;
 			[MarshalAs(UnmanagedType.Bool)]
 			public bool no_convert_to_png_when_detected_transparent_color;
-			[MarshalAs(UnmanagedType.Bool)]
-			public bool use_histogram_equailization;
 		}
 
 		[DllImport("DegraCore", CallingConvention = CallingConvention.StdCall)]

@@ -12,7 +12,7 @@ namespace Daramee.Degra
 		bool fileOverwrite = false;
 		DegrationFormat imageFormat = DegrationFormat.OriginalFormat;
 		uint maxHeight = 8192;
-		NativeBridge.DegraResizeFilter resizeFilter = NativeBridge.DegraResizeFilter.Ranczos;
+		NativeBridge.DegraResizeFilter resizeFilter = NativeBridge.DegraResizeFilter.Lanczos;
 		ushort quality = 80;
 		bool losslessCompression = false;
 		bool onlyConvertNoTransparentDetected = true;
@@ -20,7 +20,6 @@ namespace Daramee.Degra
 		bool onlyIndexedPixelFormat = false;
 		bool grayscalePixelFormat = false;
 		bool onlyGrayscalePixelFormat = true;
-		bool histogramEqualization = false;
 		int threadCount = 0;
 
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -141,7 +140,6 @@ namespace Daramee.Degra
 				PC ( nameof ( OnlyIndexedPixelFormat ) );
 			}
 		}
-		public bool LogicalOnlyIndexedPixelFormat => IndexedPixelFormat && OnlyIndexedPixelFormat;
 
 		public bool GrayscalePixelFormat
 		{
@@ -160,18 +158,6 @@ namespace Daramee.Degra
 			{
 				onlyGrayscalePixelFormat = value;
 				PC ( nameof ( OnlyGrayscalePixelFormat ) );
-			}
-		}
-
-		public bool LogicalOnlyGrayscalePixelFormat => GrayscalePixelFormat && OnlyGrayscalePixelFormat;
-
-		public bool HistogramEqualization
-		{
-			get => histogramEqualization;
-			set
-			{
-				histogramEqualization = value;
-				PC ( nameof ( HistogramEqualization ) );
 			}
 		}
 	}

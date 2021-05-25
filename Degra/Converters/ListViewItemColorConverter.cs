@@ -15,11 +15,11 @@ namespace Daramee.Degra.Converters
 		{
 			switch ((DegraStatus)value)
 			{
-				case DegraStatus.Waiting: return Colors.Transparent;
-				case DegraStatus.Processing: return Colors.AliceBlue;
-				case DegraStatus.Done: return Colors.ForestGreen;
-				case DegraStatus.Failed: return Colors.PaleVioletRed;
-				case DegraStatus.Cancelled: return Colors.LightYellow;
+				case DegraStatus.Waiting: return new SolidColorBrush(Colors.Transparent);
+				case DegraStatus.Processing: return new SolidColorBrush(Colors.AliceBlue);
+				case DegraStatus.Done: return new SolidColorBrush(Colors.LightGreen);
+				case DegraStatus.Failed: return new SolidColorBrush(Colors.Pink);
+				case DegraStatus.Cancelled: return new SolidColorBrush(Colors.LightYellow);
 				default: throw new ArgumentException ();
 			}
 		}

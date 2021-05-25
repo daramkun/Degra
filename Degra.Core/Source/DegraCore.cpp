@@ -135,8 +135,8 @@ dseed::bitmaps::bitmap* __image_resize(dseed::bitmaps::bitmap* image, DegraResiz
 	case DegraResizeFilter::Nearest: resize_method = dseed::bitmaps::resize::nearest; break;
 	case DegraResizeFilter::Linear: resize_method = dseed::bitmaps::resize::bilinear; break;
 	case DegraResizeFilter::Bicubic: resize_method = dseed::bitmaps::resize::bicubic; break;
-	case DegraResizeFilter::Ranczos: resize_method = dseed::bitmaps::resize::lanczos; break;
-	case DegraResizeFilter::RanczosX5: resize_method = dseed::bitmaps::resize::lanczos5; break;
+	case DegraResizeFilter::Lanczos: resize_method = dseed::bitmaps::resize::lanczos; break;
+	case DegraResizeFilter::LanczosX5: resize_method = dseed::bitmaps::resize::lanczos5; break;
 	default: return nullptr;
 	}
 
@@ -280,11 +280,6 @@ DegraResult __stdcall Degra_DoProcess(DegraStream inputStream, DegraStream outpu
 			{
 				bitmap = __image_pixel_format_to_grayscale(bitmap);
 			}
-		}
-
-		if (options->use_histogram_equailization)
-		{
-			bitmap = __image_histogram_equalization(bitmap);
 		}
 		
 		targets.push_back(bitmap);

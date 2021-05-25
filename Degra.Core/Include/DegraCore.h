@@ -31,8 +31,8 @@ extern "C"
 		Nearest,
 		Linear,
 		Bicubic,
-		Ranczos,
-		RanczosX5,
+		Lanczos,
+		LanczosX5,
 	};
 
 	enum class DegraSaveFormat : unsigned int
@@ -55,7 +55,6 @@ extern "C"
 		BOOL use_grayscale;
 		BOOL use_grayscale_but_no_use_to_grayscale_image;
 		BOOL no_convert_to_png_when_detected_transparent_color;
-		BOOL use_histogram_equailization;
 	};
 
 	enum class DegraResult

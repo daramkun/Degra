@@ -213,6 +213,42 @@ namespace dseed::color
 	template<> constexpr bool hasalpha<bgra4>() noexcept { return true; }
 	template<> constexpr bool hasalpha<yuva8>() noexcept { return true; }
 	template<> constexpr bool hasalpha<hsva8>() noexcept { return true; }
+	constexpr bool hasalpha(pixelformat format) noexcept
+	{
+		switch (format)
+		{
+		case pixelformat::rgba8:
+		case pixelformat::rgbaf:
+		case pixelformat::bgra8:
+		case pixelformat::bgra4:
+		case pixelformat::bgra8_indexed8:
+		case pixelformat::etc2a:
+		case pixelformat::bc1:
+		case pixelformat::bc2:
+		case pixelformat::bc3:
+		case pixelformat::bc7:
+		case pixelformat::astc4x4:
+		case pixelformat::astc5x4:
+		case pixelformat::astc5x5:
+		case pixelformat::astc6x5:
+		case pixelformat::astc6x6:
+		case pixelformat::astc8x5:
+		case pixelformat::astc8x6:
+		case pixelformat::astc8x8:
+		case pixelformat::astc10x5:
+		case pixelformat::astc10x6:
+		case pixelformat::astc10x8:
+		case pixelformat::astc10x10:
+		case pixelformat::astc12x10:
+		case pixelformat::astc12x12:
+		case pixelformat::hsva8:
+		case pixelformat::yuva8:
+			return true;
+
+		default:
+			return false;
+		}
+	}
 	////////////////////////////////////////////////////////////////////////////////////////
 	//
 	// Red/Green/Blue Color Types
